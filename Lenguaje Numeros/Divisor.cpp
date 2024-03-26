@@ -109,6 +109,8 @@ void Divisor::DividirOperaciones()
 
 		posoperadores.push_back((int)texto.length());
 
+		
+
 		operadoresvariable = OperadoresVariableObtener(posoperadores);
 		
 	}
@@ -151,12 +153,19 @@ vector<string> Divisor::OperadoresVariableObtener(vector<int> vectorial)
 {
 	vector<string> str;
 	string var;
-	for (int i = 0; i < vectorial.size()-1; i++)
+	for (int i = 0; i < vectorial.size() - 1; i++)
 	{
-			for (int k = posoperadores[i]+1; k < posoperadores[i+1] ; k++)
+		for (int k = posoperadores[i] + 1; k < posoperadores[i + 1]; k++)
+		{
+			var += texto[k];
+		}
+		for (auto i : obj)
+		{
+			if (i->GetNombre() == var)
 			{
-				var += texto[k];
+				var = i->GetValor();
 			}
+		}
 			const char* v = var.c_str();
 			OutputDebugString(v);
 			str.push_back(var);

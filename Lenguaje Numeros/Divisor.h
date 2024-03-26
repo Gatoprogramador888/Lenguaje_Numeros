@@ -5,6 +5,7 @@
 #include<stdio.h>
 #include<vector>
 #include<Windows.h>
+#include"CRObjetos.h"
 using namespace std;
 
 

@@ -74,6 +74,9 @@ bool AnalizadorSemantico::Operador()
 bool AnalizadorSemantico::Imprimir()
 {
 	string var = "";
+	string igual = "";
+	bool crear = false,impresion = false;
+
 	if (Impresion[0] == '(' && Impresion[Impresion.length() - 1] == ')')
 	{
 		for (int i = 1; i < Impresion.length()-1; i++)
@@ -81,6 +84,25 @@ bool AnalizadorSemantico::Imprimir()
 			if (!isdigit(Impresion[i]) && !isalpha(Impresion[i]))return false;
 			var += Impresion[i];
 		}
+		impresion = true;
+	}
+	else if (Impresion[0] == '(' && Impresion[Impresion.length() - 2] == ')' && Impresion[Impresion.length() - 1] == 'I')
+	{
+		for (int i = 1; i < Impresion.length() - 2; i++)
+		{
+			if (!isdigit(Impresion[i]) && !isalpha(Impresion[i]))return false;
+			var += Impresion[i];
+		}
+		cin >> igual;
+
+		for (auto i : obj)
+		{
+			if (i->GetNombre() != var)crear = false;
+			else crear = true;
+		}
+		if (!crear) A.NuevaIgualdad(var, igual);
+		else A.Crear(var, igual);
+
 	}
 	else
 	{
@@ -92,7 +114,7 @@ bool AnalizadorSemantico::Imprimir()
 		cout << "Objeto inexistente\n";
 		return false;
 	}
-	else
+	else if(impresion)
 	{
 		cout << obj[A.PosOBj(var)]->GetValor() << endl;
 	}

@@ -36,7 +36,7 @@ bool AnalizadorLexico::CaracterRaro()
 
 bool AnalizadorLexico::ABECEDARIO(int i)
 {
-	return ((textoSinEspacio[i] >= 'A' && textoSinEspacio[i] >= 'Z') || (textoSinEspacio[i] >= 'a' && textoSinEspacio[i] >= 'z'));
+	return ((textoSinEspacio[i] >= 'A' && textoSinEspacio[i] <= 'Z') || (textoSinEspacio[i] >= 'a' && textoSinEspacio[i] <= 'z'));
 }
 
 bool AnalizadorLexico::NUMEROS(int i)
