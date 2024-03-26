@@ -93,20 +93,33 @@ bool AnalizadorSemantico::Imprimir()
 			if (!isdigit(Impresion[i]) && !isalpha(Impresion[i]))return false;
 			var += Impresion[i];
 		}
-		cin >> igual;
 
 		for (auto i : obj)
 		{
 			if (i->GetNombre() != var)crear = false;
-			else crear = true;
+			else
+			{
+				crear = true;
+			}
 		}
-		if (!crear) A.NuevaIgualdad(var, igual);
-		else A.Crear(var, igual);
+
+
+		if (crear == true) 
+		{
+			cin >> igual;
+			A.NuevaIgualdad(var, igual);
+		}
+		else
+		{
+			cout << "\nObjeto inexistente(" << var << ")cree uno con ese nombre\n";
+			return false;
+		}
 
 	}
 	else
 	{
 		cout << "Faltante forma de imprimir\n";
+		return false;
 	}
 	
 	if (A.PosOBj(var) > obj.size())

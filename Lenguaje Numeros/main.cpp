@@ -9,6 +9,7 @@ int main(int argc,char** argv)
 	AnalizadorLexico AL;
 	Divisor D;
 	AnalizadorSemantico AS;
+	int error = 0;
 
 	obj.push_back(new Objeto("0", "var1"));
 
@@ -26,7 +27,7 @@ int main(int argc,char** argv)
 
 	if (archivo.is_open()) {
 
-		while(getline(archivo,texto))
+		while(getline(archivo,texto) )
 		{
 
 			AL.SetTexto(texto);
@@ -37,8 +38,11 @@ int main(int argc,char** argv)
 
 				D.SetText(AL.GetText());
 			}
-			else cout << "\nError al analizar\n";
-
+			else
+			{
+				cout << "\nError al analizar\n";
+				error++;
+			}
 			if (D.Dividir())
 			{
 				OutputDebugString("\nDivision completada\n");
@@ -50,6 +54,7 @@ int main(int argc,char** argv)
 			else
 			{
 				cout << "\nError division\n";
+				error++;
 			}
 
 			if (AS.Dividir())
@@ -60,6 +65,7 @@ int main(int argc,char** argv)
 			else
 			{
 				cout << "\nError en las reglas\n";
+				error++;
 			}
 
 			AL.LimpiarVariables();

@@ -41,7 +41,7 @@ bool Divisor::Dividir()
 	else
 	{
 		Tipo = 4;
-		OutputDebugString("\nInexistente "+texto[0]+'\n');
+		cout<<"\nInexistente "<<texto[0]<<endl;
 		return false;
 	}
 }
