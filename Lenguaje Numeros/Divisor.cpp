@@ -38,6 +38,12 @@ bool Divisor::Dividir()
 		Tipo = 3;
 		return true;
 	}
+	if (texto[0] == '&')
+	{
+		DividirImpresiones();
+		Tipo = 3;
+		return true;
+	}
 	else
 	{
 		Tipo = 4;
@@ -155,7 +161,7 @@ vector<string> Divisor::OperadoresVariableObtener(vector<int> vectorial)
 	string var;
 	for (int i = 0; i < vectorial.size() - 1; i++)
 	{
-		for (int k = posoperadores[i] + 1; k < posoperadores[i + 1]; k++)
+		for (int k = posoperadores[i] + 1; k < posoperadores[static_cast<unsigned long long>(i) + 1]; k++)
 		{
 			var += texto[k];
 		}

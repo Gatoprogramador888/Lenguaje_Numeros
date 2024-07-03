@@ -27,7 +27,7 @@ bool AnalizadorLexico::CaracterRaro()
 		}
 		else 
 		{
-			OutputDebugString(textoSinEspacio[i]+" Caracter no reconocible\n");
+			cout<<textoSinEspacio[i]<<" Caracter no reconocible\n";
 			return false;
 		}
 	}
@@ -46,7 +46,7 @@ bool AnalizadorLexico::NUMEROS(int i)
 
 bool AnalizadorLexico::CARACTERES(int i)
 {
-	return (textoSinEspacio[i] == '.' || textoSinEspacio[i] == ':');
+	return (textoSinEspacio[i] == '.' || textoSinEspacio[i] == ':' || textoSinEspacio[i] == '&');
 }
 
 bool AnalizadorLexico::OPERADORES(int i)

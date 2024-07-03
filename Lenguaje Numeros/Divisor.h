@@ -16,7 +16,7 @@ private:
 	string variables, igualdades;
 	vector<string> igualdadoperadores,operadoresvariable;
 	vector<int>posoperadores;
-	int Tipo;
+	int Tipo = 0;
 private:
 	//funciones
 	void DividirVariables(), DividirOperaciones(), DividirImpresiones();

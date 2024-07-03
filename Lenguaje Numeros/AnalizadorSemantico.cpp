@@ -3,7 +3,16 @@
 
 bool AnalizadorSemantico::Variable()
 {
-	return (variable[0] >= 'A' && variable[0] <= 'Z' || variable[0] >= 'a' && variable[0] <= 'z') && Igual();
+	auto Igual = [&]()
+	{
+		for (int i = 0; i < igualdad.length(); i++)
+		{
+			if (!isdigit(igualdad[i])) return false;
+		}
+		return true;
+	};
+
+	return isalpha(variable[0]) && Igual();
 }
 
 bool AnalizadorSemantico::Operador()
@@ -11,6 +20,7 @@ bool AnalizadorSemantico::Operador()
 	int r = 0,pos = 0,n1 = 0;
 
 	r = stoi(Variables[0]);
+	archivo << variable << "=" << Variables[0];
 
 	for (int i = 0; i < Operadores.size(); i++)
 	{
@@ -27,21 +37,25 @@ bool AnalizadorSemantico::Operador()
 		if (Operadores[i] == "+")
 		{
 			n1 = stoi(Variables[pos]);
+			archivo << "+" << Variables[pos];
 			r += n1;
 		}
 		else if (Operadores[i] == "-")
 		{
 			n1 = stoi(Variables[pos]);
+			archivo << "-" << Variables[pos];
 			r -= n1;
 		}
 		else if (Operadores[i] == "*")
 		{
 			n1 = stoi(Variables[pos]);
+			archivo << "*" << Variables[pos];
 			r *= n1;
 		}
 		else if (Operadores[i] == "/")
 		{
 			n1 = stoi(Variables[pos]);
+			archivo << "/" << Variables[pos];
 			r /= n1 ;
 		}
 
@@ -68,80 +82,79 @@ bool AnalizadorSemantico::Operador()
 
 	igualdad = to_string(r);
 
+	archivo << endl;
+
+
 	return true;
 }
 
 bool AnalizadorSemantico::Imprimir()
 {
+	//VER SI ES VARIABLE O SI NO LO ES A LA HORA DE IMPRIMIR
 	string var = "";
 	string igual = "";
-	bool crear = false,impresion = false;
+	bool crear = false;
 
-	if (Impresion[0] == '(' && Impresion[Impresion.length() - 1] == ')')
-	{
-		for (int i = 1; i < Impresion.length()-1; i++)
+	auto RevisionCaracterInvalido = [&]() {
+		for (int i = 1; i < Impresion.length() - 1; i++)
 		{
+			//Verificamos que no contenga otro tipo de caracter
 			if (!isdigit(Impresion[i]) && !isalpha(Impresion[i]))return false;
 			var += Impresion[i];
 		}
-		impresion = true;
-	}
-	else if (Impresion[0] == '(' && Impresion[Impresion.length() - 2] == ')' && Impresion[Impresion.length() - 1] == 'I')
-	{
-		for (int i = 1; i < Impresion.length() - 2; i++)
-		{
-			if (!isdigit(Impresion[i]) && !isalpha(Impresion[i]))return false;
-			var += Impresion[i];
-		}
+	};
 
-		for (auto i : obj)
+	if (RevisionCaracterInvalido()) {
+		if (Impresion[0] == '(' && Impresion[Impresion.length() - 1] == ')')
 		{
-			if (i->GetNombre() != var)crear = false;
+			//Verificar si es o no variable
+			if (!isdigit(var[0]))
+			{
+				archivo << obj[A.PosOBj(var)]->GetValor() << endl;
+			}
 			else
 			{
-				crear = true;
+				archivo << var << endl;
 			}
 		}
-
-
-		if (crear == true) 
+		//PEDIR DATOS
+		else if (Impresion[0] == '&' && Impresion[Impresion.length() - 1] == '&')
 		{
-			cin >> igual;
-			A.NuevaIgualdad(var, igual);
+			
+			for (auto i : obj)
+			{
+				if (i->GetNombre() != var) 
+				{
+					crear = false;
+				}
+				else
+				{
+					crear = true;
+					break;
+				}
+			}
+
+			if (crear == true)
+			{
+				cin >> igual;
+				A.NuevaIgualdad(var, igual);
+			}
+			else
+			{
+				cout << "\nObjeto inexistente(" << var << ")cree uno con ese nombre\n";
+				return false;
+			}
+
 		}
 		else
 		{
-			cout << "\nObjeto inexistente(" << var << ")cree uno con ese nombre\n";
+			cout << "Error al pedir datos o imprimir: " << Impresion << " es incorrecto\n";
 			return false;
 		}
 
+		return true;
 	}
-	else
-	{
-		cout << "Faltante forma de imprimir\n";
-		return false;
-	}
-	
-	if (A.PosOBj(var) > obj.size())
-	{
-		cout << "Objeto inexistente\n";
-		return false;
-	}
-	else if(impresion)
-	{
-		cout << obj[A.PosOBj(var)]->GetValor() << endl;
-	}
-
-	return true;
-}
-
-bool AnalizadorSemantico::Igual()
-{
-	for (int i = 0; i < igualdad.length(); i++)
-	{
-		if (!isdigit(igualdad[i])) return false;
-	}
-	return true;
+	return false;
 }
 
 void AnalizadorSemantico::Inicializar()
@@ -152,10 +165,13 @@ void AnalizadorSemantico::Inicializar()
 	Variables = _variables;
 	Operadores = _operadores;
 	tipo = _tipo;
+	archivo = ofstream(Archivo,ios::app);
 }
 
-bool AnalizadorSemantico::Dividir()
-{
+bool AnalizadorSemantico::Dividir(string archivodir)
+{	 
+	this->Archivo = archivodir;
+	
 	bool retorno = false;
 	switch (tipo)
 	{
@@ -170,8 +186,8 @@ bool AnalizadorSemantico::Dividir()
 		}
 		break;
 	case 2:
-		if (Operador()) {
-			retorno = Operador();
+		retorno = Operador();
+		if (retorno) {
 			A.NuevaIgualdad(variable,igualdad);
 		}
 		else
@@ -186,7 +202,7 @@ bool AnalizadorSemantico::Dividir()
 		retorno = false;
 		break;
 	}
-	
+	archivo.close();
 	return retorno;
 }
 
