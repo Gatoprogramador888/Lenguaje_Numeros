@@ -13,8 +13,10 @@ using namespace std;
 class Interpretar
 {
 private:
-	
-	string Suma(vector<int> n1, vector<int> n2), Resta(vector<int> n1, vector<int> n2), Multiplicacion(vector<int> n1, vector<int> n2), Division(vector<int> n1, vector<int> n2);
+	char* Sumar(vector<int> n1, vector<int> n2);
+	char* Restar(vector<int> n1, vector<int> n2);
+	char* Multiplicar(vector<int> n1, vector<int> n2);
+	char* Dividir(vector<int> n1, vector<int> n2);
 	void Calcular(), Imprimir(), Divisor();
 
 private:
