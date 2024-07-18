@@ -13,19 +13,19 @@ class Divisor {
 private:
 	//variables
 	string texto;
-	string variables, igualdades;
-	vector<string> igualdadoperadores,operadoresvariable;
-	vector<int>posoperadores;
+	string variable, igualdad;
+	vector<string> variables;
+	vector<char> operaciones;
 	int Tipo = 0;
 private:
 	//funciones
-	void DividirVariables(), DividirOperaciones(), DividirImpresiones();
-	vector<string>OperadoresObtener(string oracion);
-	vector<string>OperadoresVariableObtener(vector<int>vectorial);
+	void Variable(), Operaciones(), Impresion();
+
 public:
-	void SetText(string txt);
+	void SetText_Tipo(string txt,int t);
 	void Obtener(string& Variable,string& Impresione,string& Igualdad,int& t);
-	vector<string> VARAOPE(), OPERADORES();
+	vector<string> VARAOPE();
+	vector<char> OPERADORES();
 	bool Dividir();
 	void Limpiar();
 };

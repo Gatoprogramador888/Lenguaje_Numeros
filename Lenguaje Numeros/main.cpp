@@ -7,12 +7,16 @@
 
 using namespace std;
 
+/*ARREGLAR LA CLASE DE OBJETOS*/
+
+
 int main(int argc,char** argv)
 {
-	AnalizadorLexico AL;
-	Divisor D;
-	AnalizadorSemantico AS;
+	AnalizadorLexico analizadorlexico;
+	Divisor divisor;
 	Interpretar I;
+	AnalizadorSemanticoReglas analizadorsemanticoreglas;
+	AnalizadorSemanticoComprobacion analizadorsemanticocomprobacion;
 
 	obj.push_back(new Objeto("0", "var1"));
 
@@ -40,66 +44,72 @@ int main(int argc,char** argv)
 
 	ifstream archivo(archivodir);
 	fstream archivo2(archivocon, ios::out);
+	analizadorsemanticocomprobacion.dirarchivo = archivocon;
 
-	if (archivo.is_open()) {
-		while(getline(archivo,texto) )
-		{
-
-			AL.SetTexto(texto);
-
-
-			if (!AL.Proceso())
-			{
-				cout << "\nError al analizar\n";
-				errores = true;
-			}
-			else
-			{
-				OutputDebugString("\nproceso completado con exito\n");
-				D.SetText(AL.GetText());
-			}
-			if (!D.Dividir())
-			{
-				cout << "\nError division\n";
-				errores = true;
-			}
-			else
-			{
-				OutputDebugString("\nDivision completada\n");
-				D.Obtener(AS._variable, AS._impresion, AS._igualdad, AS._tipo);
-				AS._variables = D.VARAOPE();
-				AS._operadores = D.OPERADORES();
-				AS.Inicializar();
-			}
-
-			if (!AS.Dividir(archivocon))
-			{
-				cout << "\nError en las reglas\n";
-				errores = true;
-			}
-			else
-			{
-				OutputDebugString("\nReglas escritas correctamente\n");
-			}
-
-			AL.LimpiarVariables();
-			D.Limpiar();
-			AS.Limpiar();
-		}
-
-	}
-	else
+	if (!archivo.is_open())
 	{
-		cout << archivodir << " no existe\n";
+		cout << archivodir << " no existe.";
+		system("pause");
+		return 1;
 	}
 
+	while(!archivo.eof())
+	{
+
+		getline(archivo, texto);
+
+		analizadorlexico.SetTexto(texto);
+
+		if (!analizadorlexico.Proceso())
+		{
+			analizadorsemanticoreglas.SetTexto(analizadorlexico.GetText());
+		}
+		else break;
+		if (!analizadorsemanticoreglas.Division())
+		{
+			divisor.SetText_Tipo(analizadorlexico.GetText(), analizadorsemanticoreglas.Get_Tipo());
+		}
+		else break;
+		if (!divisor.Dividir())
+		{
+			divisor.Obtener(analizadorsemanticocomprobacion.variable, analizadorsemanticocomprobacion.impresion_peticion, analizadorsemanticocomprobacion.igualdad, analizadorsemanticocomprobacion.tipo);
+			analizadorsemanticocomprobacion.variables = divisor.VARAOPE();
+			analizadorsemanticocomprobacion.operadores = divisor.OPERADORES();
+			analizadorsemanticocomprobacion.Inicio();
+		}
+		else {
+			cout << "error de division\n\n\n";
+			break;
+		}
+		if (!analizadorsemanticocomprobacion.error) {
+		}
+		else break;
+
+		analizadorlexico.LimpiarVariables();
+		analizadorsemanticocomprobacion.Limpiar();
+		divisor.Limpiar();
+		analizadorsemanticoreglas.Limpiar();
+	}
+	cout << "Compilacion exitosa\n";
+	system("pause");
+	system("cls");
+	archivo.close();
 	archivo2.close();
 
-	ifstream ArchivoInterpretar(archivocon);
-	string ContenidoInterpretar;
 
-	while (getline(ArchivoInterpretar, ContenidoInterpretar))
+	ifstream ArchivoInterpretar(archivocon,ios::in);
+	string ContenidoInterpretar = "";
+
+	if (ArchivoInterpretar.fail())
 	{
+		cout << archivocon << " no existe";
+		system("pause");
+		return 1;
+	}
+
+	while (!ArchivoInterpretar.eof())
+	{
+		getline(ArchivoInterpretar, ContenidoInterpretar);
 		I.SetText(ContenidoInterpretar);
 	}
 

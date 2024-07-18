@@ -7,19 +7,32 @@
 #include<fstream>
 using namespace std;
 
-class AnalizadorSemantico {
+
+class AnalizadorSemanticoReglas {
 private:
-	string variable, igualdad,Impresion,Archivo;
-	vector<string>Variables, Operadores;
-	int tipo = 0;
-	ofstream archivo;
+	string texto = "";
+	int Tipo = 0;
+	bool error = false;
 private:
-	bool Variable(), Operador(), Imprimir();
+	void Operacion(), Impresion(), Peticion(), Variable();
+	bool OPERADORES(int i);
 public:
-	string _variable, _igualdad, _impresion;
-	vector<string>_variables, _operadores;
-	int _tipo = 0;
-	void Inicializar();
-	bool Dividir(string archivodir);
+	bool Division();
+	void SetTexto(string _texto);
+	int Get_Tipo();
+	void Limpiar();
+};
+
+class AnalizadorSemanticoComprobacion {
+private:
+	void Impresion(), Operacion(), Creacion(), Peticion();
+	ofstream archivo;
+public:
+	string variable, impresion_peticion, igualdad, dirarchivo;
+	vector<string> variables;
+	vector<char> operadores;
+	bool error = false;
+	int tipo = 0;
+	void Inicio();
 	void Limpiar();
 };

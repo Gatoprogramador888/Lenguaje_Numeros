@@ -7,6 +7,7 @@
 #include"../Operaciones de numeros infinitos static/Multiplicar.h"
 #include"../Operaciones de numeros infinitos static/Restar.h"
 #include"../Operaciones de numeros infinitos static/Sumar.h"
+#include"CRObjetos.h"
 
 using namespace std;
 
@@ -17,7 +18,7 @@ private:
 	char* Restar(vector<int> n1, vector<int> n2);
 	char* Multiplicar(vector<int> n1, vector<int> n2);
 	char* Dividir(vector<int> n1, vector<int> n2);
-	void Calcular(), Imprimir(), Divisor();
+	void Calcular(), Imprimir(), Divisor(), Peticion(), EncontraIgualdad();
 
 private:
 

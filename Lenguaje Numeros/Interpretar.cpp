@@ -15,7 +15,7 @@ char* Interpretar::Sumar(vector<int> n1, vector<int> n2)
 
 char* Interpretar::Restar(vector<int> n1, vector<int> n2)
 {
-	Resta resta(n1, n2);
+	Resta resta(n1,n2);
 	return resta.Resultado();
 }
 
@@ -25,9 +25,9 @@ char* Interpretar::Multiplicar(vector<int> n1, vector<int> n2)
 	return multiplicacion.Resultado();
 }
 
-char* Interpretar::Dividir(vector<int> n1, vector<int> n2)
+char* Interpretar::Dividir(vector<int> n1, vector<int> num2)
 {
-	Division division(n1, n2);
+	Division division(n1,num2);
 	return division.Resultado();
 }
 
@@ -37,11 +37,17 @@ void Interpretar::Calcular()
 	vector<char> Op;
 	vector<int> PosOp;
 	listnum n1, n2;
-	string var = "";
+	string var = "";//variables de la suma
+	string Var = "";//variable que pidio la operacion
+	string resultado = "";
 	size_t pos = Texto.find("=");
 	int PosConvertir = 0;
 	PosOp.push_back(static_cast<int>(pos));
 
+	for (size_t i = 1; i < pos; i++)
+	{
+		Var += Texto[i];
+	}
 
 	for (size_t i = pos; i < Texto.size(); i++)
 	{
@@ -79,43 +85,68 @@ void Interpretar::Calcular()
 		var = "";
 	}
 
-	auto ObtenerN1N2 = [](listnum& n1, listnum& n2, vector<string> valor, int Pos, bool suma) -> int {
-		ConversionI Conversor;
-		if (!suma)
+	auto ObtenerN1N2 = [](listnum& n1, listnum& n2, vector<string> valor, int Pos, int PosOp, bool suma) -> int {
+		try
 		{
-			n1 = Conversor.STOIM(valor[Pos++].c_str());
-			n2 = Conversor.STOIM(valor[Pos++].c_str());
+			ConversionI Conversor;
+			if (!suma)
+			{
+				n1 = Conversor.STOIM(valor[Pos++].c_str());
+				if (Pos <= valor.size())n2 = Conversor.STOIM(valor[Pos++].c_str());
+			}
+			else
+			{
+				n1 = Conversor.STOII(valor[Pos++].c_str());
+				if (Pos <= valor.size())n2 = Conversor.STOII(valor[Pos++].c_str());
+			}
 		}
-		else
+		catch (const char* error)
 		{
-			n1 = Conversor.STOII(valor[Pos++].c_str());
-			n2 = Conversor.STOII(valor[Pos++].c_str());
+			printf(error);
 		}
+		
 		return Pos;
 	};
 
+	/************************************************************/
+	/*                                                          */
+	/* Hacer que el resultado se vaya al numero que se pidio la */
+	/*                operacion correspondiente                 */
+	/*                                                          */
+	/************************************************************/
 
+	/*HACER QUE SE HAGAN CON MULTIPLES OPERACIONES*/
+
+	//Falla al parecer no eh creado reglas para resta, multiplicar, dividir
+	//revisar Analizador semantico y divisor
+
+	int ip = 0;
 
 	for (auto i : Op) {
 		switch (i)
 		{
 		case '+':
-			PosConvertir = ObtenerN1N2(n1, n2, valors, PosConvertir, 1);
-			Sumar(n1, n2);
+			PosConvertir = ObtenerN1N2(n2, n1, valors, PosConvertir, ip, 1);
+			resultado = Sumar(n1, n2);
+			A.NuevaIgualdad(Var, resultado);
 			break;
 		case '-':
-			PosConvertir = ObtenerN1N2(n1, n2, valors, PosConvertir, 1);
-			Restar(n1, n2);
+			PosConvertir = ObtenerN1N2(n1, n2, valors, PosConvertir, ip, 1);
+			resultado = Restar(n1, n2);
+			A.NuevaIgualdad(Var, resultado);
 			break;
 		case '*':
-			PosConvertir = ObtenerN1N2(n1, n2, valors, PosConvertir, 0);
-			Multiplicar(n1, n2);
+			PosConvertir = ObtenerN1N2(n1, n2, valors, PosConvertir, ip, 0);
+			resultado = Multiplicar(n1, n2);
+			A.NuevaIgualdad(Var, resultado);
 			break;
 		case '/':
-			PosConvertir = ObtenerN1N2(n1, n2, valors, PosConvertir, 0);
-			Dividir(n1, n2);
+			PosConvertir = ObtenerN1N2(n1, n2, valors, PosConvertir, ip, 0);
+			resultado = Dividir(n1, n2);
+			A.NuevaIgualdad(Var, resultado);
 			break;
 		}
+		i++;
 	}
 	
 
@@ -123,11 +154,56 @@ void Interpretar::Calcular()
 
 void Interpretar::Imprimir()
 {
-	cout << "Numero a imprimir:" << Texto << endl;
+	cout << Texto << endl;
 }
 
 void Interpretar::Divisor()
 {
-	if (Texto[0] != '0')Imprimir();
-	else Calcular();
+	switch (Texto[0]) {
+	case 'O':
+		Calcular();
+		break;
+	case 'P':
+		Peticion();
+		break;
+	case '"':
+		Imprimir();
+		break;
+	case 'N':
+		EncontraIgualdad();
+		Imprimir();
+		break;
+	default:
+		Imprimir();
+	}
+	//if (Texto[0] != '0')Imprimir();
+	//else Calcular();
 }
+
+void Interpretar::Peticion()
+{
+	string variable,nuevaigualdad;
+
+	for (int i = 1; i < Texto.length(); i++)
+	{
+		variable += Texto[i];
+	}
+
+	cin >> nuevaigualdad;
+	A.NuevaIgualdad(variable, nuevaigualdad);
+}
+
+
+void Interpretar::EncontraIgualdad() {
+	string variable = "";
+	int pos = 0;
+
+	for (int i = 1; i < Texto.length(); i++)
+	{
+		variable += Texto[i];
+	}
+
+	pos = A.PosOBj(variable);
+	Texto = obj[pos]->GetValor();
+}
+

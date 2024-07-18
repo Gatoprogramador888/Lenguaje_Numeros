@@ -28,10 +28,10 @@ bool AnalizadorLexico::CaracterRaro()
 		else 
 		{
 			cout<<textoSinEspacio[i]<<" Caracter no reconocible\n";
-			return false;
+			return true;
 		}
 	}
-	return true;
+	return false;
 }
 
 bool AnalizadorLexico::ABECEDARIO(int i)
@@ -46,12 +46,12 @@ bool AnalizadorLexico::NUMEROS(int i)
 
 bool AnalizadorLexico::CARACTERES(int i)
 {
-	return (textoSinEspacio[i] == '.' || textoSinEspacio[i] == ':' || textoSinEspacio[i] == '&');
+	return (textoSinEspacio[i] == '.' || textoSinEspacio[i] == '"' || textoSinEspacio[i] == '&' || textoSinEspacio[i] == '(' || textoSinEspacio[i] == ')');
 }
 
 bool AnalizadorLexico::OPERADORES(int i)
 {
-	return (textoSinEspacio[i] == '-' || textoSinEspacio[i] == '+' || textoSinEspacio[i] == '/' || textoSinEspacio[i] == '*' || textoSinEspacio[i] == '(' || textoSinEspacio[i] == ')' || textoSinEspacio[i] == '=');
+	return (textoSinEspacio[i] == '-' || textoSinEspacio[i] == '+' || textoSinEspacio[i] == '/' || textoSinEspacio[i] == '*' || textoSinEspacio[i] == '=');
 }
 
 void AnalizadorLexico::SetTexto(string txt)

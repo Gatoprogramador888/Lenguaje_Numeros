@@ -1,218 +1,286 @@
 #include"AnalizadorSemantico.h"
 //Varibles hacer el objeto y ya imprimir
 
-bool AnalizadorSemantico::Variable()
-{
-	auto Igual = [&]()
-	{
-		for (int i = 0; i < igualdad.length(); i++)
-		{
-			if (!isdigit(igualdad[i])) return false;
-		}
-		return true;
-	};
+/************** OBTENER TEXTO **************************/
 
-	return isalpha(variable[0]) && Igual();
+void AnalizadorSemanticoReglas::SetTexto(string _texto)
+{
+	this->texto = _texto;
 }
 
-bool AnalizadorSemantico::Operador()
+/************** FIN TEXTO **************************/
+
+
+
+/***************** DIVIDIR **************************/
+
+bool AnalizadorSemanticoReglas::Division()
 {
-	int r = 0,pos = 0,n1 = 0;
-
-	r = stoi(Variables[0]);
-	archivo << variable << "=" << Variables[0];
-
-	for (int i = 0; i < Operadores.size(); i++)
+	if (isalpha(texto[0]))
 	{
+		Variable();
+		Tipo = 1;
+	}
+	else if (texto[0] == '0')
+	{
+		Operacion();
+		Tipo = 2;
+	}
+	else if (texto[0] == '(')
+	{
+		Impresion();
+		Tipo = 3;
+	}
+	else if (texto[0] == '&')
+	{
+		Peticion();
+		Tipo = 4;
+	}
+	else
+	{
+		cout << texto << ", no existe\n";
+		cout << texto[0] << endl;
+		Tipo = 5;
+		error = true;
+	}
 
-		if (pos <= Variables.size())
+	return error;
+}
+
+
+/***************** FIN DIVIDIR **************************/
+
+
+
+/************** OBTENER IMPRESION Y PETICION **************************/
+
+void AnalizadorSemanticoReglas::Impresion()
+{
+	bool escribir = (texto[1] == '"' && texto[texto.length() - 2] == '"') || (isalpha(texto[1]))  ? true : false;
+	bool termino = texto[texto.length()-1] == ')'? true : false;
+	error = escribir != termino ? true : false;
+
+
+	if (error)cout << texto << ", error de imprimir, un objeto\n";
+}
+
+bool AnalizadorSemanticoReglas::OPERADORES(int i)
+{
+	return (texto[i] == '-' || texto[i] == '+' || texto[i] == '/' || texto[i] == '*');
+}
+
+/************** FIN IMPERESION Y PETICION **************************/
+
+
+
+/************** OBTENER OPERACION **************************/
+
+void AnalizadorSemanticoReglas::Operacion()
+{
+	bool signo = false;
+	size_t igual = texto.find("=");
+
+	for (size_t i = igual; i < igual; i++) {
+
+		if (OPERADORES(static_cast<int>(i)) && signo)
 		{
-			pos++;
-		}
-		else
-		{
+			cout << texto[i - 1] << "," << texto[i] << " no puedes colocar dos signos matematicos seguidos\n";
 			break;
+			error = true;
 		}
 
-		if (Operadores[i] == "+")
-		{
-			n1 = stoi(Variables[pos]);
-			archivo << "+" << Variables[pos];
-			r += n1;
-		}
-		else if (Operadores[i] == "-")
-		{
-			n1 = stoi(Variables[pos]);
-			archivo << "-" << Variables[pos];
-			r -= n1;
-		}
-		else if (Operadores[i] == "*")
-		{
-			n1 = stoi(Variables[pos]);
-			archivo << "*" << Variables[pos];
-			r *= n1;
-		}
-		else if (Operadores[i] == "/")
-		{
-			n1 = stoi(Variables[pos]);
-			archivo << "/" << Variables[pos];
-			r /= n1 ;
-		}
+		signo = OPERADORES(static_cast<int>(i));
 
 	}
 
-	string aux = "";
-	int j = 0;
-
-	for (int i = 0; i < variable.size(); i++)
+	if (!error)
 	{
-		if (variable[i] != '0')
-		{
-			aux += variable[i];
-			j++;
-		}
-		
+		error = igual != string::npos && !OPERADORES(static_cast<int>(texto.length())) ? false : true;
+		if (error)cout << texto << ", a la variable le falta el signo igual, para hacer dicha operacion\n";
 	}
-	variable = aux;
-
-	char respuesta[100];
-	itoa(r, respuesta,100);
-
-	OutputDebugString(respuesta);
-
-	igualdad = to_string(r);
-
-	archivo << endl;
-
-
-	return true;
 }
 
-bool AnalizadorSemantico::Imprimir()
+/************** FIN OPERACIONES **************************/
+
+
+void AnalizadorSemanticoReglas::Peticion()
 {
-	//VER SI ES VARIABLE O SI NO LO ES A LA HORA DE IMPRIMIR
-	string var = "";
-	string igual = "";
-	bool crear = false;
+	error = (texto[0] == '&' && texto[texto.length()-1] == '&') && (isalpha(texto[1])) ? false : true;
 
-	auto RevisionCaracterInvalido = [&]() {
-		for (int i = 1; i < Impresion.length() - 1; i++)
+
+	if (error)cout << texto << ", peticion pedida de manera incorrecta\n";
+}
+
+
+/************** OBTENER TIPO **************************/
+
+int AnalizadorSemanticoReglas::Get_Tipo()
+{
+	return Tipo;
+}
+
+/************** FIN  TIPO *********************/
+
+
+
+/************** OBTENER LIMPIAR **************************/
+
+void AnalizadorSemanticoReglas::Limpiar()
+{
+	Tipo = 0;
+	texto = "";
+}
+
+/************** FIN LIMPIAR **************************/
+
+
+void AnalizadorSemanticoReglas::Variable()
+{
+	error = isalpha(texto[0]) ? false : true;
+	
+	if (error)
+	{
+		string variable = "";
+		size_t igual = texto.find("=");
+		if (igual != string::npos)
 		{
-			//Verificamos que no contenga otro tipo de caracter
-			if (!isdigit(Impresion[i]) && !isalpha(Impresion[i]))return false;
-			var += Impresion[i];
-		}
-	};
-
-	if (RevisionCaracterInvalido()) {
-		if (Impresion[0] == '(' && Impresion[Impresion.length() - 1] == ')')
-		{
-			//Verificar si es o no variable
-			if (!isdigit(var[0]))
+			for (int i = 0; i < igual; i++)
 			{
-				archivo << obj[A.PosOBj(var)]->GetValor() << endl;
+				variable += texto[i];
 			}
-			else
-			{
-				archivo << var << endl;
-			}
-		}
-		//PEDIR DATOS
-		else if (Impresion[0] == '&' && Impresion[Impresion.length() - 1] == '&')
-		{
-			
-			for (auto i : obj)
-			{
-				if (i->GetNombre() != var) 
-				{
-					crear = false;
-				}
-				else
-				{
-					crear = true;
-					break;
-				}
-			}
-
-			if (crear == true)
-			{
-				cin >> igual;
-				A.NuevaIgualdad(var, igual);
-			}
-			else
-			{
-				cout << "\nObjeto inexistente(" << var << ")cree uno con ese nombre\n";
-				return false;
-			}
-
 		}
 		else
 		{
-			cout << "Error al pedir datos o imprimir: " << Impresion << " es incorrecto\n";
-			return false;
+			//en caso de no colocar un signo igual para darle
+			//una igualdad 
+			for (int i = 0; i < texto.length()-1; i++)
+			{
+				variable += texto[i];
+			}
 		}
 
-		return true;
+		cout << "creacion de " + variable + " tiene un nombre no permitito\n";
 	}
-	return false;
 }
 
-void AnalizadorSemantico::Inicializar()
+/********************************** ANALIZADOR SEMANTICO REGLAS FIN *******************************************/
+
+/*size_t igual = texto.find("=");
+
+	if (igual != string::npos) {
+		cout<<"Advertencia variable sin inicializar"
+	}*/
+
+
+
+	/********************************** INICIO ANALIZADOR SEMANTICO COMPROBACION  *******************************************/
+
+void AnalizadorSemanticoComprobacion::Inicio()
 {
-	variable = _variable;
-	igualdad = _igualdad;
-	Impresion = _impresion;
-	Variables = _variables;
-	Operadores = _operadores;
-	tipo = _tipo;
-	archivo = ofstream(Archivo,ios::app);
-}
+	archivo.open(dirarchivo,ios::app);
 
-bool AnalizadorSemantico::Dividir(string archivodir)
-{	 
-	this->Archivo = archivodir;
-	
-	bool retorno = false;
 	switch (tipo)
 	{
 	case 1:
-		if (Variable()) {
-			retorno = Variable();
-			A.Crear(variable, igualdad);
-		}
-		else
-		{
-			cout << "Error En la creacion de variables: " << variable << " no creara correctamente\n";
-		}
+		//variable
+		Creacion();
 		break;
 	case 2:
-		retorno = Operador();
-		if (retorno) {
-			A.NuevaIgualdad(variable,igualdad);
-		}
-		else
-		{
-			cout << "Error al operar " << variable << endl;
-		}
+		//Operaciones
+		Operacion();
 		break;
 	case 3:
-		retorno = Imprimir();
+		//Impresion
+		Impresion();
 		break;
 	case 4:
-		retorno = false;
+		//Peticion
+		Peticion();
 		break;
 	}
 	archivo.close();
-	return retorno;
 }
 
-void AnalizadorSemantico::Limpiar()
+void AnalizadorSemanticoComprobacion::Impresion()
 {
+	string imprimir = "",mandar = "";
+
+	for (int i = 1; i < impresion_peticion.length() - 1; i++) {
+		imprimir += impresion_peticion[i];
+	}
+
+	if (!isalpha(imprimir[0])){
+		mandar = imprimir;
+	}
+	else {
+		mandar = "N" + imprimir;
+	}
+
+	archivo << mandar << endl;
+}
+
+void AnalizadorSemanticoComprobacion::Peticion()
+{
+	string imprimir = "",igualdad = "";
+	for (int i = 1; i < impresion_peticion.length() - 1; i++) {
+		imprimir += impresion_peticion[i];
+	}
+	//cin >> igualdad;
+	//A.NuevaIgualdad(imprimir, igualdad);
+	archivo << "P" << imprimir << endl;
+}
+
+void AnalizadorSemanticoComprobacion::Operacion()
+{
+	vector<string> valores;
+	int pos = 0;
+	for (auto i : variables)
+	{
+		if (!isdigit(i[0]))
+		{
+			pos = A.PosOBj(i);
+			valores.push_back(obj[pos]->GetValor());
+		}
+		else
+		{
+			valores.push_back(i);
+		}
+	}
+
+	int posop = 0;
+	archivo << "O" << variable << "=";
+
+	for (auto i : valores) {
+		archivo << i;
+		if (posop != operadores.size())archivo << operadores[posop++];
+	}
+	archivo << endl;
+	error = variables.size() / operadores.size() == 2 ? false : true;
+}
+
+void AnalizadorSemanticoComprobacion::Creacion()
+{
+	if (igualdad != "") {
+		//aaaaaaaaaaaaaaaaaaaaaaaaa
+	}
+	else {
+		cout << "Advertencia variable " + variable + " no inicializada\n";
+		igualdad = "0";
+	}
+
+	A.Crear(variable, igualdad);
+
+}
+
+
+void AnalizadorSemanticoComprobacion::Limpiar()
+{
+	tipo = 0;
 	variable = "";
+	impresion_peticion = "";
 	igualdad = "";
-	Impresion = "";
-	Variables.clear();
-	Operadores.clear();
+	variables.clear();
+	operadores.clear();
+	error = false;
 	tipo = 0;
 }
-
