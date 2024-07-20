@@ -81,6 +81,13 @@ void Interpretar::Calcular()
 		{
 			var += Texto[k];
 		}
+
+		if (!isdigit(var[0]))
+		{
+			int posobj = A.PosOBj(var);
+			var = obj[posobj]->GetValor();
+		}
+
 		valors.push_back(var);
 		var = "";
 	}

@@ -236,15 +236,7 @@ void AnalizadorSemanticoComprobacion::Operacion()
 	int pos = 0;
 	for (auto i : variables)
 	{
-		if (!isdigit(i[0]))
-		{
-			pos = A.PosOBj(i);
-			valores.push_back(obj[pos]->GetValor());
-		}
-		else
-		{
-			valores.push_back(i);
-		}
+		valores.push_back(i);
 	}
 
 	int posop = 0;
