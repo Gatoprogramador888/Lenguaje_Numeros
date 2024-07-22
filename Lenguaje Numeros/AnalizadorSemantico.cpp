@@ -16,32 +16,38 @@ void AnalizadorSemanticoReglas::SetTexto(string _texto)
 
 bool AnalizadorSemanticoReglas::Division()
 {
-	if (isalpha(texto[0]))
+	if (!isalpha(texto[0]))
 	{
-		Variable();
-		Tipo = 1;
-	}
-	else if (texto[0] == '0')
-	{
-		Operacion();
-		Tipo = 2;
-	}
-	else if (texto[0] == '(')
-	{
-		Impresion();
-		Tipo = 3;
-	}
-	else if (texto[0] == '&')
-	{
-		Peticion();
-		Tipo = 4;
+		switch (texto[0])
+		{
+		case '0':
+			Operacion();
+			Tipo = 2;
+			break;
+		case '(':
+			Impresion();
+			Tipo = 3;
+			break;
+		case '&':
+			Peticion();
+			Tipo = 4;
+			break;
+		default:
+			if (texto != "")
+			{
+				cout << texto << ", no existe\n";
+				Tipo = 5;
+				error = true;
+			}
+			else Tipo = 6;
+
+			break;
+		}
 	}
 	else
 	{
-		cout << texto << ", no existe\n";
-		cout << texto[0] << endl;
-		Tipo = 5;
-		error = true;
+		Variable();
+		Tipo = 1;
 	}
 
 	return error;
@@ -196,6 +202,10 @@ void AnalizadorSemanticoComprobacion::Inicio()
 	case 4:
 		//Peticion
 		Peticion();
+		break;
+	case 6:
+		//salto
+		archivo << "n\n";
 		break;
 	}
 	archivo.close();

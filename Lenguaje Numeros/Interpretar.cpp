@@ -202,6 +202,8 @@ void Interpretar::Divisor()
 		EncontraIgualdad();
 		Imprimir();
 		break;
+	case'n':
+		break;
 	default:
 		Imprimir();
 	}

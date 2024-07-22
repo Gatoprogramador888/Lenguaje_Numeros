@@ -9,21 +9,20 @@ void Divisor::SetText_Tipo(string txt, int t)
 
 bool Divisor::Dividir()
 {
-	if (Tipo == 1)
+	switch (Tipo)
 	{
+	case 1: 
 		Variable();
-	}
-	if (Tipo == 2)
-	{
+		break;
+	case 2:
 		Operaciones();
-	}
-	if (Tipo == 3)
-	{
+		break;
+	case 3:
 		Impresion();
-	}
-	if (Tipo == 4)
-	{
+		break;
+	case 4:
 		Impresion();
+		break;
 	}
 
 	return Tipo == 5;
