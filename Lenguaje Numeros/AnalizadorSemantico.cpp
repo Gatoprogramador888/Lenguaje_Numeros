@@ -247,7 +247,11 @@ void AnalizadorSemanticoComprobacion::Operacion()
 		if (posop != operadores.size())archivo << operadores[posop++];
 	}
 	archivo << endl;
-	error = variables.size() / operadores.size() == 2 ? false : true;
+
+	if (variables.size() / operadores.size() == 2 || variables.size() / operadores.size() == 1)error = false;
+	else error = true;
+
+	archivo.close();
 }
 
 void AnalizadorSemanticoComprobacion::Creacion()

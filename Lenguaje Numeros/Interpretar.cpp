@@ -92,11 +92,22 @@ void Interpretar::Calcular()
 		var = "";
 	}
 
-	auto ObtenerN1N2 = [](listnum& n1, listnum& n2, vector<string> valor, int Pos, int PosOp, bool suma) -> int {
+	auto ObtenerN1N2 = [](listnum& n1, listnum& n2, vector<string> valor, int Pos, int PosOp, bool suma, bool primeravez, const char* texto) -> int {
 		try
 		{
+			//se podra optimizar?
 			ConversionI Conversor;
-			if (!suma)
+			if (!primeravez && !suma)
+			{
+				n1 = Conversor.STOIM(texto);
+				if (Pos <= valor.size())n2 = Conversor.STOIM(valor[Pos++].c_str());
+			}
+			else if(!primeravez)
+			{
+				n1 = Conversor.STOII(texto);
+				if (Pos <= valor.size())n2 = Conversor.STOII(valor[Pos++].c_str());
+			}
+			else if (!suma)
 			{
 				n1 = Conversor.STOIM(valor[Pos++].c_str());
 				if (Pos <= valor.size())n2 = Conversor.STOIM(valor[Pos++].c_str());
@@ -111,8 +122,14 @@ void Interpretar::Calcular()
 		{
 			printf(error);
 		}
-		
+
 		return Pos;
+	};
+
+	auto FNewtext = [](string texto)->string
+	{
+		string nuevotexto = "0" + texto;
+		return nuevotexto;
 	};
 
 	/************************************************************/
@@ -127,33 +144,38 @@ void Interpretar::Calcular()
 	//Falla al parecer no eh creado reglas para resta, multiplicar, dividir
 	//revisar Analizador semantico y divisor
 
-	int ip = 0;
+	int ip = 0,iterador = 1;
 
-	for (auto i : Op) {
+	for(auto i : Op) {
 		switch (i)
 		{
 		case '+':
-			PosConvertir = ObtenerN1N2(n2, n1, valors, PosConvertir, ip, 1);
+			PosConvertir = ObtenerN1N2(n2, n1, valors, PosConvertir, ip, 1, iterador == 1,resultado.c_str());
 			resultado = Sumar(n1, n2);
+			resultado = FNewtext(resultado);
 			A.NuevaIgualdad(Var, resultado);
 			break;
 		case '-':
-			PosConvertir = ObtenerN1N2(n1, n2, valors, PosConvertir, ip, 1);
+			PosConvertir = ObtenerN1N2(n1, n2, valors, PosConvertir, ip, 1,  iterador == 1, resultado.c_str());
 			resultado = Restar(n1, n2);
+			resultado = FNewtext(resultado);
 			A.NuevaIgualdad(Var, resultado);
 			break;
 		case '*':
-			PosConvertir = ObtenerN1N2(n1, n2, valors, PosConvertir, ip, 0);
+			PosConvertir = ObtenerN1N2(n1, n2, valors, PosConvertir, ip, 0, iterador == 1, resultado.c_str());
 			resultado = Multiplicar(n1, n2);
+			resultado = FNewtext(resultado);
 			A.NuevaIgualdad(Var, resultado);
 			break;
 		case '/':
-			PosConvertir = ObtenerN1N2(n1, n2, valors, PosConvertir, ip, 0);
+			PosConvertir = ObtenerN1N2(n1, n2, valors, PosConvertir, ip, 0, iterador == 1, resultado.c_str());
 			resultado = Dividir(n1, n2);
+			resultado = FNewtext(resultado);
 			A.NuevaIgualdad(Var, resultado);
 			break;
 		}
-		i++;
+		//i++;
+		iterador++;
 	}
 	
 
