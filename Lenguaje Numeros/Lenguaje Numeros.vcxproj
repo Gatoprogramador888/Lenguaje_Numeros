@@ -158,6 +158,9 @@
     <ClInclude Include="Divisor.h" />
     <ClInclude Include="Interpretar.h" />
   </ItemGroup>
+  <ItemGroup>
+    <Text Include="..\x64\Debug\documentacion Lenguaje Numeros.txt" />
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>

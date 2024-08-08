@@ -51,4 +51,9 @@
       <Filter>Archivos de encabezado</Filter>
     </ClInclude>
   </ItemGroup>
+  <ItemGroup>
+    <Text Include="..\x64\Debug\documentacion Lenguaje Numeros.txt">
+      <Filter>Archivos de recursos</Filter>
+    </Text>
+  </ItemGroup>
 </Project>
