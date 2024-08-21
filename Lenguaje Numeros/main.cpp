@@ -2,15 +2,49 @@
 #include"Divisor.h"
 #include"AnalizadorSemantico.h"
 #include"CRObjetos.h"
-#include"Interpretar.h"
+//#include"Interpretar.h"
+#include"Tokens.h"
 #include<fstream>
+#include<stdio.h>
 
 using namespace std;
 
 /*ARREGLAR LA CLASE DE OBJETOS*/
+/*Vincular la libreria*/
 
 
-int main(int argc,char** argv)
+int main()
+{
+	string Frase = "Entero:Variable1=01;Decimal:Variable2;";
+	AnalizadorLexico analizador_lexico;
+	Tokenizador tokenizador;
+	Divisor divisor;
+
+	try 
+	{
+		analizador_lexico.linea = 1;
+		tokenizador.linea = 1;
+		analizador_lexico.SetTexto(Frase);
+		analizador_lexico.CaracterRaro();
+		tokenizador.Tipo_Division(Frase);
+		divisor.Inicio(Frase);
+		
+		for (auto linea : divisor.Divisiones_Varias_lineas_Comandos())cout << linea << endl;
+		cout << endl;
+		for (auto comandos : divisor.Get_Comandos())cout << comandos << endl;
+		cout << endl;
+		for (auto Tokens : tokenizador.Get_Tokens(divisor.Get_Comandos()))cout << (int)Tokens << endl;
+
+	}
+	catch (const char* error)
+	{
+		printf(error);
+	}
+
+	return 0;
+}
+
+/*int main(int argc, char** argv)
 {
 	AnalizadorLexico analizadorlexico;
 	Divisor divisor;
@@ -117,4 +151,4 @@ int main(int argc,char** argv)
 	BOBJ.Borrar();
 
 	return 0;
-}
+}*/
