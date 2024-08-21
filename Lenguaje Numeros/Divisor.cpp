@@ -1,142 +1,71 @@
 #include"Divisor.h"
 
-void Divisor::SetText_Tipo(string txt, int t)
+
+//Divisor2
+
+void Divisor::Divisor_Caracteres()
 {
-	this->texto = txt;
-	this->Tipo = t;
-}
+	string comando, operador;
 
 
-bool Divisor::Dividir()
-{
-	switch (Tipo)
+	for (size_t i = 0; i < linea.size(); i++)
 	{
-	case 1: 
-		Variable();
-		break;
-	case 2:
-		Operaciones();
-		break;
-	case 3:
-		Impresion();
-		break;
-	case 4:
-		Impresion();
-		break;
-	}
-
-	return Tipo == 5;
-}
-
-
-/**************DIVISOR VARIABLES**********************/
-
-void Divisor::Variable()
-{
-	OutputDebugString("\nEs variable\n");
-
-	size_t igual = texto.find("=");
-	
-	if (igual != string::npos) {
-
-		for (int i = 0; i < igual; i++) {
-			variable += texto[i];
-		}
-
-		for (size_t i = igual + 1; i < texto.length(); i++) {
-			igualdad += texto[i];
-		}
-	}
-	else {
-		variable = texto;
-		igualdad = "";
-	}
-
-	//OutputDebugString(texto);
-}
-
-/***************FIN VARIABLES************************/
-
-
-
-
-/**************DIVISOR OPERACIONES**********************/
-
-void Divisor::Operaciones()
-{
-	OutputDebugString("\nEs Operacion\n");
-	size_t igual = texto.find("=");
-	string var = "";
-	
-	if (igual != string::npos) {
-
-		for (int i = 1; i < igual; i++) {
-			variable += texto[i];
-		}
-
-		for (size_t i = igual + 1; i < texto.length(); i++) {
-			switch (texto[i])
+		if (!isspace(linea[i]))
+		{
+			if (!Caracteres(i) && !Operadores(i))
 			{
-			case '+':
-			case '-':
-			case '*':
-			case '/':
-				variables.push_back(var);
-				operaciones.push_back(texto[i]);
-				var = "";
-				break;
-			default:
-				var += texto[i];
-				break;
+				comando += linea[i];
+			}
+			else if (Caracteres(i) || Operadores(i))
+			{
+				comandos.push_back(comando);
+				comando = "";
+				operador += linea[i];
+				comandos.push_back(operador);
+				operador = "";
 			}
 		}
+	}
+}
 
-		if (var != "")variables.push_back(var);
+bool Divisor::Caracteres(int i)
+{
+	return (linea[i] == '.' || linea[i] == '"' || linea[i] == '&' ||
+		linea[i] == '(' || linea[i] == ')' || linea[i] == ';' ||
+		linea[i] == ',' || linea[i] == ':' || linea[i] == '_');
+}
+
+bool Divisor::Operadores(int i)
+{
+	return (linea[i] == '-' || linea[i] == '+' || linea[i] == '/' ||
+		linea[i] == '*' || linea[i] == '=');
+}
+
+
+vector<string> Divisor::Get_Comandos()
+{
+	return comandos;
+}
+
+vector<string> Divisor::Divisiones_Varias_lineas_Comandos()
+{
+	vector<size_t> fin_comando;
+	vector<string> lineas;
+	size_t posicion_anterior = 0;
+	string oracion;
+
+	for (size_t i = 0; i < linea.size(); i++)if (linea[i] == ';')fin_comando.push_back(i);
+
+	for (size_t posicion : fin_comando)
+	{
+		for (size_t posicion_iterador = posicion_anterior; posicion_iterador < posicion; posicion_iterador++)
+		{
+			oracion += linea[posicion_iterador];
+		}
+		lineas.push_back(oracion);
+		oracion = "";
+		posicion_anterior = posicion + 1;
 	}
 
-}
-
-/**************FIN OPERACIONES**********************/
-
-
-
-/**************DIVISOR IMPRESIONES**********************/
-
-void Divisor::Impresion()
-{
-	OutputDebugString("\nEs Impresion\n");
-}
-
-/***************FIN OPERACIONES**********************/
-
-
-
-
-void Divisor::Obtener(string& Variable, string& Impresione, string& Igualdad, int& t)
-{
-	Variable = variable;
-	Igualdad = igualdad;
-	Impresione = texto;
-	t = Tipo;
-}
-
-
-vector<string> Divisor::VARAOPE()
-{
-	return variables;
-}
-
-vector<char> Divisor::OPERADORES()
-{
-	return operaciones;
-}
-
-void Divisor::Limpiar()
-{
-	texto = "";
-	variable = "";
-	igualdad = "";
-	operaciones.clear();
-	variables.clear();
-	Tipo = 0;
+	return lineas;
 }

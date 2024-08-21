@@ -16,22 +16,21 @@ void AnalizadorLexico::Limpiar()
 	this->textoSinEspacio = aux;
 }
 
-bool AnalizadorLexico::CaracterRaro()
+void AnalizadorLexico::CaracterRaro()
 {
 	for (int i = 0; i < textoSinEspacio.length(); i++)
 	{
-		if (ABECEDARIO(i) || NUMEROS(i) || CARACTERES(i) || OPERADORES(i))
+		if (ABECEDARIO(i) || NUMEROS(i) || CARACTERES(i) || OPERADORES(i) || textoSinEspacio[i] == ' ')
 		{
 			const char* im = textoSinEspacio[i] + "\n";
 			OutputDebugString(im);
 		}
 		else 
 		{
-			cout<<textoSinEspacio[i]<<" Caracter no reconocible\n";
-			return true;
+			string error = textoSinEspacio[i] + " es un caracter no reconocible\nlinea: " + to_string(linea) + ", posicion: " + to_string(i) + "\n";
+			throw runtime_error(error.c_str());
 		}
 	}
-	return false;
 }
 
 bool AnalizadorLexico::ABECEDARIO(int i)
@@ -46,7 +45,9 @@ bool AnalizadorLexico::NUMEROS(int i)
 
 bool AnalizadorLexico::CARACTERES(int i)
 {
-	return (textoSinEspacio[i] == '.' || textoSinEspacio[i] == '"' || textoSinEspacio[i] == '&' || textoSinEspacio[i] == '(' || textoSinEspacio[i] == ')');
+	return (textoSinEspacio[i] == '.' || textoSinEspacio[i] == '"' || textoSinEspacio[i] == '&' || 
+		textoSinEspacio[i] == '(' || textoSinEspacio[i] == ')' || textoSinEspacio[i] == ';' || 
+		textoSinEspacio[i] == ',' || textoSinEspacio[i] == ':' || textoSinEspacio[i] == '_');
 }
 
 bool AnalizadorLexico::OPERADORES(int i)
@@ -62,7 +63,7 @@ void AnalizadorLexico::SetTexto(string txt)
 bool AnalizadorLexico::Proceso()
 {
 	Limpiar();
-	return CaracterRaro();
+	return true;
 }
 
 string AnalizadorLexico::GetText()

@@ -13,42 +13,63 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
+    <Filter Include="Estados">
+      <UniqueIdentifier>{cdc18599-0b56-44b7-a9e8-40c469f8e982}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Analizadores">
+      <UniqueIdentifier>{5925845b-5e7d-4e03-b325-22869a1e4329}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Divisores">
+      <UniqueIdentifier>{52278f4b-105c-4b96-bcd0-916c680b0402}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Objetos">
+      <UniqueIdentifier>{9cfac2e9-e64a-4550-802f-6d7ad0a25f4d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Interprete">
+      <UniqueIdentifier>{e636f074-37da-4ebe-b321-49590cf45b22}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
       <Filter>Archivos de origen</Filter>
     </ClCompile>
-    <ClCompile Include="AnalizadorLexico.cpp">
-      <Filter>Archivos de origen</Filter>
+    <ClCompile Include="Tokens.cpp">
+      <Filter>Estados</Filter>
     </ClCompile>
-    <ClCompile Include="Divisor.cpp">
-      <Filter>Archivos de origen</Filter>
+    <ClCompile Include="AnalizadorLexico.cpp">
+      <Filter>Analizadores</Filter>
     </ClCompile>
     <ClCompile Include="AnalizadorSemantico.cpp">
-      <Filter>Archivos de origen</Filter>
+      <Filter>Analizadores</Filter>
+    </ClCompile>
+    <ClCompile Include="Divisor.cpp">
+      <Filter>Divisores</Filter>
     </ClCompile>
     <ClCompile Include="CRObjetos.cpp">
-      <Filter>Archivos de origen</Filter>
+      <Filter>Objetos</Filter>
     </ClCompile>
     <ClCompile Include="Interpretar.cpp">
-      <Filter>Archivos de origen</Filter>
+      <Filter>Interprete</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="AnalizadorLexico.h">
-      <Filter>Archivos de encabezado</Filter>
+    <ClInclude Include="Tokens.h">
+      <Filter>Estados</Filter>
     </ClInclude>
-    <ClInclude Include="Divisor.h">
-      <Filter>Archivos de encabezado</Filter>
+    <ClInclude Include="AnalizadorLexico.h">
+      <Filter>Analizadores</Filter>
     </ClInclude>
     <ClInclude Include="AnalizadorSemantico.h">
-      <Filter>Archivos de encabezado</Filter>
+      <Filter>Analizadores</Filter>
+    </ClInclude>
+    <ClInclude Include="Divisor.h">
+      <Filter>Divisores</Filter>
     </ClInclude>
     <ClInclude Include="CRObjetos.h">
-      <Filter>Archivos de encabezado</Filter>
+      <Filter>Objetos</Filter>
     </ClInclude>
     <ClInclude Include="Interpretar.h">
-      <Filter>Archivos de encabezado</Filter>
+      <Filter>Interprete</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

@@ -78,7 +78,7 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LinkIncremental>true</LinkIncremental>
-    <PublicIncludeDirectories>C:\Users\LENOVO\source\repos\Operaciones de numeros infinitos static\x64\Debug;$(PublicIncludeDirectories)</PublicIncludeDirectories>
+    <PublicIncludeDirectories>C:\Users\gatob\Documents\Libreria_de_numeros_infinitos_c_pulus_plus\x64\Debug;$(PublicIncludeDirectories)</PublicIncludeDirectories>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LinkIncremental>false</LinkIncremental>
@@ -118,13 +118,13 @@
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <DisableSpecificWarnings>4996;%(DisableSpecificWarnings)</DisableSpecificWarnings>
-      <AdditionalIncludeDirectories>C:\Users\LENOVO\source\repos\Operaciones de numeros infinitos static\x64;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:\Users\gatob\Documents\Libreria_de_numeros_infinitos_c_pulus_plus\x64;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>C:\Users\LENOVO\source\repos\Operaciones de numeros infinitos static\x64\Debug;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>C:\Users\LENOVO\source\repos\Operaciones de numeros infinitos static\x64\Debug\Operaciones de numeros infinitos static.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>C:\Users\gatob\Documents\Libreria_de_numeros_infinitos_c_pulus_plus\x64\Debug;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>C:\Users\gatob\Documents\Libreria_de_numeros_infinitos_c_pulus_plus\x64\Debug\Operaciones de numeros infinitos static.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -150,6 +150,7 @@
     <ClCompile Include="Divisor.cpp" />
     <ClCompile Include="Interpretar.cpp" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="Tokens.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="AnalizadorLexico.h" />
@@ -157,6 +158,7 @@
     <ClInclude Include="CRObjetos.h" />
     <ClInclude Include="Divisor.h" />
     <ClInclude Include="Interpretar.h" />
+    <ClInclude Include="Tokens.h" />
   </ItemGroup>
   <ItemGroup>
     <Text Include="..\x64\Debug\documentacion Lenguaje Numeros.txt" />
