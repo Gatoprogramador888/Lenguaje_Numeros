@@ -1,38 +1,29 @@
 #pragma once
-#include<iostream>
-#include<vector>
-#include<string>
 #include"CRObjetos.h"
-#include<Windows.h>
-#include<fstream>
-using namespace std;
+#include"Tokens.h"
 
 
-class AnalizadorSemanticoReglas {
+
+class Analizador_Tokens_Compilacion
+{
 private:
-	string texto = "";
-	int Tipo = 0;
-	bool error = false;
-private:
-	void Operacion(), Impresion(), Peticion(), Variable();
-	bool OPERADORES(int i);
+	void Fin_Linea(Tokens fin_tokens, size_t ultimo_caracter);
+	void Imprimir(), Pedir(), Entero_Decimal_Dinamico(), Operacion();
+	vector<Tokens> tokens; 
+	vector<string> _comandos;
 public:
-	bool Division();
-	void SetTexto(string _texto);
-	int Get_Tipo();
-	void Limpiar();
+	size_t linea = {};
+	void Inicio_analizacion(vector<Tokens> _tokens,vector<string> _comandos,size_t caracter);
 };
 
-class AnalizadorSemanticoComprobacion {
+class Analizador_Codigo_Compilacion
+{
 private:
-	void Impresion(), Operacion(), Creacion(), Peticion();
-	ofstream archivo;
 public:
-	string variable, impresion_peticion, igualdad, dirarchivo;
-	vector<string> variables;
-	vector<char> operadores;
-	bool error = false;
-	int tipo = 0;
-	void Inicio();
-	void Limpiar();
+};
+
+class Analizador_Semantico_Interpretacion
+{
+private:
+public:
 };

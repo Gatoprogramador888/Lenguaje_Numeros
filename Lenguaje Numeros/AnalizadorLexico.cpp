@@ -22,8 +22,6 @@ void AnalizadorLexico::CaracterRaro()
 	{
 		if (ABECEDARIO(i) || NUMEROS(i) || CARACTERES(i) || OPERADORES(i) || textoSinEspacio[i] == ' ')
 		{
-			const char* im = textoSinEspacio[i] + "\n";
-			OutputDebugString(im);
 		}
 		else 
 		{

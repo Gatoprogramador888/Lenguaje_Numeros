@@ -1,11 +1,5 @@
 #pragma once
-#include<iostream>
-#include<string>
-#include<stdlib.h>
-#include<stdio.h>
-#include<vector>
-#include<Windows.h>
-
+#include"Informacion.h"
 using namespace std;
 
 class Objeto {

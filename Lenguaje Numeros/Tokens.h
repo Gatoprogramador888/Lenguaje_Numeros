@@ -1,30 +1,21 @@
 #pragma once
 #ifndef TOKENS_H
 #define TOKENS_H
+#include "Informacion.h"
 
-#include<iostream>
-#include<vector>
-#include<stdexcept>
-#include<string>
 using namespace std;
-
-enum class Tokens {
-	ENTERO, DECIMAL, DINAMICO, NUMERO_IGUALDAD,
-	IMPRIMIR, PEDIR, OPERADOR, OPERACION,
-	COMAS, FIN_COMANDO, FIN_LINEA, COMENTARIO,
-	ESPACIO, VARIABLE, IGUAL, CARACTER, DIVISOR
-};
-//Tokens tokens;
 
 class Tokenizador {
 private:
 	Tokens token;
-	bool Variable(string palabra);
-	bool Impresion_Peticion(string palabra);
-	bool Caracter(string palabra);
+	vector<Informacion> informacion;
+	bool Variable(std::string palabra);
+	bool Impresion_Peticion(std::string palabra);
+	bool Caracter(std::string palabra, size_t& comillas, size_t& parentesis);
+	void Nueva_Igualdad(Informacion info, Tokens token);
 public:
-	int linea;
-	vector<Tokens> Get_Tokens(vector<string> instruccion);
+	size_t linea;
+	map<string, Informacion> Mapa_Informacion(vector<std::string> instruccion, vector<Informacion> info);
 	Tokens Tipo_Division(string frase);
 };
 

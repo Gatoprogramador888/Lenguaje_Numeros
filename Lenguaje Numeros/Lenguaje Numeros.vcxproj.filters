@@ -71,6 +71,9 @@
     <ClInclude Include="Interpretar.h">
       <Filter>Interprete</Filter>
     </ClInclude>
+    <ClInclude Include="Informacion.h">
+      <Filter>Archivos de encabezado</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Text Include="..\x64\Debug\documentacion Lenguaje Numeros.txt">

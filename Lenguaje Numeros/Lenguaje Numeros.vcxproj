@@ -157,6 +157,7 @@
     <ClInclude Include="AnalizadorSemantico.h" />
     <ClInclude Include="CRObjetos.h" />
     <ClInclude Include="Divisor.h" />
+    <ClInclude Include="Informacion.h" />
     <ClInclude Include="Interpretar.h" />
     <ClInclude Include="Tokens.h" />
   </ItemGroup>

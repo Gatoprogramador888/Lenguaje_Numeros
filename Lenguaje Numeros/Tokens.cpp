@@ -32,46 +32,86 @@ bool Tokenizador::Impresion_Peticion(string palabra)
 	return false;
 }
 
-bool Tokenizador::Caracter(string palabra)
+bool Tokenizador::Caracter(string palabra, size_t& comillas, size_t& parentesis)
 {
+	if (palabra == "\"")comillas++;
 	return (palabra == "." || palabra == "\"" || palabra == "(" ||
 		palabra == ")" || palabra == "_");
 }
 
-vector<Tokens> Tokenizador::Get_Tokens(vector<string> instruccion)
+void Tokenizador::Nueva_Igualdad(Informacion info,Tokens token)
 {
-	vector<Tokens> tokens_retornar;
+	Informacion in = info;
+	in.token = token;
+	informacion.push_back(in);
+}
+
+map<string,Informacion> Tokenizador::Mapa_Informacion(vector<string> instruccion, vector<Informacion> info)
+{
+	size_t comillas = 0;
+	size_t variables = 0;
+	size_t i = 0;
+	map<string, Informacion> retorno;
+
 	for (string palabra : instruccion)
 	{
-		if (Variable(palabra)) { tokens_retornar.push_back(token); }
 
-		else if (Impresion_Peticion(palabra)) { tokens_retornar.push_back(token); }
+		if(comillas % 2 != 1)
+		{
+			if (Variable(palabra))Nueva_Igualdad(info[i], token); 
 
-		else if (palabra == "Operador") { tokens_retornar.push_back(Tokens::OPERACION); }
+			else if (Impresion_Peticion(palabra)) { Nueva_Igualdad(info[i], token); }
 
-		else if (palabra == "#") { tokens_retornar.push_back(Tokens::COMENTARIO); return tokens_retornar; }
+			else if (palabra == "Operador")Nueva_Igualdad(info[i], Tokens::OPERACION);
 
-		else if (palabra[0] >= '0' && palabra[0] <= 9)tokens_retornar.push_back(Tokens::NUMERO_IGUALDAD);
+			else if (palabra == "#") { Nueva_Igualdad(info[i], Tokens::COMENTARIO); break; }
 
-		else if (palabra == ";")tokens_retornar.push_back(Tokens::FIN_COMANDO);
+			else if (palabra[0] >= '0' && palabra[0] <= 9)Nueva_Igualdad(info[i], Tokens::NUMERO_IGUALDAD);
 
-		else if (palabra == ",")tokens_retornar.push_back(Tokens::COMAS);
+			else if (palabra == ";")Nueva_Igualdad(info[i], Tokens::FIN_COMANDO);
 
-		else if (palabra == "=")tokens_retornar.push_back(Tokens::IGUAL);
+			else if (palabra == ",")Nueva_Igualdad(info[i], Tokens::COMAS);
 
-		else if (palabra == "\n")tokens_retornar.push_back(Tokens::FIN_LINEA);
+			else if (palabra == "\n")Nueva_Igualdad(info[i], Tokens::FIN_LINEA);
 
-		else if (palabra == "+" || palabra == "-" || palabra == "*" || palabra == "/")tokens_retornar.push_back(Tokens::OPERACION);
+			else if (palabra == "+" || palabra == "-" || palabra == "*" || palabra == "/")Nueva_Igualdad(info[i], Tokens::OPERADOR);
 
-		else if (palabra == "=")tokens_retornar.push_back(Tokens::IGUAL);
+			else if (palabra == "=")Nueva_Igualdad(info[i], Tokens::IGUAL);
 
-		else if (palabra == ":")tokens_retornar.push_back(Tokens::DIVISOR);
+			else if (palabra == ":")Nueva_Igualdad(info[i], Tokens::DIVISOR);
 
-		else if (Caracter(palabra))tokens_retornar.push_back(Tokens::CARACTER);
+			else if (Caracter(palabra,comillas,variables))Nueva_Igualdad(info[i], Tokens::CARACTER);
 
-		else tokens_retornar.push_back(Tokens::VARIABLE);
+			else if(isalpha(palabra[0]))Nueva_Igualdad(info[i], Tokens::VARIABLE);
+
+		}
+		else
+		{
+			if (palabra == "(" || palabra == ")")
+			{
+				Nueva_Igualdad(info[i],Tokens::CARACTER);
+				variables++;
+			}
+			else if (palabra == "\"")
+			{
+				Nueva_Igualdad(info[i], Tokens::CARACTER);
+				comillas++;
+			}
+			else if(variables % 2 != 0)Nueva_Igualdad(info[i], Tokens::VARIABLE);
+		}
+		i++;
 	}
-	return tokens_retornar;
+	
+	size_t demas = 1;
+
+	for (auto it : informacion)
+	{
+		string ID = "linea:" + to_string(linea) + "." + to_string(demas);
+		retorno.insert(make_pair(ID, it));
+		demas++;
+	}
+
+	return retorno;
 }
 
 Tokens Tokenizador::Tipo_Division(string frase)

@@ -1,10 +1,5 @@
 #pragma once
-#include<iostream>
-#include<Windows.h>
-#include<conio.h>
-#include<stdexcept>
-#include<string>
-using namespace std;
+#include"Informacion.h"
 
 class AnalizadorLexico {
 private:
@@ -22,7 +17,7 @@ private:
 	bool OPERADORES(int i);
 
 public:
-	int linea = {};
+	size_t linea = {};
 	//funciones
 	void SetTexto(string txt);
 	void CaracterRaro();

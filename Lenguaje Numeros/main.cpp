@@ -7,15 +7,15 @@
 #include<fstream>
 #include<stdio.h>
 
-using namespace std;
 
 /*ARREGLAR LA CLASE DE OBJETOS*/
-/*Vincular la libreria*/
+/*MODIFICAR LIBRERIAS SEMANTICAS*/
 
 
 int main()
 {
-	string Frase = "Entero:Variable1=01;Decimal:Variable2;";
+	//string Frase = "Entero: Variable1 = 01;Decimal:Variable2";
+	string Frase = "Entero : Variable1 = 01";
 	AnalizadorLexico analizador_lexico;
 	Tokenizador tokenizador;
 	Divisor divisor;
@@ -28,17 +28,19 @@ int main()
 		analizador_lexico.CaracterRaro();
 		tokenizador.Tipo_Division(Frase);
 		divisor.Inicio(Frase);
-		
-		for (auto linea : divisor.Divisiones_Varias_lineas_Comandos())cout << linea << endl;
-		cout << endl;
-		for (auto comandos : divisor.Get_Comandos())cout << comandos << endl;
-		cout << endl;
-		for (auto Tokens : tokenizador.Get_Tokens(divisor.Get_Comandos()))cout << (int)Tokens << endl;
 
+		for (auto i : tokenizador.Mapa_Informacion(divisor.Get_Comandos(), divisor.Info()))
+		{
+			cout << "ID: " << i.first << ".\ncomando: " << i.second.comando << ".\nToken: " << (int)i.second.token << "." << "\n------------------------------------------\n";
+		}
 	}
-	catch (const char* error)
+	catch (runtime_error& error)
 	{
-		printf(error);
+		cerr<<error.what();
+	}
+	catch(out_of_range& e)
+	{
+		cerr << e.what();
 	}
 
 	return 0;
