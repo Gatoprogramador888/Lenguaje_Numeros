@@ -12,11 +12,11 @@ private:
 	bool Variable(std::string palabra);
 	bool Impresion_Peticion(std::string palabra);
 	bool Caracter(std::string palabra, size_t& comillas, size_t& parentesis);
-	void Nueva_Igualdad(Informacion info, Tokens token);
+	void Recopilar_informacion(Informacion info, Tokens token);
 public:
 	size_t linea;
 	map<string, Informacion> Mapa_Informacion(vector<std::string> instruccion, vector<Informacion> info);
-	Tokens Tipo_Division(string frase);
+	Tokens Division_Palabra_Clave(string frase);
 };
 
 #endif // !TOKENS_H

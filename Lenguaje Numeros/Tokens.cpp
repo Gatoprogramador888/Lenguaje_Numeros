@@ -4,9 +4,9 @@
 bool Tokenizador::Variable(string palabra)
 {
 	string TIPO_VARIABLE[] = { "Entero", "Decimal", "Dinamico" };
-	for (string TV : TIPO_VARIABLE)
+	for (string Tipo_Variable : TIPO_VARIABLE)
 	{
-		if (palabra == TV)
+		if (palabra == Tipo_Variable)
 		{
 			if (palabra == TIPO_VARIABLE[0])token = Tokens::ENTERO;
 			else if (palabra == TIPO_VARIABLE[1])token = Tokens::DECIMAL;
@@ -20,9 +20,9 @@ bool Tokenizador::Variable(string palabra)
 bool Tokenizador::Impresion_Peticion(string palabra)
 {
 	string TIPO_PETICION[] = { "Pedir", "Imprimir" };
-	for (string TP : TIPO_PETICION)
+	for (string Tipo_Peticion : TIPO_PETICION)
 	{
-		if (palabra == TP) { 
+		if (palabra == Tipo_Peticion) { 
 			if (palabra != TIPO_PETICION[0])token = Tokens::IMPRIMIR;
 			else token = Tokens::PEDIR;
 			return true;
@@ -39,11 +39,11 @@ bool Tokenizador::Caracter(string palabra, size_t& comillas, size_t& parentesis)
 		palabra == ")" || palabra == "_");
 }
 
-void Tokenizador::Nueva_Igualdad(Informacion info,Tokens token)
+void Tokenizador::Recopilar_informacion(Informacion info,Tokens token)
 {
-	Informacion in = info;
-	in.token = token;
-	informacion.push_back(in);
+	Informacion aux = info;
+	aux.token = token;
+	informacion.push_back(aux);
 }
 
 map<string,Informacion> Tokenizador::Mapa_Informacion(vector<string> instruccion, vector<Informacion> info)
@@ -58,63 +58,63 @@ map<string,Informacion> Tokenizador::Mapa_Informacion(vector<string> instruccion
 
 		if(comillas % 2 != 1)
 		{
-			if (Variable(palabra))Nueva_Igualdad(info[i], token); 
+			if (Variable(palabra))Recopilar_informacion(info[i], token);
 
-			else if (Impresion_Peticion(palabra)) { Nueva_Igualdad(info[i], token); }
+			else if (Impresion_Peticion(palabra))Recopilar_informacion(info[i], token); 
 
-			else if (palabra == "Operador")Nueva_Igualdad(info[i], Tokens::OPERACION);
+			else if (palabra == "Operador")Recopilar_informacion(info[i], Tokens::OPERACION);
 
-			else if (palabra == "#") { Nueva_Igualdad(info[i], Tokens::COMENTARIO); break; }
+			else if (palabra == "#") { Recopilar_informacion(info[i], Tokens::COMENTARIO); break; }
 
-			else if (palabra[0] >= '0' && palabra[0] <= 9)Nueva_Igualdad(info[i], Tokens::NUMERO_IGUALDAD);
+			else if (palabra[0] >= '0' && palabra[0] <= 9)Recopilar_informacion(info[i], Tokens::NUMERO_IGUALDAD);
 
-			else if (palabra == ";")Nueva_Igualdad(info[i], Tokens::FIN_COMANDO);
+			else if (palabra == ";")Recopilar_informacion(info[i], Tokens::FIN_COMANDO);
 
-			else if (palabra == ",")Nueva_Igualdad(info[i], Tokens::COMAS);
+			else if (palabra == ",")Recopilar_informacion(info[i], Tokens::COMAS);
 
-			else if (palabra == "\n")Nueva_Igualdad(info[i], Tokens::FIN_LINEA);
+			else if (palabra == "\n")Recopilar_informacion(info[i], Tokens::FIN_LINEA);
 
-			else if (palabra == "+" || palabra == "-" || palabra == "*" || palabra == "/")Nueva_Igualdad(info[i], Tokens::OPERADOR);
+			else if (palabra == "+" || palabra == "-" || palabra == "*" || palabra == "/")Recopilar_informacion(info[i], Tokens::OPERADOR);
 
-			else if (palabra == "=")Nueva_Igualdad(info[i], Tokens::IGUAL);
+			else if (palabra == "=")Recopilar_informacion(info[i], Tokens::IGUAL);
 
-			else if (palabra == ":")Nueva_Igualdad(info[i], Tokens::DIVISOR);
+			else if (palabra == ":")Recopilar_informacion(info[i], Tokens::DIVISOR);
 
-			else if (Caracter(palabra,comillas,variables))Nueva_Igualdad(info[i], Tokens::CARACTER);
+			else if (Caracter(palabra,comillas,variables))Recopilar_informacion(info[i], Tokens::CARACTER);
 
-			else if(isalpha(palabra[0]))Nueva_Igualdad(info[i], Tokens::VARIABLE);
+			else if(isalpha(palabra[0]))Recopilar_informacion(info[i], Tokens::VARIABLE);
 
 		}
 		else
 		{
 			if (palabra == "(" || palabra == ")")
 			{
-				Nueva_Igualdad(info[i],Tokens::CARACTER);
+				Recopilar_informacion(info[i],Tokens::CARACTER);
 				variables++;
 			}
 			else if (palabra == "\"")
 			{
-				Nueva_Igualdad(info[i], Tokens::CARACTER);
+				Recopilar_informacion(info[i], Tokens::CARACTER);
 				comillas++;
 			}
-			else if(variables % 2 != 0)Nueva_Igualdad(info[i], Tokens::VARIABLE);
+			else if(variables % 2 != 0)Recopilar_informacion(info[i], Tokens::VARIABLE);
 		}
 		i++;
 	}
 	
-	size_t demas = 1;
+	size_t posicion_Token = 1;
 
 	for (auto it : informacion)
 	{
-		string ID = "linea:" + to_string(linea) + "." + to_string(demas);
+		string ID = "linea:" + to_string(linea) + "." + to_string(posicion_Token);
 		retorno.insert(make_pair(ID, it));
-		demas++;
+		posicion_Token++;
 	}
 
 	return retorno;
 }
 
-Tokens Tokenizador::Tipo_Division(string frase)
+Tokens Tokenizador::Division_Palabra_Clave(string frase)
 {
 	size_t posicion = frase.find(":");
 	string comando, error;

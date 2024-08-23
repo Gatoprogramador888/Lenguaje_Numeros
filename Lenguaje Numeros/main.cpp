@@ -26,7 +26,7 @@ int main()
 		tokenizador.linea = 1;
 		analizador_lexico.SetTexto(Frase);
 		analizador_lexico.CaracterRaro();
-		tokenizador.Tipo_Division(Frase);
+		tokenizador.Division_Palabra_Clave(Frase);
 		divisor.Inicio(Frase);
 
 		for (auto i : tokenizador.Mapa_Informacion(divisor.Get_Comandos(), divisor.Info()))
