@@ -6,7 +6,9 @@
 #include"Tokens.h"
 #include<fstream>
 #include<stdio.h>
+#include"AnalizadorLexico.h"
 
+using namespace Analizador_Lexico;
 
 /*ARREGLAR LA CLASE DE OBJETOS*/
 /*MODIFICAR LIBRERIAS SEMANTICAS*/
@@ -15,21 +17,14 @@
 int main()
 {
 	//string Frase = "Entero: Variable1 = 01;Decimal:Variable2";
-	string Frase = "Entero : Variable1 = 01";
-	AnalizadorLexico analizador_lexico;
-	Tokenizador tokenizador;
-	Divisor divisor;
-
-	try 
+	string Frase = "Operardor: Variable1 = 2+3;";
+	try
 	{
-		analizador_lexico.linea = 1;
+		divisor.linea = 1;
 		tokenizador.linea = 1;
-		analizador_lexico.SetTexto(Frase);
-		analizador_lexico.CaracterRaro();
-		tokenizador.Division_Palabra_Clave(Frase);
 		divisor.Inicio(Frase);
 
-		for (auto i : tokenizador.Mapa_Informacion(divisor.Get_Comandos(), divisor.Info()))
+		for (auto i : tokenizador.Mapa_Informacion(divisor.Get_Comandos(),divisor.Info()))
 		{
 			cout << "ID: " << i.first << ".\ncomando: " << i.second.comando << ".\nToken: " << (int)i.second.token << "." << "\n------------------------------------------\n";
 		}
@@ -42,6 +37,9 @@ int main()
 	{
 		cerr << e.what();
 	}
+
+	tokenizador.~Tokenizador();
+	divisor.~Divisor();
 
 	return 0;
 }

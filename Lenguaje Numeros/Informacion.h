@@ -11,10 +11,11 @@
 using namespace std;
 
 enum class Tokens {
-	ENTERO, DECIMAL, DINAMICO, NUMERO_IGUALDAD,
+	NULO ,ENTERO, DECIMAL, DINAMICO, NUMERO,
 	IMPRIMIR, PEDIR, OPERADOR, OPERACION,
-	COMAS, FIN_COMANDO, FIN_LINEA, COMENTARIO,
-	ESPACIO, VARIABLE, IGUAL, CARACTER, DIVISOR, NULO
+	COMAS, FIN_COMANDO,	ESPACIO, COMILLAS,
+	PARENTESIS_DERECHO, PARENTESIS_IZQUIERDO,
+	VARIABLE, IGUAL, CARACTER, DIVISOR
 };
 
 struct Informacion
@@ -22,4 +23,10 @@ struct Informacion
 	size_t posicion = {};
 	string comando = {};
 	Tokens token = Tokens::NULO;
+};
+
+class Interfaz_Compilador {
+public:
+	size_t linea = {};
+	virtual void Limpiar() = 0;
 };

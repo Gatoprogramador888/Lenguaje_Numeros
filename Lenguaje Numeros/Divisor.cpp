@@ -11,11 +11,7 @@ void Divisor::Divisor_Caracteres()
 	{
 		if (!isspace(linea_comando[i]))
 		{
-			if (!Caracteres(i) && !Operadores(i))
-			{
-				comando += linea_comando[i];
-			}
-			else if (Caracteres(i) || Operadores(i))
+			if (!isalpha(linea_comando[i]) && !isdigit(linea_comando[i]))
 			{
 				comandos.push_back(comando);
 				comando = "";
@@ -24,6 +20,10 @@ void Divisor::Divisor_Caracteres()
 				operador = "";
 				posicion.push_back(i - 1);
 				posicion.push_back(i);
+			}
+			else
+			{
+				comando += linea_comando[i];
 			}
 		}
 	}

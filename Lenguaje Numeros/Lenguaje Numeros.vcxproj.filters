@@ -13,14 +13,8 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
-    <Filter Include="Estados">
-      <UniqueIdentifier>{cdc18599-0b56-44b7-a9e8-40c469f8e982}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Analizadores">
       <UniqueIdentifier>{5925845b-5e7d-4e03-b325-22869a1e4329}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Divisores">
-      <UniqueIdentifier>{52278f4b-105c-4b96-bcd0-916c680b0402}</UniqueIdentifier>
     </Filter>
     <Filter Include="Objetos">
       <UniqueIdentifier>{9cfac2e9-e64a-4550-802f-6d7ad0a25f4d}</UniqueIdentifier>
@@ -28,22 +22,28 @@
     <Filter Include="Interprete">
       <UniqueIdentifier>{e636f074-37da-4ebe-b321-49590cf45b22}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Analizadores\Analizador_Lexico">
+      <UniqueIdentifier>{30b3b1c9-f4bb-4fc7-bb59-a030f3c83fee}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Analizadores\Analizador_Semantico">
+      <UniqueIdentifier>{f0374548-7f4a-4de8-aeb8-fa6bccebf01e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Analizadores\Analizador_Lexico\Divisores">
+      <UniqueIdentifier>{52278f4b-105c-4b96-bcd0-916c680b0402}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Analizadores\Analizador_Lexico\Estados">
+      <UniqueIdentifier>{cdc18599-0b56-44b7-a9e8-40c469f8e982}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
       <Filter>Archivos de origen</Filter>
     </ClCompile>
     <ClCompile Include="Tokens.cpp">
-      <Filter>Estados</Filter>
-    </ClCompile>
-    <ClCompile Include="AnalizadorLexico.cpp">
-      <Filter>Analizadores</Filter>
-    </ClCompile>
-    <ClCompile Include="AnalizadorSemantico.cpp">
-      <Filter>Analizadores</Filter>
+      <Filter>Analizadores\Analizador_Lexico\Estados</Filter>
     </ClCompile>
     <ClCompile Include="Divisor.cpp">
-      <Filter>Divisores</Filter>
+      <Filter>Analizadores\Analizador_Lexico\Divisores</Filter>
     </ClCompile>
     <ClCompile Include="CRObjetos.cpp">
       <Filter>Objetos</Filter>
@@ -51,19 +51,19 @@
     <ClCompile Include="Interpretar.cpp">
       <Filter>Interprete</Filter>
     </ClCompile>
+    <ClCompile Include="AnalizadorLexico.cpp">
+      <Filter>Analizadores\Analizador_Lexico</Filter>
+    </ClCompile>
+    <ClCompile Include="AnalizadorSemantico.cpp">
+      <Filter>Analizadores\Analizador_Semantico</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Tokens.h">
-      <Filter>Estados</Filter>
-    </ClInclude>
-    <ClInclude Include="AnalizadorLexico.h">
-      <Filter>Analizadores</Filter>
-    </ClInclude>
-    <ClInclude Include="AnalizadorSemantico.h">
-      <Filter>Analizadores</Filter>
+      <Filter>Analizadores\Analizador_Lexico\Estados</Filter>
     </ClInclude>
     <ClInclude Include="Divisor.h">
-      <Filter>Divisores</Filter>
+      <Filter>Analizadores\Analizador_Lexico\Divisores</Filter>
     </ClInclude>
     <ClInclude Include="CRObjetos.h">
       <Filter>Objetos</Filter>
@@ -73,6 +73,12 @@
     </ClInclude>
     <ClInclude Include="Informacion.h">
       <Filter>Archivos de encabezado</Filter>
+    </ClInclude>
+    <ClInclude Include="AnalizadorLexico.h">
+      <Filter>Analizadores\Analizador_Lexico</Filter>
+    </ClInclude>
+    <ClInclude Include="AnalizadorSemantico.h">
+      <Filter>Analizadores\Analizador_Semantico</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
