@@ -26,9 +26,10 @@ private:
 public:
 	void Crear(string _nombre, string _valor);
 	void NuevaIgualdad(string _nombre, string _valor);
-	int PosOBj(string _nombre);
+	size_t PosOBj(string _nombre);
+	bool Borrar_Objeto(string nombre);
 };
 
 extern vector<Objeto*> obj;
 extern BorrarOBJ BOBJ;
-extern Administrador A;
+extern Administrador administrador;

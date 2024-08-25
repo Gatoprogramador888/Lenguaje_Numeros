@@ -4,16 +4,17 @@
 
 
 
-class Analizador_Tokens_Compilacion
+class Analizador_Tokens_Compilacion : Interfaz_Compilador
 {
 private:
-	void Fin_Linea(Tokens fin_tokens, size_t ultimo_caracter);
+	void Fin_Linea(Tokens fin_tokens);
 	void Imprimir(), Pedir(), Entero_Decimal_Dinamico(), Operacion();
 	vector<Tokens> tokens; 
-	vector<string> _comandos;
+	vector<string> comandos;
+	vector<size_t> posiciones;
 public:
-	size_t linea = {};
-	void Inicio_analizacion(vector<Tokens> _tokens,vector<string> _comandos,size_t caracter);
+	void Inicio_analizacion(map<string, Informacion> mapa);
+	void Limpiar() override;
 };
 
 class Analizador_Codigo_Compilacion

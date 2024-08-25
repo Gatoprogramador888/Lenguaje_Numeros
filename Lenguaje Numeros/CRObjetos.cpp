@@ -59,17 +59,27 @@ void Administrador::NuevaIgualdad(string _nombre, string _valor)
 	}
 }
 
-int Administrador::PosOBj(string _nombre)
+size_t Administrador::PosOBj(string _nombre)
 {
-	int p = 0;
+	size_t retorno = 0;
 	for (auto i : obj)
 	{
-		if (_nombre == i->GetNombre())return p;
-		p++;
+		if (_nombre == i->GetNombre())return retorno;
+		retorno++;
 	}
-	return 0;
+	return SIZE_MAX;
+}
+
+bool Administrador::Borrar_Objeto(string nombre)
+{
+	size_t posicion = PosOBj(nombre);
+	bool retorno = posicion != SIZE_MAX ? true : false;
+
+	if (retorno)obj[posicion]->~Objeto();
+
+	return retorno;
 }
 
 
 BorrarOBJ BOBJ;
-Administrador A;
+Administrador administrador;

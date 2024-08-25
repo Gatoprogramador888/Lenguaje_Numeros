@@ -84,7 +84,7 @@ void Interpretar::Calcular()
 
 		if (!isdigit(var[0]))
 		{
-			int posobj = A.PosOBj(var);
+			int posobj = administrador.PosOBj(var);
 			var = obj[posobj]->GetValor();
 		}
 
@@ -153,25 +153,25 @@ void Interpretar::Calcular()
 			PosConvertir = ObtenerN1N2(n2, n1, valors, PosConvertir, ip, 1, iterador == 1,resultado.c_str());
 			resultado = Sumar(n1, n2);
 			resultado = FNewtext(resultado);
-			A.NuevaIgualdad(Var, resultado);
+			administrador.NuevaIgualdad(Var, resultado);
 			break;
 		case '-':
 			PosConvertir = ObtenerN1N2(n1, n2, valors, PosConvertir, ip, 1,  iterador == 1, resultado.c_str());
 			resultado = Restar(n1, n2);
 			resultado = FNewtext(resultado);
-			A.NuevaIgualdad(Var, resultado);
+			administrador.NuevaIgualdad(Var, resultado);
 			break;
 		case '*':
 			PosConvertir = ObtenerN1N2(n1, n2, valors, PosConvertir, ip, 0, iterador == 1, resultado.c_str());
 			resultado = Multiplicar(n1, n2);
 			resultado = FNewtext(resultado);
-			A.NuevaIgualdad(Var, resultado);
+			administrador.NuevaIgualdad(Var, resultado);
 			break;
 		case '/':
 			PosConvertir = ObtenerN1N2(n1, n2, valors, PosConvertir, ip, 0, iterador == 1, resultado.c_str());
 			resultado = Dividir(n1, n2);
 			resultado = FNewtext(resultado);
-			A.NuevaIgualdad(Var, resultado);
+			administrador.NuevaIgualdad(Var, resultado);
 			break;
 		}
 		//i++;
@@ -221,7 +221,7 @@ void Interpretar::Peticion()
 	}
 
 	cin >> nuevaigualdad;
-	A.NuevaIgualdad(variable, nuevaigualdad);
+	administrador.NuevaIgualdad(variable, nuevaigualdad);
 }
 
 
@@ -234,7 +234,7 @@ void Interpretar::EncontraIgualdad() {
 		variable += Texto[i];
 	}
 
-	pos = A.PosOBj(variable);
+	pos = administrador.PosOBj(variable);
 	Texto = obj[pos]->GetValor();
 }
 
