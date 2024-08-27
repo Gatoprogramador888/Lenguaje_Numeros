@@ -12,6 +12,7 @@ private:
 	vector<Tokens> tokens; 
 	vector<string> comandos;
 	vector<size_t> posiciones;
+	string error = "";
 public:
 	void Inicio_analizacion(map<string, Informacion> mapa);
 	void Limpiar() override;

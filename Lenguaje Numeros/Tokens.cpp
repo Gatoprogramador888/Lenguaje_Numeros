@@ -133,3 +133,12 @@ map<string,Informacion> Tokenizador::Mapa_Informacion(vector<string> instruccion
 
 
 
+string Tokenizador::Get_Tipo(Tokens token)
+{
+	string retorno[20] = { "NULO" , "ENTERO", "DECIMAL", "DINAMICO", "NUMERO",
+	"IMPRIMIR", "PEDIR", "OPERADOR", "OPERACION",
+	"COMAS", "FIN_COMANDO",	"ESPACIO", "COMILLAS",
+	"PARENTESIS_DERECHO", "PARENTESIS_IZQUIERDO",
+	"VARIABLE", "IGUAL", "CARACTER", "DIVISOR", "TEXTO"};
+	return retorno[(int)token];
+}

@@ -26,6 +26,12 @@ void Divisor::Divisor_Caracteres()
 				comando += linea_comando[i];
 			}
 		}
+		else
+		{
+			comandos.push_back(comando);
+			comando = "";
+			posicion.push_back(i);
+		}
 	}
 
 }

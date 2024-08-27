@@ -15,6 +15,8 @@ private:
 	void Recopilar_informacion(Informacion info, Tokens token);
 public:
 
+	static string Get_Tipo(Tokens token);
+
 	map<string, Informacion> Mapa_Informacion(vector<std::string> instruccion, vector<Informacion> info);
 	void Limpiar() override
 	{
