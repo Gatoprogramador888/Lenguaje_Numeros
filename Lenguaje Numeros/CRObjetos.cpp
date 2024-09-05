@@ -24,6 +24,11 @@ string Objeto::GetValor()
 	return valor;
 }
 
+string Objeto::GetType()
+{
+	return tipo;
+}
+
 bool Administrador::Iguales(string _nombre)
 {
 	for (auto i : obj)
@@ -36,15 +41,15 @@ bool Administrador::Iguales(string _nombre)
 	return false;
 }
 
-void Administrador::Crear(string _nombre, string _valor)
+void Administrador::Crear(Informacion_Variable informacion_variable)
 {
-	if (Iguales(_nombre))
+	if (Iguales(informacion_variable.nombre))
 	{
-		NuevaIgualdad(_nombre, _valor);
+		NuevaIgualdad(informacion_variable.nombre, informacion_variable.valor);
 	}
 	else
 	{
-		obj.push_back(new Objeto(_valor,_nombre));
+		obj.push_back(new Objeto(informacion_variable.valor, informacion_variable.nombre, informacion_variable.Tipo));
 	}
 }
 

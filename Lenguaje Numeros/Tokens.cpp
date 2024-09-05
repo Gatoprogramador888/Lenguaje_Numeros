@@ -90,6 +90,8 @@ map<string,Informacion> Tokenizador::Mapa_Informacion(vector<string> instruccion
 
 			else if (palabra == "$")Recopilar_informacion(info[i], Tokens::TEXTO);
 
+			else if (palabra == ".")Recopilar_informacion(info[i], Tokens::PUNTO);
+
 			else if (palabra[0] == NULL) {}
 
 			else Recopilar_informacion(info[i], Tokens::CARACTER);
