@@ -11,64 +11,59 @@ void Analizador_Tokens_Compilacion::Fin_Linea(Tokens fin_tokens)
 
 void Analizador_Tokens_Compilacion::Imprimir()
 {
-	int8_t comillas = 0;
-	bool texto = comandos[3] != "$" ? false : true;
-	size_t parentesis_derecho = 0, parentesis_izquierdo = 0, posicion = 0;
-	vector<size_t> pos_parentesis_derecho, pos_parentesis_izquierdo, pos_comillas;
-
-	for (Tokens token : tokens)
+	enum class Estados
 	{
-		switch (token)
+		INICIO, ESPERA_DIVISOR, ESPERA_COMILLAS,
+		ESPERA_PARENTESIS_DERECHO, ESPERA_PARENTESIS_IZQUIERDO, ESPERA_VARIABLE,
+		ESPERA_CARACTER, ESPERA_COMILLAS, ESPERA_COMAS_FIN_COMANDO,ERROR
+	};
+	Estados estado = Estados::INICIO;
+
+
+	for (size_t posicion = 0; posicion < tokens.size(); posicion++)
+	{
+		switch (estado)
 		{
-		case Tokens::COMILLAS: 
-			comillas++;
-			pos_comillas.push_back(posiciones[posicion]);
-			break;
-		case Tokens::PARENTESIS_DERECHO: 
-			parentesis_derecho++;
-			pos_parentesis_derecho.push_back(posiciones[posicion]);
-			break;
-		case Tokens::PARENTESIS_IZQUIERDO:
-			parentesis_izquierdo++;
-			pos_parentesis_izquierdo.push_back(posiciones[posicion]);
-			break;
-		case Tokens::VARIABLE:
-			if (administrador.PosOBj(comandos[posicion]) == SIZE_MAX)
+		case Estados::INICIO:
+			if (tokens[posicion] != Tokens::IMPRIMIR)
 			{
-				error = "La variable: " + comandos[posicion] + " no existe\nLinea: " + to_string(linea) + ", posicion: " + to_string(posiciones[posicion]) + ".\n";
+				error = comandos[posicion] + " no es de tipo Imprimir.\nLinea: " + to_string(linea) + ", posicion: " + to_string(posiciones[posicion]) + ".\n";
 				throw runtime_error(error.c_str());
 			}
+			estado = Estados::ESPERA_DIVISOR;
 			break;
-		}
-		posicion++;
-	}
 
-	if (!texto && (comillas != 0 || parentesis_izquierdo != 0 || parentesis_derecho != 0) )
-	{
-		error = "Imprimir un texto cuando no se especifico un texto en " + comandos[3] + "\nLinea: " + to_string(linea) + ", posicion: " + to_string(posiciones[3]) + ".\n";
-		throw runtime_error(error.c_str());
-	}
-	else
-	{
-		if (parentesis_derecho != parentesis_izquierdo)
-		{
-			size_t aux = pos_parentesis_derecho.size(), aux2 = pos_parentesis_izquierdo.size();
-			size_t posicionaux = aux > aux2 ? pos_parentesis_derecho[aux] : pos_parentesis_izquierdo[aux2];
-			string faltante = aux > aux2 ? "derecho" : "izquierdo";
-			error = "falta parentesis " + faltante + ".\nLinea: " + to_string(linea) + ", posicion: " + to_string(posicionaux) + "\n.";
-			throw runtime_error(error.c_str());
-		}
-		else if (comillas < 2)
-		{
-			int8_t posicionaux = pos_comillas.size() != 0 ? static_cast<int8_t>(pos_comillas[0]) : 0;
-			error = "Faltante de comillas.\nLinea: " + to_string(linea) + ", posicion: " + to_string(posicionaux) + ".\n";
-			throw runtime_error(error.c_str());
-		}
-		else if (comillas > 2)
-		{
-			size_t posicionaux = pos_comillas[pos_comillas.size()];
-			error = "Sobran comillas.\nLinea: " + to_string(linea) + ", posicion: " + to_string(posicionaux) + ".\n";
-			throw runtime_error(error.c_str());
+		case Estados::ESPERA_DIVISOR:
+			if (tokens[posicion] != Tokens::DIVISOR)
+			{
+				error = "Se esperaba un ':' no un " + comandos[posicion] + ".\nLinea: " + to_string(linea) + ", posicion : " + to_string(posiciones[posicion]) + ".\n";
+				throw runtime_error(error.c_str());
+			}
+
+			estado = tokens[posicion + 1] != Tokens::COMILLAS ? Estados::ESPERA_VARIABLE : Estados::ESPERA_COMILLAS;
+
+			break;
+
+		case Estados::ESPERA_VARIABLE:
+
+			if (tokens[posicion] != Tokens::VARIABLE)
+			{
+				error = comandos[posicion]+" es de tipo "+Tokenizador::Get_Tipo(tokens[posicion])+" no de tipo Variable.\nLinea: " + to_string(linea) + ", posicion : " + to_string(posiciones[posicion]) + ".\n";
+				throw runtime_error(error.c_str());
+			}
+
+			if (administrador.PosOBj(comandos[posicion]) == SIZE_MAX)
+			{
+				error = comandos[posicion] + " no existe.\nLinea: " + to_string(linea) + ", posicion : " + to_string(posiciones[posicion]) + ".\n";
+				throw runtime_error(error.c_str());
+			}
+
+			estado = Estados::ESPERA_COMAS_FIN_COMANDO;
+
+			break;
+
+		case Estados::ESPERA_COMILLAS:
+			break;
 		}
 	}
 }
