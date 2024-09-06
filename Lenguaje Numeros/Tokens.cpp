@@ -112,7 +112,10 @@ map<string,Informacion> Tokenizador::Mapa_Informacion(vector<string> instruccion
 				Recopilar_informacion(info[i], Tokens::COMILLAS);
 				comillas++;
 			}
-
+			else if (palabra == "," && comillas % 2 != 0)
+			{
+				Recopilar_informacion(info[i], Tokens::COMAS);
+			}
 			else if (parentesis)Recopilar_informacion(info[i], Tokens::VARIABLE);
 
 			else Recopilar_informacion(info[i], Tokens::CARACTER);
