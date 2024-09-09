@@ -213,6 +213,7 @@ void Analizador_Tokens_Compilacion::Entero_Decimal_Dinamico()
 			{
 				estado = Estados::Espera_DIVISOR;
 				Tipo_Dato = tokens[posicion];
+				variable.Tipo = Tokenizador::Get_Tipo(tokens[posicion]);
 			}
 			else
 			{
@@ -289,7 +290,6 @@ void Analizador_Tokens_Compilacion::Entero_Decimal_Dinamico()
 				error = comandos[posicion] + " no es de tipo NUMERO es de tipo " + Tokenizador::Get_Tipo(tokens[posicion]) + ".\nLinea: " + to_string(linea) + ", posicion: " + to_string(posiciones[posicion]) + ".\n";
 				throw runtime_error(error.c_str());
 			}
-			variable.Tipo = Tokenizador::Get_Tipo(tokens[posicion]);
 			break;
 
 		case Estados::Espera_COMA_O_FIN:
@@ -312,6 +312,11 @@ void Analizador_Tokens_Compilacion::Entero_Decimal_Dinamico()
 		}
 	}
 
+	for (auto informacion : Variables)
+	{
+		administrador.Crear(informacion);
+	}
+
 }
 
 void Analizador_Tokens_Compilacion::Operacion()
@@ -319,6 +324,7 @@ void Analizador_Tokens_Compilacion::Operacion()
 
 	enum class Estados{INICIO, DIVISOR, ESPERA_VARIABLE, ESPERA_IGUAL, ESPERA_NUMERO, ESPERA_OPERADOR, ESPERA_FIN_COMANDO, ERROR};
 	Estados estado = Estados::INICIO;
+	string tipo = "",variable = "";
 
 	for (size_t posicion = 0; posicion < tokens.size(); posicion++)
 	{
@@ -351,7 +357,10 @@ void Analizador_Tokens_Compilacion::Operacion()
 			{
 				error = comandos[posicion] + " es de tipo " + Tokenizador::Get_Tipo(tokens[posicion]) + " en vez de tipo Variable.\nLinea: " + to_string(linea) + ", posicion: " + to_string(posiciones[posicion]) + ".\n";
 				estado = Estados::ERROR;
+				break;
 			}
+			tipo = obj[administrador.PosOBj(comandos[posicion])]->GetType();
+			variable = comandos[posicion];
 			break;
 		}
 		case Estados::ESPERA_IGUAL:
@@ -361,6 +370,39 @@ void Analizador_Tokens_Compilacion::Operacion()
 			{
 				error = "Se esperaba '=' no " + comandos[posicion] + ".\nLinea: " + to_string(linea) + ", posicion: " + to_string(posiciones[posicion]) + ".\n";
 				estado = Estados::ERROR;
+			}
+			break;
+		}
+		case Estados::ESPERA_NUMERO:
+		{
+			if (tokens[posicion] != Tokens::VARIABLE || tokens[posicion] != Tokens::NUMERO)
+			{
+				error = comandos[posicion] + " es de tipo " + Tokenizador::Get_Tipo(tokens[posicion]) + " en vez de tipo Variable.\nLinea: " + to_string(linea) + ", posicion: " + to_string(posiciones[posicion]) + ".\n";
+				estado = Estados::ERROR;
+				break;
+			}
+
+			if (posicion + 1 < tokens.size())
+				estado = tokens[posicion + 1] != Tokens::FIN_COMANDO ? Estados::ESPERA_OPERADOR : Estados::ESPERA_FIN_COMANDO;
+			else
+			{
+				error = "Se esperaba un ';'.\nLinea: " + to_string(linea) + ", posicion : " + to_string(posiciones[posicion]) + ".\n";
+				estado = Estados::ERROR;
+				break;
+			}
+
+			if (tokens[posicion] != Tokens::VARIABLE)
+			{
+				//Numero
+			}
+			else
+			{
+				//Variable
+				if (obj[administrador.PosOBj(comandos[posicion])]->GetType() != tipo || obj[administrador.PosOBj(comandos[posicion])]->GetType() != "Dinamico")
+				{
+					error = comandos[posicion] + " no es del mismo tipo que " + variable + ".\nLinea: " + to_string(linea) + ", posicion : " + to_string(posiciones[posicion]) + ".\n";
+					estado = Estados::ERROR;
+				}
 			}
 			break;
 		}
