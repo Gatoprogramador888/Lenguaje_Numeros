@@ -37,6 +37,12 @@ void Analizador_Tokens_Compilacion::Imprimir()
 
 			if (posicion + 1 < tokens.size())
 				estado = tokens[posicion + 1] != Tokens::COMILLAS ? Estados::ESPERA_VARIABLE : Estados::ESPERA_COMILLAS;
+			else
+			{
+				error = "Se esperaba un ';'.\nLinea: " + to_string(linea) + ", posicion : " + to_string(posiciones[posicion]) + ".\n";
+				estado = Estados::ERROR;
+				break;
+			}
 
 			if (tokens[posicion] != Tokens::DIVISOR)
 			{
@@ -66,8 +72,9 @@ void Analizador_Tokens_Compilacion::Imprimir()
 			estado = tokens[posicion + 1] != Tokens::PARENTESIS_DERECHO? Estados::ESPERA_COMAS_FIN_COMANDO : Estados::ESPERA_PARENTESIS_DERECHO;
 			else
 			{
-				error = "Se esperaba ';' no un comando incomplento.\nLinea: " + to_string(linea) + ", posicion : " + to_string(posiciones[posicion]) + ".\n";
+				error = "Se esperaba un ';'.\nLinea: " + to_string(linea) + ", posicion : " + to_string(posiciones[posicion]) + ".\n";
 				estado = Estados::ERROR;
+				break;
 			}
 
 			break;
@@ -98,6 +105,12 @@ void Analizador_Tokens_Compilacion::Imprimir()
 					break;
 				}
 			}
+			else
+			{
+				error = "Se esperaba un ';'.\nLinea: " + to_string(linea) + ", posicion : " + to_string(posiciones[posicion]) + ".\n";
+				estado = Estados::ERROR;
+				break;
+			}
 			break;
 
 		case Estados::ESPERA_CARACTER:
@@ -120,6 +133,12 @@ void Analizador_Tokens_Compilacion::Imprimir()
 					estado = Estados::ERROR;
 					break;
 				}
+			}
+			else
+			{
+				error = "Se esperaba un ';'.\nLinea: " + to_string(linea) + ", posicion : " + to_string(posiciones[posicion]) + ".\n";
+				estado = Estados::ERROR;
+				break;
 			}
 			break;
 
@@ -147,8 +166,9 @@ void Analizador_Tokens_Compilacion::Imprimir()
 				estado = tokens[posicion + 1] != Tokens::COMILLAS ? Estados::ESPERA_CARACTER : Estados::ESPERA_COMILLAS;
 			else
 			{
-				error = "Se esperaba '\"' no un " + comandos[posicion] + ".\nLinea: " + to_string(linea) + ", posicion : " + to_string(posiciones[posicion]) + ".\n";
+				error = "Se esperaba un ';'.\nLinea: " + to_string(linea) + ", posicion : " + to_string(posiciones[posicion]) + ".\n";
 				estado = Estados::ERROR;
+				break;
 			}
 			break;
 
@@ -213,7 +233,7 @@ void Analizador_Tokens_Compilacion::Entero_Decimal_Dinamico()
 			break;
 
 		case Estados::Espera_VARIABLE:
-			if (tokens[posicion] == Tokens::VARIABLE)
+			if (tokens[posicion] == Tokens::VARIABLE && administrador.PosOBj(comandos[posicion]) == SIZE_MAX)
 			{
 				estado = Estados::Espera_IGUAL;
 				nombre_variable = comandos[posicion];
@@ -236,6 +256,7 @@ void Analizador_Tokens_Compilacion::Entero_Decimal_Dinamico()
 				error = "La variable " + comandos[posicion - 1] + " no ah sido inicializada.\nLinea: " + to_string(linea) + ", posicion: " + to_string(posiciones[posicion]) + ".\n";
 				cout << error;
 				variable.valor = "0";
+
 				estado = Estados::Espera_COMA_O_FIN;
 			}
 			else {
@@ -295,26 +316,57 @@ void Analizador_Tokens_Compilacion::Entero_Decimal_Dinamico()
 
 void Analizador_Tokens_Compilacion::Operacion()
 {
+
+	enum class Estados{INICIO, DIVISOR, ESPERA_VARIABLE, ESPERA_IGUAL, ESPERA_NUMERO, ESPERA_OPERADOR, ESPERA_FIN_COMANDO, ERROR};
+	Estados estado = Estados::INICIO;
+
 	for (size_t posicion = 0; posicion < tokens.size(); posicion++)
 	{
-		switch (tokens[posicion])
+		switch (estado)
 		{
-		case Tokens::OPERACION:break;
-		case Tokens::OPERADOR:break;
-		case Tokens::DIVISOR:break;
-		case Tokens::NUMERO:break;
-		case Tokens::PUNTO:break;
-		case Tokens::IGUAL:break;
-		case Tokens::VARIABLE:
-			if (administrador.PosOBj(comandos[posicion]) != SIZE_MAX)
+		case Estados::INICIO:
+		{
+			estado = Estados::DIVISOR;
+
+			if (tokens[posicion] != Tokens::OPERACION)
 			{
-				error = "La variable " + comandos[posicion] + " no existe.\nLinea: " + to_string(linea) + ", posicion: " + to_string(posiciones[posicion]) + ".\n";
-				throw runtime_error(error.c_str());
+				error = comandos[posicion] + " no es de tipo Operacion.\nLinea: " + to_string(linea) + ", posicion: " + to_string(posiciones[posicion]) + ".\n";
+				estado = Estados::ERROR;
+			}
+		}
+		case Estados::DIVISOR:
+		{
+			estado = Estados::ESPERA_VARIABLE;
+			if (tokens[posicion] != Tokens::DIVISOR)
+			{
+				error = "Se esperaba ':' no " + comandos[posicion] + ".\nLinea: " + to_string(posicion) + ", posicion: " + to_string(posiciones[posicion]) + ".\n";
+				estado = Estados::ERROR;
 			}
 			break;
-		default:
-			error = comandos[posicion] + " es de tipo " + to_string((int)tokens[posicion]) + " y no de tipo VARIABLE.\nLinea: " + to_string(linea) + ", posicion: " + to_string(posiciones[posicion]) + ".\n";
+		}
+		case Estados::ESPERA_VARIABLE:
+		{
+			estado = Estados::ESPERA_IGUAL;
+			if (tokens[posicion] != Tokens::VARIABLE)
+			{
+				error = comandos[posicion] + " es de tipo " + Tokenizador::Get_Tipo(tokens[posicion]) + " en vez de tipo Variable.\nLinea: " + to_string(linea) + ", posicion: " + to_string(posiciones[posicion]) + ".\n";
+				estado = Estados::ERROR;
+			}
+			break;
+		}
+		case Estados::ESPERA_IGUAL:
+		{
+			estado = Estados::ESPERA_NUMERO;
+			if (tokens[posicion] != Tokens::IGUAL)
+			{
+				error = "Se esperaba '=' no " + comandos[posicion] + ".\nLinea: " + to_string(linea) + ", posicion: " + to_string(posiciones[posicion]) + ".\n";
+				estado = Estados::ERROR;
+			}
+			break;
+		}
+		case Estados::ERROR:
 			throw runtime_error(error.c_str());
+			break;
 		}
 
 	}
