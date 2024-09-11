@@ -17,7 +17,7 @@ int main()
 {	
 	Analizador_Tokens_Compilacion ATC;
 	//string Frase = "Entero: Variable1 = 01;Decimal:Variable2";
-	string Frase = "Entero : mi_variable = 2;Imprimir : mi_variable;";
+	string Frase = "Entero : mi_variable = 2;Pedir : mi_variable;";
 	try
 	{
 		size_t linea = 1;
@@ -31,6 +31,16 @@ int main()
 			divisor.Inicio(codigo);
 			
 			auto mapa = tokenizador.Mapa_Informacion(divisor.Get_Comandos(), divisor.Info());
+
+			cout << endl << endl << endl;
+
+			for (auto comando : mapa)
+			{
+				cout << comando.second.comando << "\nToken: " << Tokenizador::Get_Tipo(comando.second.token) << endl << endl;
+			}
+
+			cout << endl << endl << endl;
+
 			ATC.Inicio_analizacion(mapa);
 			
 			divisor.Limpiar();

@@ -63,7 +63,7 @@ vector<string> Divisor::Divisiones_Varias_lineas_Comandos(string frase)
 	string oracion;
 
 	for (size_t i = 0; i < frase.size(); i++)
-		if (frase[i] == ';')fin_comando.push_back(i+1);
+		if (frase[i] == ';' || i == frase.size() - 1)fin_comando.push_back(i + 1);
 
 	for (size_t posicion : fin_comando)
 	{

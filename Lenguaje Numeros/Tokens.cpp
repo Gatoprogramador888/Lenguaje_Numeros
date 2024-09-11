@@ -76,15 +76,17 @@ map<string,Informacion> Tokenizador::Mapa_Informacion(vector<string> instruccion
 
 			else if (palabra == ":")Recopilar_informacion(info[i], Tokens::DIVISOR);
 
+			else if (palabra == "$")Recopilar_informacion(info[i], Tokens::TEXTO);
+
 			else if (palabra == "\"")
 			{
 				Recopilar_informacion(info[i], Tokens::COMILLAS);
 				comillas++;
 			}
 
-			else if (palabra == "(")Recopilar_informacion(info[i], Tokens::PARENTESIS_IZQUIERDO);
+			//else if (palabra == "(")Recopilar_informacion(info[i], Tokens::PARENTESIS_IZQUIERDO);
 
-			else if (palabra == ")")Recopilar_informacion(info[i], Tokens::PARENTESIS_DERECHO);
+			//else if (palabra == ")")Recopilar_informacion(info[i], Tokens::PARENTESIS_DERECHO);
 
 			else if (isalpha(palabra[0]))Recopilar_informacion(info[i], Tokens::VARIABLE);
 
