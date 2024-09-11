@@ -17,7 +17,7 @@ using namespace Analizador_Lexico;
 int main()
 {
 	//string Frase = "Entero: Variable1 = 01;Decimal:Variable2";
-	string Frase = "Entero decimal lore;";
+	string Frase = "Entero_decimal,decimal lore 23.4a2;";
 	try
 	{
 		divisor.linea = 1;

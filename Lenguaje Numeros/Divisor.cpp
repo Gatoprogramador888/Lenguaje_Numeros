@@ -11,7 +11,7 @@ void Divisor::Divisor_Caracteres()
 	{
 		if (!isspace(linea_comando[i]))
 		{
-			if (!isalpha(linea_comando[i]) && !isdigit(linea_comando[i]))
+			if (!isalpha(linea_comando[i]) && !isdigit(linea_comando[i]) && linea_comando[i] != '.' && linea_comando[i] != '_')
 			{
 				comandos.push_back(comando);
 				comando = "";

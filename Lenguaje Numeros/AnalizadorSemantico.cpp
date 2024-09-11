@@ -15,7 +15,7 @@ void Analizador_Tokens_Compilacion::Imprimir()
 	{
 		INICIO, ESPERA_DIVISOR, ESPERA_COMILLAS,
 		ESPERA_PARENTESIS_DERECHO, ESPERA_PARENTESIS_IZQUIERDO, ESPERA_VARIABLE,
-		ESPERA_CARACTER, ESPERA_COMILLAS, ESPERA_COMAS_FIN_COMANDO,ERROR
+		ESPERA_CARACTER, ESPERA_COMAS_FIN_COMANDO,ERROR
 	};
 	Estados estado = Estados::INICIO;
 
@@ -267,18 +267,30 @@ void Analizador_Tokens_Compilacion::Entero_Decimal_Dinamico()
 			break;
 
 		case Estados::Espera_IGUALDAD:
+
+			for (int i = 0; i < comandos[posicion].size(); i++)
+			{
+				if (isalpha(comandos[posicion][i]))
+				{
+					error = "Los Numeros no pueden tener letras.\nLinea: " + to_string(linea) + ", posicion: " + to_string(posiciones[posicion]) + ".\n";
+					throw runtime_error(error.c_str());
+				}
+			}
+
 			if (tokens[posicion] == Tokens::NUMERO && (Tipo_Dato == Tokens::DECIMAL || Tipo_Dato == Tokens::DINAMICO))
 			{
-				if (tokens[posicion + 1] != Tokens::PUNTO && tokens[posicion + 2] != Tokens::NUMERO)
+				size_t punto = comandos[posicion].find(".");
+				if (punto == string::npos)
 				{
-					error = "La igualdad" + comandos[posicion] + comandos[posicion + 1] + comandos[posicion + 2] + "de la variable " + nombre_variable + " es incorrecta.\nLinea: " + to_string(linea) + ", posicion: " + to_string(posicion) + ".\n";
+					error = "La igualdad" + comandos[posicion] + "de la variable " + nombre_variable + " es incorrecta.\nLinea: " + to_string(linea) + ", posicion: " + to_string(posicion) + ".\n";
 					throw runtime_error(error.c_str());
 				}
 				variable.valor = comandos[posicion] + comandos[posicion + 1] + comandos[posicion + 2];
 			}
 			else if(tokens[posicion] == Tokens::NUMERO && (Tipo_Dato == Tokens::DINAMICO || Tipo_Dato == Tokens::ENTERO))
 			{
-				if (tokens[posicion + 1] != Tokens::COMAS || tokens[posicion + 1] != Tokens::FIN_COMANDO)
+				size_t punto = comandos[posicion].find(".");
+				if (punto != string::npos)
 				{
 					error = "La igualdad" + comandos[posicion] + "de la variable " + nombre_variable + " es incorrecta.\nLinea: " + to_string(linea) + ", posicion: " + to_string(posicion) + ".\n";
 					throw runtime_error(error.c_str());
@@ -287,7 +299,7 @@ void Analizador_Tokens_Compilacion::Entero_Decimal_Dinamico()
 			}
 			else
 			{
-				error = comandos[posicion] + " no es de tipo NUMERO es de tipo " + Tokenizador::Get_Tipo(tokens[posicion]) + ".\nLinea: " + to_string(linea) + ", posicion: " + to_string(posiciones[posicion]) + ".\n";
+				error = comandos[posicion] + " no es de tipo Numero es de tipo " + Tokenizador::Get_Tipo(tokens[posicion]) + ".\nLinea: " + to_string(linea) + ", posicion: " + to_string(posiciones[posicion]) + ".\n";
 				throw runtime_error(error.c_str());
 			}
 			break;
@@ -391,11 +403,49 @@ void Analizador_Tokens_Compilacion::Operacion()
 				break;
 			}
 
-			if (tokens[posicion] != Tokens::VARIABLE)
+			if (tokens[posicion] == Tokens::NUMERO)
 			{
+
+				if (posicion < tokens.size())
+					estado = tokens[posicion + 1] != Tokens::FIN_COMANDO ? Estados::ESPERA_OPERADOR : Estados::ESPERA_FIN_COMANDO;
+				else
+				{
+					error = "Se esperaba ';'.\nLinea: " + to_string(linea) + ", posicion: " + to_string(posiciones[posicion]) + ".\n";
+					estado = Estados::ERROR;
+					break;
+				}
+
 				//Numero
+				if (obj[administrador.PosOBj(variable)]->GetType() == "Entero")
+				{
+					size_t punto = comandos[posicion].find(".");
+					if (punto != string::npos)
+					{
+						error = "El numero " + comandos[posicion] + " no es de tipo entero.\nLinea: " + to_string(linea) + ", posicion: " + to_string(posiciones[posicion]) + ".\n";
+						estado = Estados::ERROR;
+					}
+				}
+				if (obj[administrador.PosOBj(variable)]->GetType() == "Decimal")
+				{
+					size_t punto = comandos[posicion].find(".");
+					if (punto == string::npos)
+					{
+						error = "El numero " + comandos[posicion] + " no es de tipo Decimal.\nLinea: " + to_string(linea) + ", posicion: " + to_string(posiciones[posicion]) + ".\n";
+						estado = Estados::ERROR;
+					}
+				}
+
+				for (int i = 0; i < comandos[posicion].size(); i++)
+				{
+					if (isalpha(comandos[posicion][i]))
+					{
+						error = "Los Numeros no pueden tener letras.\nLinea: " + to_string(linea) + ", posicion: " + to_string(posiciones[posicion]) + ".\n";
+						estado = Estados::ERROR;
+					}
+				}
+
 			}
-			else
+			else if(tokens[posicion] == Tokens::VARIABLE)
 			{
 				//Variable
 				if (obj[administrador.PosOBj(comandos[posicion])]->GetType() != tipo || obj[administrador.PosOBj(comandos[posicion])]->GetType() != "Dinamico")
@@ -403,9 +453,47 @@ void Analizador_Tokens_Compilacion::Operacion()
 					error = comandos[posicion] + " no es del mismo tipo que " + variable + ".\nLinea: " + to_string(linea) + ", posicion : " + to_string(posiciones[posicion]) + ".\n";
 					estado = Estados::ERROR;
 				}
+
+				if (posicion < tokens.size())
+					estado = tokens[posicion + 1] != Tokens::FIN_COMANDO ? Estados::ESPERA_OPERADOR : Estados::ESPERA_FIN_COMANDO;
+				else
+				{
+					error = "Se esperaba ';'.\nLinea: " + to_string(linea) + ", posicion: " + to_string(posiciones[posicion])+".\n";
+					estado = Estados::ERROR;
+				}
 			}
 			break;
 		}
+
+		case Estados::ESPERA_OPERADOR:
+		{
+			if (posicion + 1 < tokens.size())
+				estado = Estados::ESPERA_NUMERO;
+			else
+			{
+				error = "Se esperaba un ';'.\nLinea: " + to_string(linea) + ", posicion : " + to_string(posiciones[posicion]) + ".\n";
+				estado = Estados::ERROR;
+				break;
+			}
+
+			if (tokens[posicion] != Tokens::OPERADOR)
+			{
+				error = comandos[posicion] + " Es de tipo " + Tokenizador::Get_Tipo(tokens[posicion]) + " no tipo Operador.\nLinea: " + to_string(linea) + ", posicion: " + to_string(posiciones[posicion]) + ".\n";
+				estado = Estados::ERROR;
+			}
+			break;
+		}
+
+		case Estados::ESPERA_FIN_COMANDO:
+		{
+			if (tokens[posicion] != Tokens::FIN_COMANDO)
+			{
+				error = "Se esperaba ';' no " + comandos[posicion] + ".\nLinea: " + to_string(linea) + ", posicion: " + to_string(posiciones[posicion]) + ".\n";
+				estado = Estados::ERROR;
+			}
+			break;
+		}
+
 		case Estados::ERROR:
 			throw runtime_error(error.c_str());
 			break;
