@@ -4,7 +4,7 @@
 
 
 
-class Analizador_Tokens_Compilacion : Interfaz_Compilador
+class Analizador_Tokens_Compilacion : public Interfaz_Compilador
 {
 private:
 	void Fin_Linea(Tokens fin_tokens);

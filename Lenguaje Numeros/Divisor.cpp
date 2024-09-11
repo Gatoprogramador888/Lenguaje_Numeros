@@ -55,20 +55,21 @@ vector<string> Divisor::Get_Comandos()
 	return comandos;
 }
 
-vector<string> Divisor::Divisiones_Varias_lineas_Comandos()
+vector<string> Divisor::Divisiones_Varias_lineas_Comandos(string frase)
 {
 	vector<size_t> fin_comando;
 	vector<string> lineas;
 	size_t posicion_anterior = 0;
 	string oracion;
 
-	for (size_t i = 0; i < linea_comando.size(); i++)if (linea_comando[i] == ';')fin_comando.push_back(i+1);
+	for (size_t i = 0; i < frase.size(); i++)
+		if (frase[i] == ';')fin_comando.push_back(i+1);
 
 	for (size_t posicion : fin_comando)
 	{
 		for (size_t posicion_iterador = posicion_anterior; posicion_iterador < posicion; posicion_iterador++)
 		{
-			oracion += linea_comando[posicion_iterador];
+			oracion += frase[posicion_iterador];
 		}
 		lineas.push_back(oracion);
 		oracion = "";

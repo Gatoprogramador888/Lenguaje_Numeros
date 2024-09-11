@@ -88,7 +88,7 @@ map<string,Informacion> Tokenizador::Mapa_Informacion(vector<string> instruccion
 
 			else if (isalpha(palabra[0]))Recopilar_informacion(info[i], Tokens::VARIABLE);
 
-			else if (palabra == ".")Recopilar_informacion(info[i], Tokens::PUNTO);
+			//else if (palabra == ".")Recopilar_informacion(info[i], Tokens::PUNTO);
 
 			else if (palabra[0] == NULL) {}
 

@@ -28,7 +28,7 @@ public:
 
 	vector<string> Get_Comandos();
 
-	vector<string> Divisiones_Varias_lineas_Comandos();
+	vector<string> Divisiones_Varias_lineas_Comandos(string frase);
 
 	vector<Informacion> Info();
 

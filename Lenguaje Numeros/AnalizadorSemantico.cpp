@@ -204,7 +204,7 @@ void Analizador_Tokens_Compilacion::Entero_Decimal_Dinamico()
 	vector<Informacion_Variable> Variables;
 	Informacion_Variable variable;
 
-	for (size_t posicion = 2; posicion < tokens.size(); posicion++)
+	for (size_t posicion = 0; posicion < tokens.size(); posicion++)
 	{
 		switch (estado)
 		{
@@ -252,11 +252,12 @@ void Analizador_Tokens_Compilacion::Entero_Decimal_Dinamico()
 			{
 				estado = Estados::Espera_IGUALDAD;
 			}
-			else if(tokens[posicion] == Tokens::COMAS || tokens[posicion] == Tokens::FIN_COMANDO)
+			else if (tokens[posicion] == Tokens::COMAS || tokens[posicion] == Tokens::FIN_COMANDO)
 			{
-				error = "La variable " + comandos[posicion - 1] + " no ah sido inicializada.\nLinea: " + to_string(linea) + ", posicion: " + to_string(posiciones[posicion]) + ".\n";
+				posicion--;
+				error = "La variable: " + comandos[posicion] + " no ah sido inicializada.\nLinea: " + to_string(linea) + ", posicion: " + to_string(posiciones[posicion]) + ".\n";
 				cout << error;
-				variable.valor = "0";
+				variable.valor = Tipo_Dato != Tokens::DECIMAL ? "0" : "0.00";
 
 				estado = Estados::Espera_COMA_O_FIN;
 			}
@@ -277,34 +278,38 @@ void Analizador_Tokens_Compilacion::Entero_Decimal_Dinamico()
 				}
 			}
 
-			if (tokens[posicion] == Tokens::NUMERO && (Tipo_Dato == Tokens::DECIMAL || Tipo_Dato == Tokens::DINAMICO))
+			estado = Estados::Espera_COMA_O_FIN;
+
+			if (tokens[posicion] == Tokens::NUMERO && Tipo_Dato == Tokens::DECIMAL)
 			{
 				size_t punto = comandos[posicion].find(".");
 				if (punto == string::npos)
 				{
-					error = "La igualdad" + comandos[posicion] + "de la variable " + nombre_variable + " es incorrecta.\nLinea: " + to_string(linea) + ", posicion: " + to_string(posicion) + ".\n";
+					error = "La igualdad " + comandos[posicion] + " de la variable " + nombre_variable + " es incorrecta.\nLinea: " + to_string(linea) + ", posicion: " + to_string(posicion) + ".\n";
 					throw runtime_error(error.c_str());
 				}
-				variable.valor = comandos[posicion] + comandos[posicion + 1] + comandos[posicion + 2];
 			}
-			else if(tokens[posicion] == Tokens::NUMERO && (Tipo_Dato == Tokens::DINAMICO || Tipo_Dato == Tokens::ENTERO))
+			else if(tokens[posicion] == Tokens::NUMERO && Tipo_Dato == Tokens::ENTERO)
 			{
 				size_t punto = comandos[posicion].find(".");
 				if (punto != string::npos)
 				{
-					error = "La igualdad" + comandos[posicion] + "de la variable " + nombre_variable + " es incorrecta.\nLinea: " + to_string(linea) + ", posicion: " + to_string(posicion) + ".\n";
+					error = "La igualdad " + comandos[posicion] + " de la variable " + nombre_variable + " es incorrecta.\nLinea: " + to_string(linea) + ", posicion: " + to_string(posicion) + ".\n";
 					throw runtime_error(error.c_str());
 				}
-				variable.valor = comandos[posicion];
 			}
-			else
+			else if(Tipo_Dato != Tokens::DINAMICO)
 			{
 				error = comandos[posicion] + " no es de tipo Numero es de tipo " + Tokenizador::Get_Tipo(tokens[posicion]) + ".\nLinea: " + to_string(linea) + ", posicion: " + to_string(posiciones[posicion]) + ".\n";
 				throw runtime_error(error.c_str());
 			}
+
+			variable.valor = comandos[posicion];
+
 			break;
 
 		case Estados::Espera_COMA_O_FIN:
+
 			if (tokens[posicion] == Tokens::COMAS)
 			{
 				estado = Estados::Espera_VARIABLE;
@@ -324,6 +329,7 @@ void Analizador_Tokens_Compilacion::Entero_Decimal_Dinamico()
 		}
 	}
 
+	Variables.push_back(variable);
 	for (auto informacion : Variables)
 	{
 		administrador.Crear(informacion);
@@ -416,7 +422,7 @@ void Analizador_Tokens_Compilacion::Operacion()
 				}
 
 				//Numero
-				if (obj[administrador.PosOBj(variable)]->GetType() == "Entero")
+				if (obj[administrador.PosOBj(variable)]->GetType() == "ENTERO")
 				{
 					size_t punto = comandos[posicion].find(".");
 					if (punto != string::npos)
@@ -425,7 +431,7 @@ void Analizador_Tokens_Compilacion::Operacion()
 						estado = Estados::ERROR;
 					}
 				}
-				if (obj[administrador.PosOBj(variable)]->GetType() == "Decimal")
+				if (obj[administrador.PosOBj(variable)]->GetType() == "DECIMAL")
 				{
 					size_t punto = comandos[posicion].find(".");
 					if (punto == string::npos)
@@ -448,7 +454,7 @@ void Analizador_Tokens_Compilacion::Operacion()
 			else if(tokens[posicion] == Tokens::VARIABLE)
 			{
 				//Variable
-				if (obj[administrador.PosOBj(comandos[posicion])]->GetType() != tipo || obj[administrador.PosOBj(comandos[posicion])]->GetType() != "Dinamico")
+				if (obj[administrador.PosOBj(comandos[posicion])]->GetType() != tipo || obj[administrador.PosOBj(comandos[posicion])]->GetType() != "DINAMICO")
 				{
 					error = comandos[posicion] + " no es del mismo tipo que " + variable + ".\nLinea: " + to_string(linea) + ", posicion : " + to_string(posiciones[posicion]) + ".\n";
 					estado = Estados::ERROR;
@@ -582,9 +588,7 @@ void Analizador_Tokens_Compilacion::Inicio_analizacion(map<string, Informacion> 
 		comandos.push_back(iterador.second.comando);
 		posiciones.push_back(iterador.second.posicion);
 	}
-
 	//revisar que no se repitan 
-	Fin_Linea(tokens[tokens.size()]);
 
 	switch (tokens[0])
 	{

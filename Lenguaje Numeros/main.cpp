@@ -6,7 +6,6 @@
 #include"Tokens.h"
 #include<fstream>
 #include<stdio.h>
-#include"AnalizadorLexico.h"
 
 using namespace Analizador_Lexico;
 
@@ -15,18 +14,30 @@ using namespace Analizador_Lexico;
 
 
 int main()
-{
+{	
+	Analizador_Tokens_Compilacion ATC;
 	//string Frase = "Entero: Variable1 = 01;Decimal:Variable2";
-	string Frase = "Entero_decimal,decimal lore 23.4a2;";
+	string Frase = "Entero : mi_variable = 2;Imprimir : mi_variable;";
 	try
 	{
-		divisor.linea = 1;
-		tokenizador.linea = 1;
-		divisor.Inicio(Frase);
-
-		for (auto i : tokenizador.Mapa_Informacion(divisor.Get_Comandos(),divisor.Info()))
+		size_t linea = 1;
+		for (string codigo : divisor.Divisiones_Varias_lineas_Comandos(Frase))
 		{
-			cout << "ID: " << i.first << ".\ncomando: " << i.second.comando << ".\nToken: " << (int)i.second.token << "." << "\n------------------------------------------\n";
+			cout << codigo << endl;
+			divisor.linea = linea;
+			tokenizador.linea = linea;
+			ATC.linea = linea;
+			
+			divisor.Inicio(codigo);
+			
+			auto mapa = tokenizador.Mapa_Informacion(divisor.Get_Comandos(), divisor.Info());
+			ATC.Inicio_analizacion(mapa);
+			
+			divisor.Limpiar();
+			tokenizador.Limpiar();
+			ATC.Limpiar();
+
+			linea++;
 		}
 	}
 	catch (runtime_error& error)
