@@ -2,7 +2,7 @@
 
 Comandos_App::Comandos_App(int argc, char** argv)
 {
-	string* comandos = new string[argc];
+	string* comandos = new string[5];
 
 	for (int i = 0; i < argc; i++)
 	{
@@ -14,11 +14,11 @@ Comandos_App::Comandos_App(int argc, char** argv)
 
 	if (comandos[0] == "ayuda")
 	{
-		help.Set_Ayuda(comandos, argc);
+		help->Set_Ayuda(comandos, argc);
 	}
 	if (comandos[0] == "compilar")
 	{
-
+		compile->Set_Compilar(comandos[1], comandos[2]);
 	}
 	if (comandos[0] == "interpretar")
 	{
@@ -26,10 +26,18 @@ Comandos_App::Comandos_App(int argc, char** argv)
 	}
 	if (comandos[0] == "compilar_I")
 	{
+		compile->Set_Compilar(comandos[1], comandos[2]);
 
 	}
 
 
+}
+
+Comandos_App::~Comandos_App()
+{
+	delete help;
+	delete inter;
+	delete compile;
 }
 
 void Tipo_Comandos::Ayuda::Set_Ayuda(string* comandos, int argc)
@@ -128,7 +136,7 @@ void Tipo_Comandos::Compilar::Set_Compilar(string archivo_compilar, string archi
 
 				auto mapa = tokenizador.Mapa_Informacion(divisor.Get_Comandos(), divisor.Info());
 
-				ATC.Inicio_analizacion(mapa);
+				ATC.Inicio_analizacion(mapa, archivo_compilado);
 
 				divisor.Limpiar();
 				tokenizador.Limpiar();

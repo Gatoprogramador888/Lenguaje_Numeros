@@ -16,20 +16,6 @@ namespace Tipo_Comandos {
 	class Interpretar;
 }
 
-class Tipo_Comandos::Ayuda
-{
-protected:
-	Tipo_Comandos::Compilar Compile;
-	Tipo_Comandos::Interpretar inter;
-public:
-	void Set_Ayuda(string* comandos, int argc);
-	void Comandos();
-	void Compilar();
-	void Sintaxis(string comando);
-	void Interpretar();
-	void Compilar_I();
-};
-
 class Tipo_Comandos::Compilar
 {
 public:
@@ -42,15 +28,27 @@ public:
 	void Set_Interpretar(string archivo_compilado_interpretar);
 };
 
+class Tipo_Comandos::Ayuda
+{
+protected:
+public:
+	void Set_Ayuda(string* comandos, int argc);
+	void Comandos();
+	void Compilar();
+	void Sintaxis(string comando);
+	void Interpretar();
+	void Compilar_I();
+};
+
 class Comandos_App
 {
 protected:
 
-	Tipo_Comandos::Ayuda help;
-	Tipo_Comandos::Compilar compile;
-	Tipo_Comandos::Interpretar inter;
+	Tipo_Comandos::Ayuda* help = new Tipo_Comandos::Ayuda;
+	Tipo_Comandos::Compilar* compile = new Tipo_Comandos::Compilar;
+	Tipo_Comandos::Interpretar* inter = new Tipo_Comandos::Interpretar;
 public:
 	Comandos_App(int argc, char** argv);
-
+	~Comandos_App();
 };
 

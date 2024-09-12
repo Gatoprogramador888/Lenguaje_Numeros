@@ -13,8 +13,9 @@ private:
 	vector<string> comandos;
 	vector<size_t> posiciones;
 	string error = "";
+	ofstream archivo_a_compilar;
 public:
-	void Inicio_analizacion(map<string, Informacion> mapa);
+	void Inicio_analizacion(map<string, Informacion> mapa,string nombre_archivo);
 	void Limpiar() override;
 	~Analizador_Tokens_Compilacion()
 	{

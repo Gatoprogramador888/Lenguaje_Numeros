@@ -21,7 +21,7 @@ int main(int argc, char** argv)
 			
 			auto mapa = tokenizador.Mapa_Informacion(divisor.Get_Comandos(), divisor.Info());
 
-			ATC.Inicio_analizacion(mapa);
+			ATC.Inicio_analizacion(mapa,"prueba.txt");
 			
 			divisor.Limpiar();
 			tokenizador.Limpiar();

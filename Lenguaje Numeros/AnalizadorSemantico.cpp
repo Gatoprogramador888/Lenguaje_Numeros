@@ -20,7 +20,7 @@ void Analizador_Tokens_Compilacion::Imprimir()
 	Estados estado = Estados::INICIO;
 	bool Es_Texto = tokens[2] != Tokens::TEXTO ? false : true;
 	int8_t comillas = Es_Texto ? 1 : 0;
-
+	archivo_a_compilar << "\n>\n";
 
 	for (size_t posicion = 0; posicion < tokens.size(); posicion++)
 	{
@@ -58,12 +58,15 @@ void Analizador_Tokens_Compilacion::Imprimir()
 				{
 					error = comandos[posicion] + " no existe dicha variable.\nLinea: " + to_string(linea) + ", posicion: " + to_string(posiciones[posicion]) + ".\n";
 					estado = Estados::ERROR;
+					break;
 				}
 				if (administrador.PosOBj(comandos[posicion]) == SIZE_MAX)
 				{
 					error = comandos[posicion] + " no existe dicha variable.\nLinea: " + to_string(linea) + ", posicion: " + to_string(posiciones[posicion]) + ".\n";
 					estado = Estados::ERROR;
+					break;
 				}
+				archivo_a_compilar << comandos[posicion] << "\n";
 				break;
 			}
 
@@ -221,6 +224,8 @@ void Analizador_Tokens_Compilacion::Imprimir()
 					estado = Estados::ERROR;
 				}
 
+				if (estado != Estados::ERROR)
+					archivo_a_compilar  << comandos[posicion] << "\n";
 
 				break;
 			}
@@ -259,6 +264,9 @@ void Analizador_Tokens_Compilacion::Imprimir()
 					error = comandos[posicion] + " no existe.\nLinea: " + to_string(linea) + ", posicion: " + to_string(posiciones[posicion]) + ".\n";
 					estado = Estados::ERROR;
 				}
+
+				if (estado != Estados::ERROR)
+					archivo_a_compilar << comandos[posicion] << "\n";
 
 				break;
 			}
@@ -339,6 +347,7 @@ void Analizador_Tokens_Compilacion::Imprimir()
 			}
 		}
 	}
+	archivo_a_compilar << "\n>\n";
 }
 
 void Analizador_Tokens_Compilacion::Entero_Decimal_Dinamico()
@@ -492,6 +501,7 @@ void Analizador_Tokens_Compilacion::Operacion()
 	enum class Estados{INICIO, DIVISOR, ESPERA_VARIABLE, ESPERA_IGUAL, ESPERA_NUMERO, ESPERA_OPERADOR, ESPERA_FIN_COMANDO, ERROR};
 	Estados estado = Estados::INICIO;
 	string tipo = "",variable = "";
+	archivo_a_compilar << "\n";
 
 	for (size_t posicion = 0; posicion < tokens.size(); posicion++)
 	{
@@ -536,6 +546,9 @@ void Analizador_Tokens_Compilacion::Operacion()
 			}
 			tipo = obj[administrador.PosOBj(comandos[posicion])]->GetType();
 			variable = comandos[posicion];
+
+			archivo_a_compilar << variable;
+
 			break;
 		}
 		case Estados::ESPERA_IGUAL:
@@ -546,6 +559,10 @@ void Analizador_Tokens_Compilacion::Operacion()
 				error = "Se esperaba '=' no " + comandos[posicion] + ".\nLinea: " + to_string(linea) + ", posicion: " + to_string(posiciones[posicion]) + ".\n";
 				estado = Estados::ERROR;
 			}
+
+			if (estado != Estados::ERROR)
+				archivo_a_compilar << " = ";
+
 			break;
 		}
 		case Estados::ESPERA_NUMERO:
@@ -633,6 +650,10 @@ void Analizador_Tokens_Compilacion::Operacion()
 					estado = Estados::ERROR;
 				}
 			}
+
+			if (estado != Estados::ERROR)
+				archivo_a_compilar << comandos[posicion];
+
 			break;
 		}
 
@@ -662,6 +683,10 @@ void Analizador_Tokens_Compilacion::Operacion()
 				error = comandos[posicion] + " Es de tipo " + Tokenizador::Get_Tipo(tokens[posicion]) + " no tipo Operador.\nLinea: " + to_string(linea) + ", posicion: " + to_string(posiciones[posicion]) + ".\n";
 				estado = Estados::ERROR;
 			}
+
+			if (estado != Estados::ERROR)
+				archivo_a_compilar << " " << comandos[posicion] << " ";
+
 			break;
 		}
 
@@ -681,6 +706,7 @@ void Analizador_Tokens_Compilacion::Operacion()
 		}
 
 	}
+	archivo_a_compilar << "\n";
 }
 
 void Analizador_Tokens_Compilacion::Pedir()
@@ -688,6 +714,7 @@ void Analizador_Tokens_Compilacion::Pedir()
 	//Iniciar pedir
 	enum class Estados{INICIO, ESPERA_DIVISOR, ESPERA_VARIABLE, ESPERA_COMA_O_FIN, ERROR};
 	Estados estado = Estados::INICIO;
+	archivo_a_compilar << "\n<\n";
 	
 	for (size_t i = 0; i < tokens.size(); i++)
 	{
@@ -733,6 +760,9 @@ void Analizador_Tokens_Compilacion::Pedir()
 				estado = Estados::ERROR;
 			}
 
+			if (estado != Estados::ERROR)
+				archivo_a_compilar << comandos[i] << "\n";
+
 			break;
 		}
 
@@ -759,10 +789,14 @@ void Analizador_Tokens_Compilacion::Pedir()
 		}
 	}
 
+	archivo_a_compilar << "<\n";
 }
 
-void Analizador_Tokens_Compilacion::Inicio_analizacion(map<string, Informacion> mapa)
+void Analizador_Tokens_Compilacion::Inicio_analizacion(map<string, Informacion> mapa, string nombre_archivo)
 {
+
+	archivo_a_compilar.open(nombre_archivo);
+
 	for (auto iterador : mapa)
 	{
 		tokens.push_back(iterador.second.token);
