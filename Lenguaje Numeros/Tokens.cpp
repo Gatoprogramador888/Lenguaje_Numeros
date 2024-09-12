@@ -60,7 +60,7 @@ map<string,Informacion> Tokenizador::Mapa_Informacion(vector<string> instruccion
 
 			else if (Impresion_Peticion(palabra))Recopilar_informacion(info[i], token);
 
-			else if (palabra == "Operador")Recopilar_informacion(info[i], Tokens::OPERACION);
+			else if (palabra == "Operacion")Recopilar_informacion(info[i], Tokens::OPERACION);
 
 			else if (palabra == "#")break;
 
@@ -84,13 +84,11 @@ map<string,Informacion> Tokenizador::Mapa_Informacion(vector<string> instruccion
 				comillas++;
 			}
 
-			//else if (palabra == "(")Recopilar_informacion(info[i], Tokens::PARENTESIS_IZQUIERDO);
+			else if (palabra == "{")Recopilar_informacion(info[i], Tokens::PARENTESIS_IZQUIERDO);
 
-			//else if (palabra == ")")Recopilar_informacion(info[i], Tokens::PARENTESIS_DERECHO);
+			else if (palabra == "}")Recopilar_informacion(info[i], Tokens::PARENTESIS_DERECHO);
 
 			else if (isalpha(palabra[0]))Recopilar_informacion(info[i], Tokens::VARIABLE);
-
-			//else if (palabra == ".")Recopilar_informacion(info[i], Tokens::PUNTO);
 
 			else if (palabra[0] == NULL) {}
 
@@ -99,12 +97,12 @@ map<string,Informacion> Tokenizador::Mapa_Informacion(vector<string> instruccion
 		}
 		else
 		{
-			if (palabra == "(")
+			if (palabra == "{")
 			{
 				Recopilar_informacion(info[i], Tokens::PARENTESIS_IZQUIERDO);
 				parentesis = true;
 			}
-			else if (palabra == ")")
+			else if (palabra == "}")
 			{
 				Recopilar_informacion(info[i], Tokens::PARENTESIS_DERECHO);
 				parentesis = false;
@@ -126,12 +124,17 @@ map<string,Informacion> Tokenizador::Mapa_Informacion(vector<string> instruccion
 	}
 	
 	size_t posicion_Token = 1;
-
+	
 	for (auto it : informacion)
 	{
 		string ID = to_string(linea) + "." + to_string(posicion_Token);
 		retorno.insert(make_pair(ID, it));
 		posicion_Token++;
+		if (posicion_Token >= 10)
+		{
+			posicion_Token = 0;
+			linea++;
+		}
 	}
 
 	return retorno;

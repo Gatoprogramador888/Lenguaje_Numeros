@@ -507,6 +507,7 @@ void Analizador_Tokens_Compilacion::Operacion()
 				error = comandos[posicion] + " no es de tipo Operacion.\nLinea: " + to_string(linea) + ", posicion: " + to_string(posiciones[posicion]) + ".\n";
 				estado = Estados::ERROR;
 			}
+			break;
 		}
 		case Estados::DIVISOR:
 		{
@@ -527,6 +528,13 @@ void Analizador_Tokens_Compilacion::Operacion()
 				estado = Estados::ERROR;
 				break;
 			}
+
+			if (administrador.PosOBj(comandos[posicion]) == SIZE_MAX)
+			{
+				error = comandos[posicion] + " no existe.\nLinea: " + to_string(linea) + ", posicion: " + to_string(posiciones[posicion]) + ".\n";
+				estado = Estados::ERROR;
+				break;
+			}
 			tipo = obj[administrador.PosOBj(comandos[posicion])]->GetType();
 			variable = comandos[posicion];
 			break;
@@ -543,7 +551,7 @@ void Analizador_Tokens_Compilacion::Operacion()
 		}
 		case Estados::ESPERA_NUMERO:
 		{
-			if (tokens[posicion] != Tokens::VARIABLE || tokens[posicion] != Tokens::NUMERO)
+			if (tokens[posicion] != Tokens::VARIABLE && tokens[posicion] != Tokens::NUMERO)
 			{
 				error = comandos[posicion] + " es de tipo " + Tokenizador::Get_Tipo(tokens[posicion]) + " en vez de tipo Variable.\nLinea: " + to_string(linea) + ", posicion: " + to_string(posiciones[posicion]) + ".\n";
 				estado = Estados::ERROR;
@@ -604,6 +612,14 @@ void Analizador_Tokens_Compilacion::Operacion()
 			else if(tokens[posicion] == Tokens::VARIABLE)
 			{
 				//Variable
+
+				if (administrador.PosOBj(comandos[posicion]) == SIZE_MAX)
+				{
+					error = comandos[posicion]+" no existe.\nLinea: " + to_string(linea) + ", posicion : " + to_string(posiciones[posicion]) + ".\n";
+					estado = Estados::ERROR;
+					break;
+				}
+
 				if (obj[administrador.PosOBj(comandos[posicion])]->GetType() != tipo || obj[administrador.PosOBj(comandos[posicion])]->GetType() != "DINAMICO")
 				{
 					error = comandos[posicion] + " no es del mismo tipo que " + variable + ".\nLinea: " + to_string(linea) + ", posicion : " + to_string(posiciones[posicion]) + ".\n";
@@ -624,13 +640,23 @@ void Analizador_Tokens_Compilacion::Operacion()
 		case Estados::ESPERA_OPERADOR:
 		{
 			if (posicion + 1 < tokens.size())
-				estado = Estados::ESPERA_NUMERO;
+			{
+				estado = tokens[posicion + 1] != Tokens::NUMERO ? Estados::ERROR : Estados::ESPERA_NUMERO;
+
+				if (estado == Estados::ERROR)
+				{
+					error = "Se esperaba una variable en " + comandos[posicion + 1] + ".\nLinea: " + to_string(linea) + ", posicion: " + to_string(posiciones[posicion]) + ".\n";
+					break;
+				}
+			}
 			else
 			{
-				error = "Se esperaba un ';'.\nLinea: " + to_string(linea) + ", posicion : " + to_string(posiciones[posicion]) + ".\n";
+				error = "Se esperaba ';' no " + comandos[posicion] + ".\nLinea: " + to_string(linea) + ", posicion: " + to_string(posiciones[posicion]) + ".\n";
 				estado = Estados::ERROR;
 				break;
 			}
+
+			if (estado == Estados::ERROR)break;
 
 			if (tokens[posicion] != Tokens::OPERADOR)
 			{
