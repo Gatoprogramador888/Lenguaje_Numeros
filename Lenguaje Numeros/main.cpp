@@ -16,8 +16,7 @@ using namespace Analizador_Lexico;
 int main()
 {	
 	Analizador_Tokens_Compilacion ATC;
-	//string Frase = "Entero: Variable1 = 01;Decimal:Variable2";
-	string Frase = "Entero : mi_variable = 2;Operacion : mi_variable = mi_variable + 2;";
+	string Frase = "Entero : mi_variable = 2, otro = 1;Imprimir : $ \"hola mundo\";";
 	try
 	{
 		size_t linea = 1;

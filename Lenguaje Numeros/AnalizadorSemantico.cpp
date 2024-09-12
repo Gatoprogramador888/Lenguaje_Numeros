@@ -4,7 +4,7 @@ void Analizador_Tokens_Compilacion::Fin_Linea(Tokens fin_tokens)
 {
 	if(fin_tokens != Tokens::FIN_COMANDO)
 	{ 
-		string error = "falta se ; en la Linea: " + to_string(linea) + ", posicion: " + to_string(tokens.size()) + ".\n";
+		string error = "Se esperaba ';' en vez de " + comandos[comandos.size() - 1] + " .\nLinea: " + to_string(linea) + ", posicion: " + to_string(posiciones[posiciones.size() - 1]) + ".\n";
 		throw runtime_error(error.c_str());
 	}
 }
@@ -459,7 +459,6 @@ void Analizador_Tokens_Compilacion::Entero_Decimal_Dinamico()
 			break;
 
 		case Estados::Espera_COMA_O_FIN:
-
 			if (tokens[posicion] == Tokens::COMAS)
 			{
 				estado = Estados::Espera_VARIABLE;
@@ -770,7 +769,6 @@ void Analizador_Tokens_Compilacion::Inicio_analizacion(map<string, Informacion> 
 		comandos.push_back(iterador.second.comando);
 		posiciones.push_back(iterador.second.posicion);
 	}
-	//revisar que no se repitan 
 
 	switch (tokens[0])
 	{
@@ -785,6 +783,9 @@ void Analizador_Tokens_Compilacion::Inicio_analizacion(map<string, Informacion> 
 			throw runtime_error(error.c_str());
 			break;
 	}
+
+	Fin_Linea(tokens.at(tokens.size() - 1));
+
 }
 
 void Analizador_Tokens_Compilacion::Limpiar()
