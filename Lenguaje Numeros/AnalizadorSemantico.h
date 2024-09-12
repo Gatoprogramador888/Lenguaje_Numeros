@@ -16,12 +16,13 @@ private:
 public:
 	void Inicio_analizacion(map<string, Informacion> mapa);
 	void Limpiar() override;
-};
-
-class Analizador_Codigo_Compilacion
-{
-private:
-public:
+	~Analizador_Tokens_Compilacion()
+	{
+		tokens.shrink_to_fit();
+		comandos.shrink_to_fit();
+		posiciones.shrink_to_fit();
+		error.shrink_to_fit();
+	}
 };
 
 class Analizador_Semantico_Interpretacion

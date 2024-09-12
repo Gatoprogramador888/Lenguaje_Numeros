@@ -146,6 +146,7 @@
   <ItemGroup>
     <ClCompile Include="AnalizadorLexico.cpp" />
     <ClCompile Include="AnalizadorSemantico.cpp" />
+    <ClCompile Include="Comandos_App.cpp" />
     <ClCompile Include="CRObjetos.cpp" />
     <ClCompile Include="Divisor.cpp" />
     <ClCompile Include="Interpretar.cpp" />
@@ -155,6 +156,7 @@
   <ItemGroup>
     <ClInclude Include="AnalizadorLexico.h" />
     <ClInclude Include="AnalizadorSemantico.h" />
+    <ClInclude Include="Comandos_App.h" />
     <ClInclude Include="CRObjetos.h" />
     <ClInclude Include="Divisor.h" />
     <ClInclude Include="Informacion.h" />
@@ -163,6 +165,7 @@
   </ItemGroup>
   <ItemGroup>
     <Text Include="..\x64\Debug\documentacion Lenguaje Numeros.txt" />
+    <Text Include="lenguaje numeros comandos.txt" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

@@ -34,6 +34,9 @@
     <Filter Include="Analizadores\Analizador_Lexico\Estados">
       <UniqueIdentifier>{cdc18599-0b56-44b7-a9e8-40c469f8e982}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Comandos">
+      <UniqueIdentifier>{61ae9c11-94f7-4d5f-8b0d-6e5253b9b162}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -56,6 +59,9 @@
     </ClCompile>
     <ClCompile Include="AnalizadorSemantico.cpp">
       <Filter>Analizadores\Analizador_Semantico</Filter>
+    </ClCompile>
+    <ClCompile Include="Comandos_App.cpp">
+      <Filter>Comandos</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -80,9 +86,15 @@
     <ClInclude Include="AnalizadorSemantico.h">
       <Filter>Analizadores\Analizador_Semantico</Filter>
     </ClInclude>
+    <ClInclude Include="Comandos_App.h">
+      <Filter>Comandos</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Text Include="..\x64\Debug\documentacion Lenguaje Numeros.txt">
+      <Filter>Archivos de recursos</Filter>
+    </Text>
+    <Text Include="lenguaje numeros comandos.txt">
       <Filter>Archivos de recursos</Filter>
     </Text>
   </ItemGroup>

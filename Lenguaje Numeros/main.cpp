@@ -1,19 +1,12 @@
-#include"AnalizadorLexico.h"
-#include"Divisor.h"
-#include"AnalizadorSemantico.h"
-#include"CRObjetos.h"
-//#include"Interpretar.h"
-#include"Tokens.h"
-#include<fstream>
-#include<stdio.h>
+#include"Comandos_App.h"
 
-using namespace Analizador_Lexico;
-
-/*ARREGLAR LA CLASE DE OBJETOS*/
-/*MODIFICAR LIBRERIAS SEMANTICAS*/
+/*HACER QUE SE PASE TODO A UN NUEVO ARCHIVO*/
+/*MODIFICAR INTERPRETE*/
+/*HACER UN SISTEMA DE RECIBIR ARCHIVOS Y CREAR ARCHIVOS*/
+/*HACER SISTEMA DE AYUDA*/
 
 
-int main()
+int main(int argc, char** argv)
 {	
 	Analizador_Tokens_Compilacion ATC;
 	string Frase = "Entero : mi_variable = 2, otro = 1;Imprimir : $ \"hola mundo\";";
@@ -48,6 +41,7 @@ int main()
 
 	tokenizador.~Tokenizador();
 	divisor.~Divisor();
+	ATC.~Analizador_Tokens_Compilacion();
 
 	return 0;
 }

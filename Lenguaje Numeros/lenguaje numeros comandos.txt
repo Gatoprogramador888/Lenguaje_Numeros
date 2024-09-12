@@ -1,0 +1,33 @@
+Lenguaje Numeros
+{
+	ayuda
+	{
+		comandos = {Mostrar comandos}
+		compilar = {comando para compilar}
+		sintaxis =
+	 	{
+			imprimir = {mostrar un hola mundo y una impresion de variable}
+			Pedir = {mostrar como pedir una o mas variables}
+			declarar = {mostrar como declarar un entero}
+			operacion = {como hacer una operacion}
+		}
+		interpretar = {comando para interpretar}
+		compilar_I = {comando para compilar e interpretar al mismo tiempo}
+	}
+
+
+	compilar
+	{
+		Archivo_a_compilar.txt archivo_compilado.txt
+	}
+
+	interpretar
+	{
+		Archivo_compilado_interpretar.txt
+	}
+
+	compilar_I
+	{
+		Archivo_a_compilar.txt archivo_compilado_interpretar.txt
+	}
+}
