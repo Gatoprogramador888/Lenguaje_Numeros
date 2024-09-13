@@ -18,7 +18,9 @@ void Analizador_Tokens_Compilacion::Imprimir()
 		ESPERA_CARACTER, ESPERA_COMAS_FIN_COMANDO, ERROR, ESPERA_TEXTO 
 	};
 	Estados estado = Estados::INICIO;
-	bool Es_Texto = tokens[2] != Tokens::TEXTO ? false : true;
+	bool Es_Texto = false;
+	if(tokens.size() > 2)
+		Es_Texto = tokens[2] != Tokens::TEXTO ? false : true;
 	int8_t comillas = Es_Texto ? 1 : 0;
 	archivo_a_compilar << "\n>\n";
 
@@ -66,7 +68,7 @@ void Analizador_Tokens_Compilacion::Imprimir()
 					estado = Estados::ERROR;
 					break;
 				}
-				archivo_a_compilar << comandos[posicion] << "\n";
+				archivo_a_compilar << "{ " << comandos[posicion] << "\n";
 				break;
 			}
 
