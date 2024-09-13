@@ -14,7 +14,7 @@ private:
 	char* Restar(vector<int> n1, vector<int> n2);
 	char* Multiplicar(vector<int> n1, vector<int> n2);
 	char* Dividir(vector<int> n1, vector<int> n2);
-	void Calcular(size_t& cantidad), Imprimir(), Divisor(), Peticion(), EncontraIgualdad();
+	void Calcular(size_t& cantidad), Imprimir(), Divisor(), Peticion();
 
 private:
 	//Para Calcular

@@ -13,8 +13,10 @@ using namespace Analizador_Lexico;
 namespace Tipo_Comandos {
 	class Ayuda;
 	class Compilar;
-	class Interpretar;
+	class CInterpretar;
 }
+
+using namespace Tipo_Comandos;
 
 class Tipo_Comandos::Compilar
 {
@@ -22,7 +24,7 @@ public:
 	void Set_Compilar(string archivo_compilar, string archivo_compilado);
 };
 
-class Tipo_Comandos::Interpretar
+class Tipo_Comandos::CInterpretar
 {
 public:
 	void Set_Interpretar(string archivo_compilado_interpretar);
@@ -44,9 +46,9 @@ class Comandos_App
 {
 protected:
 
-	Tipo_Comandos::Ayuda* help = new Tipo_Comandos::Ayuda;
-	Tipo_Comandos::Compilar* compile = new Tipo_Comandos::Compilar;
-	Tipo_Comandos::Interpretar* inter = new Tipo_Comandos::Interpretar;
+	Ayuda help;
+	Compilar compile;
+	CInterpretar inter;
 public:
 	Comandos_App(int argc, char** argv);
 	~Comandos_App();

@@ -266,7 +266,7 @@ void Analizador_Tokens_Compilacion::Imprimir()
 				}
 
 				if (estado != Estados::ERROR)
-					archivo_a_compilar << comandos[posicion] << "\n";
+					archivo_a_compilar << "{ " << comandos[posicion] << "\n";
 
 				break;
 			}
@@ -347,7 +347,7 @@ void Analizador_Tokens_Compilacion::Imprimir()
 			}
 		}
 	}
-	archivo_a_compilar << "\n>>\n";
+	archivo_a_compilar << ">>\n";
 }
 
 void Analizador_Tokens_Compilacion::Entero_Decimal_Dinamico()
@@ -791,8 +791,10 @@ void Analizador_Tokens_Compilacion::Pedir()
 
 void Analizador_Tokens_Compilacion::Inicio_analizacion(map<string, Informacion> mapa, string nombre_archivo)
 {
-
-	archivo_a_compilar.open(nombre_archivo);
+	if (linea < 2)
+	{
+		archivo_a_compilar.open(nombre_archivo);
+	}
 
 	for (auto iterador : mapa)
 	{
@@ -816,7 +818,6 @@ void Analizador_Tokens_Compilacion::Inicio_analizacion(map<string, Informacion> 
 	}
 
 	Fin_Linea(tokens.at(tokens.size() - 1));
-
 }
 
 void Analizador_Tokens_Compilacion::Limpiar()
@@ -826,6 +827,9 @@ void Analizador_Tokens_Compilacion::Limpiar()
 	posiciones.clear();
 	error = "";
 }
+
+
+/*ANALIZADOR DE INTERPRETACION*/
 
 void Analizador_Semantico_Interpretacion::Verificar_Peticion(string texto)
 {

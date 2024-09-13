@@ -129,6 +129,16 @@ void Interpretar::Imprimir()
 {
 	if (Texto != ">>")
 	{
+		if (Texto.find("{") != string::npos)
+		{
+			string variable = "";
+			for (size_t i = 2; i < Texto.length(); i++)
+			{
+				variable += Texto[i];
+			}
+			cout  << obj[administrador.PosOBj(variable)]->GetValor();
+		}
+		else
 		cout << Texto;
 	}
 	else
@@ -143,14 +153,17 @@ void Interpretar::Divisor()
 	if (Texto == ">")
 	{
 		estado = Estados::IMPRIMIR;
+		return;
 	}
 	else if (Texto == "<")
 	{
 		estado = Estados::PEDIR;
+		return;
 	}
 	else if (Texto == "%")
 	{
 		estado = Estados::OPERACION;
+		return;
 	}
 
 
@@ -183,18 +196,3 @@ void Interpretar::Peticion()
 		estado = Estados::NINGUNO;
 	}
 }
-
-
-void Interpretar::EncontraIgualdad() {
-	string variable = "";
-	size_t pos = 0;
-
-	for (int i = 1; i < Texto.length(); i++)
-	{
-		variable += Texto[i];
-	}
-
-	pos = administrador.PosOBj(variable);
-	Texto = obj[pos]->GetValor();
-}
-

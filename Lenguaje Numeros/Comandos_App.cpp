@@ -2,32 +2,36 @@
 
 Comandos_App::Comandos_App(int argc, char** argv)
 {
-	string* comandos = new string[5];
+	//string* comandos = new string[argc * 2];
+	string comandos_contenedor[3] = { "compilar_I","C:\\Users\\gatob\\Documents\\Lenguaje_Numeros\\x64\\Debug\\prueba.txt","C:\\Users\\gatob\\Documents\\Lenguaje_Numeros\\x64\\Debug\\interpretar.txt" };
+	string comandos[3];
+	int sexo = 3;
 
-	for (int i = 0; i < argc; i++)
+	for (int i = 0; i < 3; i++)
 	{
-		for (int j = 0; i < strlen(argv[i]); j++)
-		{
-			comandos[i] += argv[i][j];
-		}
+		comandos[i] = comandos_contenedor[i];
 	}
 
 	if (comandos[0] == "ayuda")
 	{
-		help->Set_Ayuda(comandos, argc);
+		help.Set_Ayuda(comandos, sexo);
 	}
 	if (comandos[0] == "compilar")
 	{
-		compile->Set_Compilar(comandos[1], comandos[2]);
+		compile.Set_Compilar(comandos[1], comandos[2]);
 	}
 	if (comandos[0] == "interpretar")
 	{
-
+		inter.Set_Interpretar(comandos[1]);
 	}
 	if (comandos[0] == "compilar_I")
 	{
-		compile->Set_Compilar(comandos[1], comandos[2]);
-
+		compile.Set_Compilar(comandos[1], comandos[2]);
+		inter.Set_Interpretar(comandos[2]);
+	}
+	else
+	{
+		cout << "Dicho comando no existe\n";
 	}
 
 
@@ -35,9 +39,6 @@ Comandos_App::Comandos_App(int argc, char** argv)
 
 Comandos_App::~Comandos_App()
 {
-	delete help;
-	delete inter;
-	delete compile;
 }
 
 void Tipo_Comandos::Ayuda::Set_Ayuda(string* comandos, int argc)
@@ -118,7 +119,7 @@ void Tipo_Comandos::Compilar::Set_Compilar(string archivo_compilar, string archi
 	ifstream archivo_a_compilar(archivo_compilar);
 	ofstream archivo_a_interpretar(archivo_compilado);
 
-	if (archivo_a_compilar.is_open())
+	if (!archivo_a_compilar.is_open())
 	{
 		cout << "El archivo " << archivo_compilar << " no existe.\n";
 		exit(1);
@@ -164,12 +165,13 @@ void Tipo_Comandos::Compilar::Set_Compilar(string archivo_compilar, string archi
 	}
 }
 
-void Tipo_Comandos::Interpretar::Set_Interpretar(string archivo_compilado_interpretar)
+void Tipo_Comandos::CInterpretar::Set_Interpretar(string archivo_compilado_interpretar)
 {
 	ifstream archivo_interpretar(archivo_compilado_interpretar);
 	Interpretar interprete;
+	size_t linea_t = 1;
 
-	if (archivo_interpretar.is_open())
+	if (!archivo_interpretar.is_open())
 	{
 		cout << "El archivo " << archivo_compilado_interpretar << " no existe o es incorrecto\n";
 		exit(1);
@@ -179,11 +181,14 @@ void Tipo_Comandos::Interpretar::Set_Interpretar(string archivo_compilado_interp
 	{
 		try 
 		{
-			interprete.Set_Interpretar(linea);
+			interprete.SetText(linea);
 		}
 		catch (runtime_error& error)
 		{
 			cerr << error.what();
 		}
+		linea_t++;
 	}
+
+	archivo_interpretar.close();
 }

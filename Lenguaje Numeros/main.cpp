@@ -8,7 +8,12 @@
 
 int main(int argc, char** argv)
 {	
-	Analizador_Tokens_Compilacion ATC;
+	Comandos_App CA(argc,argv);
+
+	CA.~Comandos_App();
+
+
+	/*Analizador_Tokens_Compilacion ATC;
 	string Frase = "Entero : mi_variable = 2, otro = 1;Imprimir : $ \"hola mundo\";";
 	try
 	{
@@ -41,8 +46,7 @@ int main(int argc, char** argv)
 
 	tokenizador.~Tokenizador();
 	divisor.~Divisor();
-	ATC.~Analizador_Tokens_Compilacion();
-
+	ATC.~Analizador_Tokens_Compilacion();*/
 	return 0;
 }
 
