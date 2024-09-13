@@ -225,7 +225,7 @@ void Analizador_Tokens_Compilacion::Imprimir()
 				}
 
 				if (estado != Estados::ERROR)
-					archivo_a_compilar  << comandos[posicion] << "\n";
+					archivo_a_compilar  << comandos[posicion] << " \n";
 
 				break;
 			}
@@ -836,7 +836,7 @@ void Analizador_Semantico_Interpretacion::Verificar_Peticion(string texto)
 	string error = "";
 	for (size_t i = 0; i < texto.length(); i++)
 	{
-		if (!isalnum(texto[i]))
+		if (!isalnum(texto[i]) || !isdigit(texto[i]))
 		{
 			error = "No puedes agregar caracteres raros solo numeros.\nPeticion: " + texto + ".\n";
 			throw runtime_error(error.c_str());

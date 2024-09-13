@@ -186,6 +186,7 @@ void Tipo_Comandos::CInterpretar::Set_Interpretar(string archivo_compilado_inter
 		catch (runtime_error& error)
 		{
 			cerr << error.what();
+			break;
 		}
 		linea_t++;
 	}
