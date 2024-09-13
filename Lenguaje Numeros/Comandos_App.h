@@ -3,7 +3,7 @@
 #include"Divisor.h"
 #include"AnalizadorSemantico.h"
 #include"CRObjetos.h"
-//#include"Interpretar.h"
+#include"Interpretar.h"
 #include"Tokens.h"
 #include<fstream>
 #include<stdio.h>

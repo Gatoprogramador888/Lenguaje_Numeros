@@ -30,4 +30,5 @@ class Analizador_Semantico_Interpretacion
 {
 private:
 public:
+	void Verificar_Peticion(string texto);
 };

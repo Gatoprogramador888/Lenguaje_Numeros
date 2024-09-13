@@ -4,7 +4,7 @@
 #include"../Operaciones de numeros infinitos static/Multiplicar.h"
 #include"../Operaciones de numeros infinitos static/Restar.h"
 #include"../Operaciones de numeros infinitos static/Sumar.h"
-#include"CRObjetos.h"
+#include"AnalizadorSemantico.h"
 
 
 class Interpretar
@@ -14,11 +14,21 @@ private:
 	char* Restar(vector<int> n1, vector<int> n2);
 	char* Multiplicar(vector<int> n1, vector<int> n2);
 	char* Dividir(vector<int> n1, vector<int> n2);
-	void Calcular(), Imprimir(), Divisor(), Peticion(), EncontraIgualdad();
+	void Calcular(size_t& cantidad), Imprimir(), Divisor(), Peticion(), EncontraIgualdad();
 
 private:
+	//Para Calcular
+	string Variable = "", segunda_variable = "", operador = "", resultado = "";
+	char* var_conver1;
+	char* var_conver2;
+	listnum var1, var2;
+	ConversionI conversion;
 
 	string Texto;
+	enum class Estados { OPERACION, IMPRIMIR, PEDIR, NINGUNO };
+	Estados estado = Estados::NINGUNO;
+	size_t cantidad = 0;
+	bool accion = false;
 
 public:
 	void SetText(string texto);

@@ -148,15 +148,42 @@ void Tipo_Comandos::Compilar::Set_Compilar(string archivo_compilar, string archi
 		catch (runtime_error& error)
 		{
 			cerr << error.what();
+			if (remove(archivo_compilado.c_str()) != 0)
+			{
+				cout << "El nombre del archivo " << archivo_compilado << " no existe o no se dio correctamente";
+			}
 		}
 		catch (out_of_range& error)
 		{
 			cerr << error.what();
+			if (remove(archivo_compilado.c_str()) != 0)
+			{
+				cout << "El nombre del archivo " << archivo_compilado << " no existe o no se dio correctamente";
+			}
 		}
 	}
 }
 
 void Tipo_Comandos::Interpretar::Set_Interpretar(string archivo_compilado_interpretar)
 {
+	ifstream archivo_interpretar(archivo_compilado_interpretar);
+	Interpretar interprete;
 
+	if (archivo_interpretar.is_open())
+	{
+		cout << "El archivo " << archivo_compilado_interpretar << " no existe o es incorrecto\n";
+		exit(1);
+	}
+	string linea;
+	while (getline(archivo_interpretar, linea))
+	{
+		try 
+		{
+			interprete.Set_Interpretar(linea);
+		}
+		catch (runtime_error& error)
+		{
+			cerr << error.what();
+		}
+	}
 }

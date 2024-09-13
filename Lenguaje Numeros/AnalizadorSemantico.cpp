@@ -347,7 +347,7 @@ void Analizador_Tokens_Compilacion::Imprimir()
 			}
 		}
 	}
-	archivo_a_compilar << "\n>\n";
+	archivo_a_compilar << "\n>>\n";
 }
 
 void Analizador_Tokens_Compilacion::Entero_Decimal_Dinamico()
@@ -501,7 +501,7 @@ void Analizador_Tokens_Compilacion::Operacion()
 	enum class Estados{INICIO, DIVISOR, ESPERA_VARIABLE, ESPERA_IGUAL, ESPERA_NUMERO, ESPERA_OPERADOR, ESPERA_FIN_COMANDO, ERROR};
 	Estados estado = Estados::INICIO;
 	string tipo = "",variable = "";
-	archivo_a_compilar << "\n";
+	archivo_a_compilar << "\n%\n";
 
 	for (size_t posicion = 0; posicion < tokens.size(); posicion++)
 	{
@@ -547,7 +547,7 @@ void Analizador_Tokens_Compilacion::Operacion()
 			tipo = obj[administrador.PosOBj(comandos[posicion])]->GetType();
 			variable = comandos[posicion];
 
-			archivo_a_compilar << variable;
+			archivo_a_compilar << variable << "\n";
 
 			break;
 		}
@@ -559,9 +559,6 @@ void Analizador_Tokens_Compilacion::Operacion()
 				error = "Se esperaba '=' no " + comandos[posicion] + ".\nLinea: " + to_string(linea) + ", posicion: " + to_string(posiciones[posicion]) + ".\n";
 				estado = Estados::ERROR;
 			}
-
-			if (estado != Estados::ERROR)
-				archivo_a_compilar << " = ";
 
 			break;
 		}
@@ -652,7 +649,7 @@ void Analizador_Tokens_Compilacion::Operacion()
 			}
 
 			if (estado != Estados::ERROR)
-				archivo_a_compilar << comandos[posicion];
+				archivo_a_compilar << comandos[posicion] << "\n";
 
 			break;
 		}
@@ -685,7 +682,7 @@ void Analizador_Tokens_Compilacion::Operacion()
 			}
 
 			if (estado != Estados::ERROR)
-				archivo_a_compilar << " " << comandos[posicion] << " ";
+				archivo_a_compilar << "\n" << comandos[posicion] << "\n";
 
 			break;
 		}
@@ -706,7 +703,7 @@ void Analizador_Tokens_Compilacion::Operacion()
 		}
 
 	}
-	archivo_a_compilar << "\n";
+	archivo_a_compilar << "%%\n";
 }
 
 void Analizador_Tokens_Compilacion::Pedir()
@@ -789,7 +786,7 @@ void Analizador_Tokens_Compilacion::Pedir()
 		}
 	}
 
-	archivo_a_compilar << "<\n";
+	archivo_a_compilar << "<<\n";
 }
 
 void Analizador_Tokens_Compilacion::Inicio_analizacion(map<string, Informacion> mapa, string nombre_archivo)
@@ -828,4 +825,17 @@ void Analizador_Tokens_Compilacion::Limpiar()
 	comandos.clear();
 	posiciones.clear();
 	error = "";
+}
+
+void Analizador_Semantico_Interpretacion::Verificar_Peticion(string texto)
+{
+	string error = "";
+	for (size_t i = 0; i < texto.length(); i++)
+	{
+		if (!isalnum(texto[i]))
+		{
+			error = "No puedes agregar caracteres raros solo numeros.\nPeticion: " + texto + ".\n";
+			throw runtime_error(error.c_str());
+		}
+	}
 }
