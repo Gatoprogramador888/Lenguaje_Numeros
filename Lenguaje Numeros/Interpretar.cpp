@@ -45,7 +45,23 @@ void Interpretar::Calcular(size_t& cantidad)
 			operador = Texto;
 			break;
 		default:
-			if (isalnum(Texto[0]) && resultado != "" && cantidad > 2)
+			if (isalpha(Texto[0]) && cantidad != 1)
+			{
+				if (cantidad > 2)
+				{
+					if (resultado[0] != '0')
+					{
+						string aux = "0" + resultado;
+						resultado = aux;
+					}
+					segunda_variable = obj[administrador.PosOBj(Texto)]->GetValor();
+				}
+				else
+				{
+					resultado = obj[administrador.PosOBj(Texto)]->GetValor();
+				}
+			}
+			else if (isalnum(Texto[0]) && resultado != "" && cantidad > 2)
 			{
 				segunda_variable = Texto;
 				if (resultado[0] != '0')
@@ -61,14 +77,6 @@ void Interpretar::Calcular(size_t& cantidad)
 			else if (isalnum(Texto[0]) && cantidad == 1)
 			{
 				Variable = Texto;
-			}
-			else if(Texto != "" && cantidad > 2)
-			{
-				segunda_variable = obj[administrador.PosOBj(Texto)]->GetValor();
-			}
-			else if (Texto != "" && cantidad == 2)
-			{
-				resultado = obj[administrador.PosOBj(Texto)]->GetValor();
 			}
 			break;
 		}

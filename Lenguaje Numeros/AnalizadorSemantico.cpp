@@ -634,7 +634,6 @@ void Analizador_Tokens_Compilacion::Operacion()
 					estado = Estados::ERROR;
 					break;
 				}
-
 				if (obj[administrador.PosOBj(comandos[posicion])]->GetType() != tipo || obj[administrador.PosOBj(comandos[posicion])]->GetType() != "DINAMICO")
 				{
 					error = comandos[posicion] + " no es del mismo tipo que " + variable + ".\nLinea: " + to_string(linea) + ", posicion : " + to_string(posiciones[posicion]) + ".\n";
@@ -649,7 +648,7 @@ void Analizador_Tokens_Compilacion::Operacion()
 					estado = Estados::ERROR;
 				}
 			}
-
+				
 			if (estado != Estados::ERROR && tokens[posicion] != Tokens::VARIABLE)
 				archivo_a_compilar << "0" << comandos[posicion] << "\n";
 			else	
@@ -662,7 +661,12 @@ void Analizador_Tokens_Compilacion::Operacion()
 		{
 			if (posicion + 1 < tokens.size())
 			{
-				estado = tokens[posicion + 1] != Tokens::NUMERO ? Estados::ERROR : Estados::ESPERA_NUMERO;
+				if (tokens[posicion + 1] == Tokens::NUMERO)
+					estado = Estados::ESPERA_NUMERO;
+				else if (tokens[posicion + 1] == Tokens::VARIABLE)
+					estado = Estados::ESPERA_NUMERO;
+				else
+					estado = Estados::ERROR;
 
 				if (estado == Estados::ERROR)
 				{
