@@ -35,94 +35,67 @@ void Interpretar::Calcular(size_t& cantidad)
 {
 	if (Texto != "%%")
 	{
+		switch (Texto[0])
+		{
+		case '+':
+		case '-':
+		case '*':
+		case '/':
+			operador = Texto;
+			break;
+		default:
+			if (isalnum(Texto[0]) && resultado != "" && cantidad > 1)
+			{
+				segunda_variable = Texto;
+			}
+			else if (isalnum(Texto[0]) && cantidad > 1)
+			{
+				resultado = Texto;
+			}
+			else if (isalnum(Texto[0]) && cantidad == 1)
+			{
+				Variable = Texto;
+			}
+			else if(Texto != "")
+			{
+				segunda_variable = obj[administrador.PosOBj(segunda_variable)]->GetValor();
+			}
+			break;
+		}
 
 		if (segunda_variable != "")
 		{
-			if (operador == "+")
+			switch (operador[0])
 			{
+			case '+':
 				var1 = conversion.STOII(resultado.c_str());
 				var2 = conversion.STOII(segunda_variable.c_str());
-				resultado = Sumar(var1, var2);
-			}
-			else if (operador == "-")
-			{
+				var_conver1 =  Sumar(var1, var2);
+				break;
+			case '-':
 				var1 = conversion.STOII(resultado.c_str());
 				var2 = conversion.STOII(segunda_variable.c_str());
-				resultado = Restar(var1, var2);
-			}
-			else if (operador == "*")
-			{
+				var_conver1 = Restar(var1, var2);
+				break;
+			case '*':
 				var1 = conversion.STOIM(resultado.c_str());
 				var2 = conversion.STOIM(segunda_variable.c_str());
-				resultado = Multiplicar(var1, var2);
-			}
-			else if (operador == "/")
-			{
+				var_conver1 = Multiplicar(var1, var2);
+				break;
+			case '/':
 				var1 = conversion.STOII(resultado.c_str());
 				var2 = conversion.STOII(segunda_variable.c_str());
-				resultado = Dividir(var1, var2);
+				var_conver1 = Dividir(var1, var2);
+				break;
 			}
 			segunda_variable = "";
+			resultado = var_conver1;
+			operador = "";
+			var_conver1[0] = '\0';
 		}
-
-		if (cantidad == 0)
-		{
-			Variable = Texto;
-		}
-		else if(isalnum(Texto[0]))
-		{
-
-			if(resultado != "")
-				segunda_variable = Texto;
-			else
-				resultado = Texto;
-
-			if (obj[administrador.PosOBj(Variable)]->GetType() != "ENTERO" && segunda_variable != "")
-			{
-				strcpy(var_conver1, resultado.c_str());
-				strcpy(var_conver2, segunda_variable.c_str());
-				conversion.ajustarPrecision(var_conver1);
-				conversion.ajustarPrecision(var_conver2);
-				resultado = var_conver1;
-				segunda_variable = var_conver2;
-			}
-		}
-		else if (isalpha(Texto[0]))
-		{
-
-			if (resultado != "")
-			{
-				segunda_variable = obj[administrador.PosOBj(Texto)]->GetValor();
-			}
-			else
-			{
-				resultado = obj[administrador.PosOBj(Texto)]->GetValor();
-			}
-
-			if (obj[administrador.PosOBj(Variable)]->GetType() != "ENTERO" && segunda_variable != "")
-			{
-				strcpy(var_conver1, resultado.c_str());
-				strcpy(var_conver2, segunda_variable.c_str());
-				conversion.ajustarPrecision(var_conver1);
-				conversion.ajustarPrecision(var_conver2);
-				resultado = var_conver1;
-				segunda_variable = var_conver2;
-			}
-
-		}
-		else
-		{
-			operador = Texto;
-		}
-
 		cantidad++;
+		administrador.NuevaIgualdad(Variable, resultado);
 	}
-	else
-	{
-		cantidad = 0;
-		estado = Estados::NINGUNO;
-	}
-	administrador.NuevaIgualdad(Variable, resultado);
 }
 
 void Interpretar::Imprimir()
@@ -195,4 +168,11 @@ void Interpretar::Peticion()
 	{
 		estado = Estados::NINGUNO;
 	}
+}
+
+
+Interpretar::~Interpretar()
+{
+	cantidad = 0;
+
 }

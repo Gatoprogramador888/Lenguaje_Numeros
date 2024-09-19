@@ -20,17 +20,17 @@ private:
 	//Para Calcular
 	string Variable = "", segunda_variable = "", operador = "", resultado = "";
 	char* var_conver1;
-	char* var_conver2;
 	listnum var1, var2;
 	ConversionI conversion;
 
 	string Texto;
 	enum class Estados { OPERACION, IMPRIMIR, PEDIR, NINGUNO };
 	Estados estado = Estados::NINGUNO;
-	size_t cantidad = 0;
+	size_t cantidad = 1;
 	bool accion = false;
 
 public:
 	void SetText(string texto);
+	~Interpretar();
 };
 

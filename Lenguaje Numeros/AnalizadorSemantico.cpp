@@ -684,7 +684,7 @@ void Analizador_Tokens_Compilacion::Operacion()
 			}
 
 			if (estado != Estados::ERROR)
-				archivo_a_compilar << "\n" << comandos[posicion] << "\n";
+				archivo_a_compilar << comandos[posicion] << "\n";
 
 			break;
 		}
