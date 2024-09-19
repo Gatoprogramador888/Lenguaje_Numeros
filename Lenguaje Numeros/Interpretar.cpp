@@ -35,6 +35,7 @@ void Interpretar::Calcular(size_t& cantidad)
 {
 	if (Texto != "%%")
 	{
+		string result = "";
 		switch (Texto[0])
 		{
 		case '+':
@@ -44,11 +45,16 @@ void Interpretar::Calcular(size_t& cantidad)
 			operador = Texto;
 			break;
 		default:
-			if (isalnum(Texto[0]) && resultado != "" && cantidad > 1)
+			if (isalnum(Texto[0]) && resultado != "" && cantidad > 2)
 			{
 				segunda_variable = Texto;
+				if (resultado[0] != '0')
+				{
+					string aux = "0" + resultado;
+					resultado = aux;
+				}
 			}
-			else if (isalnum(Texto[0]) && cantidad > 1)
+			else if (isalnum(Texto[0]) && cantidad == 2)
 			{
 				resultado = Texto;
 			}
@@ -56,9 +62,13 @@ void Interpretar::Calcular(size_t& cantidad)
 			{
 				Variable = Texto;
 			}
-			else if(Texto != "")
+			else if(Texto != "" && cantidad > 2)
 			{
-				segunda_variable = obj[administrador.PosOBj(segunda_variable)]->GetValor();
+				segunda_variable = obj[administrador.PosOBj(Texto)]->GetValor();
+			}
+			else if (Texto != "" && cantidad == 2)
+			{
+				resultado = obj[administrador.PosOBj(Texto)]->GetValor();
 			}
 			break;
 		}
@@ -83,6 +93,8 @@ void Interpretar::Calcular(size_t& cantidad)
 				var_conver1 = Multiplicar(var1, var2);
 				break;
 			case '/':
+				resultado += "0";
+				segunda_variable += "0";
 				var1 = conversion.STOII(resultado.c_str());
 				var2 = conversion.STOII(segunda_variable.c_str());
 				var_conver1 = Dividir(var1, var2);
@@ -94,7 +106,11 @@ void Interpretar::Calcular(size_t& cantidad)
 			var_conver1[0] = '\0';
 		}
 		cantidad++;
-		string result = "0" + resultado;
+		if (resultado[0] != '0' || (strlen(resultado.c_str()) < 2 && resultado == "0"))
+			result = "0" + resultado;
+		else
+			result = resultado;
+
 		administrador.NuevaIgualdad(Variable, result);
 	}
 }

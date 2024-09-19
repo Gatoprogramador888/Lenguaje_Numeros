@@ -465,15 +465,7 @@ void Analizador_Tokens_Compilacion::Entero_Decimal_Dinamico()
 				throw runtime_error(error.c_str());
 			}
 			
-			if (comandos[posicion][0] != '0')
-			{
-				string resultado = "0" + comandos[posicion];
-				variable.valor = resultado;
-			}
-			else
-			{
-				variable.valor = comandos[posicion];
-			}
+			variable.valor = "0" + comandos[posicion];
 
 			break;
 
@@ -658,7 +650,9 @@ void Analizador_Tokens_Compilacion::Operacion()
 				}
 			}
 
-			if (estado != Estados::ERROR)
+			if (estado != Estados::ERROR && tokens[posicion] != Tokens::VARIABLE)
+				archivo_a_compilar << "0" << comandos[posicion] << "\n";
+			else	
 				archivo_a_compilar << comandos[posicion] << "\n";
 
 			break;
