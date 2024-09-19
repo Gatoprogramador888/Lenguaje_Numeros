@@ -94,7 +94,8 @@ void Interpretar::Calcular(size_t& cantidad)
 			var_conver1[0] = '\0';
 		}
 		cantidad++;
-		administrador.NuevaIgualdad(Variable, resultado);
+		string result = "0" + resultado;
+		administrador.NuevaIgualdad(Variable, result);
 	}
 }
 

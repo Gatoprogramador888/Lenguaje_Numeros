@@ -464,8 +464,16 @@ void Analizador_Tokens_Compilacion::Entero_Decimal_Dinamico()
 				error = comandos[posicion] + " no es de tipo Numero es de tipo " + Tokenizador::Get_Tipo(tokens[posicion]) + ".\nLinea: " + to_string(linea) + ", posicion: " + to_string(posiciones[posicion]) + ".\n";
 				throw runtime_error(error.c_str());
 			}
-
-			variable.valor = comandos[posicion];
+			
+			if (comandos[posicion][0] != '0')
+			{
+				string resultado = "0" + comandos[posicion];
+				variable.valor = resultado;
+			}
+			else
+			{
+				variable.valor = comandos[posicion];
+			}
 
 			break;
 
