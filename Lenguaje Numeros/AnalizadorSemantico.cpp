@@ -356,7 +356,7 @@ void Analizador_Tokens_Compilacion::Entero_Decimal_Dinamico()
 {
 
 	enum class Estados {
-		INICIO, Espera_DIVISOR, Espera_VARIABLE,Espera_IGUAL, Espera_IGUALDAD, Espera_COMA_O_FIN, ERROR
+		INICIO, Espera_DIVISOR, Espera_VARIABLE,Espera_IGUAL, Espera_IGUALDAD, Espera_COMA_O_FIN, ERROR, Espera_OPERADOR
 	};
 
 	Tokens Tipo_Dato;
@@ -411,7 +411,21 @@ void Analizador_Tokens_Compilacion::Entero_Decimal_Dinamico()
 		case Estados::Espera_IGUAL:
 			if (tokens[posicion] == Tokens::IGUAL)
 			{
-				estado = Estados::Espera_IGUALDAD;
+				try
+				{
+					if (tokens.at(posicion + 1) == Tokens::OPERADOR)
+						estado = Estados::Espera_OPERADOR;
+					else if (tokens.at(posicion + 1) == Tokens::NUMERO)
+						estado = Estados::Espera_IGUALDAD;
+					else
+						error = "Se esperaba una variable no " + comandos[posicion] + ".\nLinea" + to_string(linea) + ", posicion: " + to_string(posiciones[posicion]) + ".\n";
+				}
+				catch (...)
+				{
+					error = "Se esperaba ';'.\nLinea" + to_string(linea) + ", posicion: " + to_string(posiciones[posicion]) + ".\n"; 
+				}
+				if (error != "")
+					throw runtime_error(error.c_str());
 			}
 			else if (tokens[posicion] == Tokens::COMAS || tokens[posicion] == Tokens::FIN_COMANDO)
 			{
@@ -428,13 +442,23 @@ void Analizador_Tokens_Compilacion::Entero_Decimal_Dinamico()
 			}
 			break;
 
+		case Estados::Espera_OPERADOR: // opcional
+		{
+			if (comandos[posicion] != "-")
+			{
+				error = "Las variables solamente pueden ser inicializadas con numeros positivos o negativos.\nLinea: " + to_string(linea) + ", posicion: " + to_string(posiciones[posicion]) + ".\n";
+				throw runtime_error(error.c_str());
+			}
+			variable.valor = "-";
+			estado = Estados::Espera_IGUALDAD;
+			break;
+		}
 		case Estados::Espera_IGUALDAD:
-
 			for (int i = 0; i < comandos[posicion].size(); i++)
 			{
-				if (isalpha(comandos[posicion][i]))
+				if ((!isalnum(comandos[posicion][i]) || !isdigit(comandos[posicion][i])) && comandos[posicion][i] != '.')
 				{
-					error = "Los Numeros no pueden tener letras.\nLinea: " + to_string(linea) + ", posicion: " + to_string(posiciones[posicion]) + ".\n";
+					error = "Los Numeros no pueden tener caracteres: " + comandos[posicion] + ".\nLinea: " + to_string(linea) + ", posicion: " + to_string(posiciones[posicion]) + ".\n";
 					throw runtime_error(error.c_str());
 				}
 			}
@@ -465,7 +489,7 @@ void Analizador_Tokens_Compilacion::Entero_Decimal_Dinamico()
 				throw runtime_error(error.c_str());
 			}
 			
-			variable.valor = "0" + comandos[posicion];
+			variable.valor = variable.valor + "0" + comandos[posicion];
 
 			break;
 
@@ -616,7 +640,7 @@ void Analizador_Tokens_Compilacion::Operacion()
 
 				for (int i = 0; i < comandos[posicion].size(); i++)
 				{
-					if (isalpha(comandos[posicion][i]))
+					if ((!isalnum(comandos[posicion][i]) || !isdigit(comandos[posicion][i])) || comandos[posicion][i] != '.')
 					{
 						error = "Los Numeros no pueden tener letras.\nLinea: " + to_string(linea) + ", posicion: " + to_string(posiciones[posicion]) + ".\n";
 						estado = Estados::ERROR;
