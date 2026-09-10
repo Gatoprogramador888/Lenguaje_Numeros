@@ -1,0 +1,7 @@
+Package: boost-math
+Version: 1.91.0
+Depends: boost-assert, boost-cmake, boost-concept-check, boost-config, boost-core, boost-headers, boost-integer, boost-lexical-cast, boost-predef, boost-random, boost-throw-exception
+Architecture: x64-windows
+Multi-Arch: same
+Abi: eb051d0fe02b6934b99a9c63126c65a4306cd5b39f3740ff0a91c65b893bc071
+Description: Boost math module

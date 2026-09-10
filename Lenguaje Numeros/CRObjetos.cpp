@@ -1,90 +1,78 @@
-#include"CRObjetos.h"
+#include "CRObjetos.h"
+
+#include <cassert>
+#include <stdexcept>
+#include <string>
+#include <algorithm>
 
 vector<Objeto*> obj;
+
+// ── BorrarOBJ ────────────────────────────────────────────────────────────────
+
 void BorrarOBJ::Borrar()
 {
-	for (auto i : obj)
-	{
-		i->~Objeto();
-	}
+    for (auto* i : obj)
+        delete i;           // properly invokes destructor AND frees memory
+    obj.clear();            // leave the vector in a valid, empty state
 }
 
-void Objeto::SetObjeto(string _valor)
+// ── Objeto ───────────────────────────────────────────────────────────────────
+
+void Objeto::SetObjeto(std::string _valor)
 {
-	valor = _valor;
+    valor = std::move(_valor);
 }
 
-string Objeto::GetNombre()
-{
-	return nombre;
-}
+std::string Objeto::GetNombre() const { return nombre; }
+std::string Objeto::GetValor()  const { return valor; }
+std::string Objeto::GetType()   const { return tipo; }
 
-string Objeto::GetValor()
-{
-	return valor;
-}
+// ── Administrador ─────────────────────────────────────────────────────────────
 
-string Objeto::GetType()
+bool Administrador::Iguales(const std::string& _nombre) const
 {
-	return tipo;
-}
-
-bool Administrador::Iguales(string _nombre)
-{
-	for (auto i : obj)
-	{
-		if (_nombre == i->GetNombre()) {
-			
-			return true;
-		}
-	}
-	return false;
+    size_t i = PosOBj(_nombre);
+    return i != SIZE_MAX;
 }
 
 void Administrador::Crear(Informacion_Variable informacion_variable)
 {
-	if (Iguales(informacion_variable.nombre))
-	{
-		NuevaIgualdad(informacion_variable.nombre, informacion_variable.valor);
-	}
-	else
-	{
-		obj.push_back(new Objeto(informacion_variable.valor, informacion_variable.nombre, informacion_variable.Tipo));
-	}
+    if (Iguales(informacion_variable.nombre))
+        NuevaIgualdad(informacion_variable.nombre, informacion_variable.valor);
+    else
+        obj.push_back(new Objeto(informacion_variable.valor,
+            informacion_variable.nombre,
+            informacion_variable.Tipo));
 }
 
-void Administrador::NuevaIgualdad(string _nombre, string _valor)
+void Administrador::NuevaIgualdad(const std::string& _nombre,
+    const std::string& _valor)
 {
-	for (auto i : obj)
-	{
-		if (_nombre == i->GetNombre())
-		{
-			i->SetObjeto(_valor);
-		}
-	}
+    size_t i = PosOBj(_nombre);
+    obj[i]->SetObjeto(_valor);
 }
 
-size_t Administrador::PosOBj(string _nombre)
+size_t Administrador::PosOBj(const std::string& _nombre) const
 {
-	size_t retorno = 0;
-	for (auto i : obj)
-	{
-		if (_nombre == i->GetNombre())return retorno;
-		retorno++;
-	}
-	return SIZE_MAX;
+    auto it = std::find_if(obj.begin(), obj.end(),
+        [&_nombre](const Objeto* o) { return o->GetNombre() == _nombre; });
+    if (it == obj.end())return SIZE_MAX;
+    size_t pos_t = std::distance(obj.begin(), it);
+    return pos_t;
 }
 
-bool Administrador::Borrar_Objeto(string nombre)
+// Returns true and removes the object; returns false if not found.
+bool Administrador::Borrar_Objeto(const std::string& nombre)
 {
-	size_t posicion = PosOBj(nombre);
-	bool retorno = posicion != SIZE_MAX ? true : false;
+    const size_t posicion = PosOBj(nombre);
+    if (posicion == SIZE_MAX)
+        return false;
 
-	if (retorno)obj[posicion]->~Objeto();
-
-	return retorno;
+    delete obj[posicion];                          // ① proper destruction + free
+    obj.erase(obj.begin() + static_cast<std::ptrdiff_t>(posicion)); // ② remove slot
+    return true;
 }
 
-
-BorrarOBJ BOBJ;
+// ── Global singletons ─────────────────────────────────────────────────────────
+BorrarOBJ    BOBJ;
 Administrador administrador;

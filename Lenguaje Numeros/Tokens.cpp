@@ -1,153 +1,192 @@
 #include "Tokens.h"
 
+#include <cctype>
+#include <stdexcept>
+#include <string>
 
-bool Tokenizador::Variable(string palabra)
+// ═══════════════════════════════════════════════════════════════════════════════
+// Clasificadores privados
+// ═══════════════════════════════════════════════════════════════════════════════
+
+bool Tokenizador::Variable(const std::string& palabra)
 {
-	string TIPO_VARIABLE[] = { "Entero", "Decimal", "Dinamico" };
-	for (string Tipo_Variable : TIPO_VARIABLE)
-	{
-		if (palabra == Tipo_Variable)
-		{
-			if (palabra == TIPO_VARIABLE[0])token = Tokens::ENTERO;
-			else if (palabra == TIPO_VARIABLE[1])token = Tokens::DECIMAL;
-			else token = Tokens::DINAMICO;
-			return true;
-		}
-	}
-	return false;
+    static const std::string TIPOS[] = { "Entero", "Decimal", "Dinamico" };
+
+    for (const auto& tipo : TIPOS)
+    {
+        if (palabra == tipo)
+        {
+            if (palabra == TIPOS[0]) token = Tokens::ENTERO;
+            else if (palabra == TIPOS[1]) token = Tokens::DECIMAL;
+            else                          token = Tokens::DINAMICO;
+            return true;
+        }
+    }
+    return false;
 }
 
-bool Tokenizador::Impresion_Peticion(string palabra)
+bool Tokenizador::Impresion_Peticion(const std::string& palabra)
 {
-	string TIPO_PETICION[] = { "Pedir", "Imprimir" };
-	for (string Tipo_Peticion : TIPO_PETICION)
-	{
-		if (palabra == Tipo_Peticion) { 
-			if (palabra != TIPO_PETICION[0])token = Tokens::IMPRIMIR;
-			else token = Tokens::PEDIR;
-			return true;
-		}
-	}
+    // BUG FIX #1 — condición invertida en el original:
+    //   if (palabra != TIPO_PETICION[0]) token = IMPRIMIR   ← asigna IMPRIMIR
+    //                                                         cuando la palabra
+    //                                                         NO es "Pedir"
+    // Correcto:
+    //   "Pedir"    → PEDIR
+    //   "Imprimir" → IMPRIMIR
+    static const std::string TIPOS[] = { "Pedir", "Imprimir" };
 
-	return false;
+    for (const auto& tipo : TIPOS)
+    {
+        if (palabra == tipo)
+        {
+            token = (palabra == TIPOS[0]) ? Tokens::PEDIR : Tokens::IMPRIMIR;
+            return true;
+        }
+    }
+    return false;
 }
 
-bool Tokenizador::Caracter(string palabra)
+bool Tokenizador::Caracter(const std::string& palabra)
 {
-	return (palabra == "." || palabra == "_");
+    return (palabra == "." || palabra == "_");
 }
 
-void Tokenizador::Recopilar_informacion(Informacion info,Tokens token)
+void Tokenizador::Recopilar_informacion(const Informacion& info, Tokens tok)
 {
-	Informacion aux = info;
-	aux.token = token;
-	informacion.push_back(aux);
+    Informacion aux = info;
+    aux.token = tok;
+    informacion.push_back(aux);
 }
 
-map<string,Informacion> Tokenizador::Mapa_Informacion(vector<string> instruccion, vector<Informacion> info)
+// ═══════════════════════════════════════════════════════════════════════════════
+// Mapa_Informacion
+// ═══════════════════════════════════════════════════════════════════════════════
+
+std::map<std::string, Informacion> Tokenizador::Mapa_Informacion(
+    const std::vector<std::string>& instruccion,
+    const std::vector<Informacion>& info)
 {
-	size_t comillas = 0;
-	bool parentesis = false;
-	size_t i = 0;
-	map<string, Informacion> retorno;
+    // BUG FIX #3 — comillas como size_t, iniciando en 0.
+    // Semántica: par = fuera de cadena de texto, impar = dentro.
+    //   comillas % 2 == 0  →  fuera de comillas  (rama superior del if)
+    //   comillas % 2 == 1  →  dentro de comillas (rama else)
+    size_t comillas = 0;
+    bool   parentesis = false;
+    size_t i = 0;
 
-	for (string palabra : instruccion)
-	{
+    std::map<std::string, Informacion> retorno;
 
-		if (comillas % 2 != 1)
-		{
-			if (Variable(palabra))Recopilar_informacion(info[i], token);
+    for (const std::string& palabra : instruccion)
+    {
+        if (comillas % 2 == 0)   // ← fuera de cadena literal
+        {
+            if (Variable(palabra))           Recopilar_informacion(info[i], token);
+            else if (Impresion_Peticion(palabra))  Recopilar_informacion(info[i], token);
+            else if (palabra == "Operacion")       Recopilar_informacion(info[i], Tokens::OPERACION);
+            else if (palabra == "#")               break;
+            else if (!palabra.empty() && palabra[0] >= '0' && palabra[0] <= '9')
+                Recopilar_informacion(info[i], Tokens::NUMERO);
+            else if (palabra == ";")               Recopilar_informacion(info[i], Tokens::FIN_COMANDO);
+            else if (palabra == ",")               Recopilar_informacion(info[i], Tokens::COMAS);
+            else if (palabra == "+" || palabra == "-" ||
+                palabra == "*" || palabra == "/")
+                Recopilar_informacion(info[i], Tokens::OPERADOR);
+            else if (palabra == "=")               Recopilar_informacion(info[i], Tokens::IGUAL);
+            else if (palabra == ":")               Recopilar_informacion(info[i], Tokens::DIVISOR);
+            else if (palabra == "$")               Recopilar_informacion(info[i], Tokens::TEXTO);
+            else if (palabra == "\"")
+            {
+                Recopilar_informacion(info[i], Tokens::COMILLAS);
+                ++comillas;   // comillas pasa a 1 → entramos en la rama else
+            }
+            else if (palabra == "{")               Recopilar_informacion(info[i], Tokens::PARENTESIS_IZQUIERDO);
+            else if (palabra == "}")               Recopilar_informacion(info[i], Tokens::PARENTESIS_DERECHO);
+            // BUG FIX #2 — palabra[0] == NULL compara char con puntero: UB.
+            // Correcto: verificar que la cadena no esté vacía antes de acceder [0].
+            else if (palabra.empty() || palabra[0] == '\0') { /* ignorar */ }
+            else if (std::isalpha(static_cast<unsigned char>(palabra[0])))
+                Recopilar_informacion(info[i], Tokens::VARIABLE);
+            else                                   Recopilar_informacion(info[i], Tokens::CARACTER);
+        }
+        else   // comillas % 2 == 1 → dentro de cadena literal
+        {
+            if (palabra == "{")
+            {
+                Recopilar_informacion(info[i], Tokens::PARENTESIS_IZQUIERDO);
+                parentesis = true;
+            }
+            else if (palabra == "}")
+            {
+                Recopilar_informacion(info[i], Tokens::PARENTESIS_DERECHO);
+                parentesis = false;
+            }
+            else if (palabra == "\"")
+            {
+                Recopilar_informacion(info[i], Tokens::COMILLAS);
+                ++comillas;   // comillas pasa a 2 (par) → volvemos a la rama if
+            }
+            // BUG FIX #3 contd. — la condición original era (comillas % 2 != 0),
+            // que dentro del else ya era siempre cierto (comillas es impar aquí).
+            // La coma se emite cuando estamos dentro de un interpolado con
+            // paréntesis abierto; de lo contrario es parte del texto literal.
+            else if (palabra == "," && parentesis)
+            {
+                Recopilar_informacion(info[i], Tokens::COMAS);
+            }
+            else if (parentesis)
+                Recopilar_informacion(info[i], Tokens::VARIABLE);
+            else
+                Recopilar_informacion(info[i], Tokens::CARACTER);
+        }
+        ++i;
+    }
 
-			else if (Impresion_Peticion(palabra))Recopilar_informacion(info[i], token);
+    // BUG FIX #4 — linea++ no debe ocurrir aquí, dentro de Mapa_Informacion.
+    // El original incrementaba linea cada vez que posicion_Token alcanzaba 10,
+    // lo que hacía que el número de línea dependiera de la cantidad de tokens
+    // y no de los comandos reales del programa.  linea se incrementa en el
+    // LLAMADOR (el analizador léxico principal) UNA VEZ por instrucción completa,
+    // después de procesar cada línea del archivo fuente.
+    //
+    // Aquí sólo construimos el mapa con los tokens de la instrucción actual,
+    // usando this->linea que el llamador ya habrá establecido correctamente.
+    size_t posicion_Token = 1;
+    for (const auto& it : informacion)
+    {
+        std::ostringstream oss;
+        oss << std::setw(6) << std::setfill('0') << linea
+            << "."
+            << std::setw(3) << std::setfill('0') << posicion_Token;
+        const std::string ID = oss.str();
+        retorno.emplace(ID, it);
+        ++posicion_Token;
+    }
 
-			else if (palabra == "Operacion")Recopilar_informacion(info[i], Tokens::OPERACION);
-
-			else if (palabra == "#")break;
-
-			else if (palabra[0] >= '0' && palabra[0] <= '9')Recopilar_informacion(info[i], Tokens::NUMERO);
-
-			else if (palabra == ";")Recopilar_informacion(info[i], Tokens::FIN_COMANDO);
-
-			else if (palabra == ",")Recopilar_informacion(info[i], Tokens::COMAS);
-
-			else if (palabra == "+" || palabra == "-" || palabra == "*" || palabra == "/")Recopilar_informacion(info[i], Tokens::OPERADOR);
-
-			else if (palabra == "=")Recopilar_informacion(info[i], Tokens::IGUAL);
-
-			else if (palabra == ":")Recopilar_informacion(info[i], Tokens::DIVISOR);
-
-			else if (palabra == "$")Recopilar_informacion(info[i], Tokens::TEXTO);
-
-			else if (palabra == "\"")
-			{
-				Recopilar_informacion(info[i], Tokens::COMILLAS);
-				comillas++;
-			}
-
-			else if (palabra == "{")Recopilar_informacion(info[i], Tokens::PARENTESIS_IZQUIERDO);
-
-			else if (palabra == "}")Recopilar_informacion(info[i], Tokens::PARENTESIS_DERECHO);
-
-			else if (isalpha(palabra[0]))Recopilar_informacion(info[i], Tokens::VARIABLE);
-
-			else if (palabra[0] == NULL) {}
-
-			else Recopilar_informacion(info[i], Tokens::CARACTER);
-
-		}
-		else
-		{
-			if (palabra == "{")
-			{
-				Recopilar_informacion(info[i], Tokens::PARENTESIS_IZQUIERDO);
-				parentesis = true;
-			}
-			else if (palabra == "}")
-			{
-				Recopilar_informacion(info[i], Tokens::PARENTESIS_DERECHO);
-				parentesis = false;
-			}
-			else if (palabra == "\"")
-			{
-				Recopilar_informacion(info[i], Tokens::COMILLAS);
-				comillas++;
-			}
-			else if (palabra == "," && comillas % 2 != 0)
-			{
-				Recopilar_informacion(info[i], Tokens::COMAS);
-			}
-			else if (parentesis)Recopilar_informacion(info[i], Tokens::VARIABLE);
-
-			else Recopilar_informacion(info[i], Tokens::CARACTER);
-		}
-		i++;
-	}
-	
-	size_t posicion_Token = 1;
-	
-	for (auto it : informacion)
-	{
-		string ID = to_string(linea) + "." + to_string(posicion_Token);
-		retorno.insert(make_pair(ID, it));
-		posicion_Token++;
-		if (posicion_Token >= 10)
-		{
-			posicion_Token = 0;
-			linea++;
-		}
-	}
-
-	return retorno;
+    return retorno;
 }
 
+// ═══════════════════════════════════════════════════════════════════════════════
+// Get_Tipo
+// ═══════════════════════════════════════════════════════════════════════════════
 
-
-string Tokenizador::Get_Tipo(Tokens token)
+std::string Tokenizador::Get_Tipo(Tokens tok)
 {
-	string retorno[20] = { "NULO" , "ENTERO", "DECIMAL", "DINAMICO", "NUMERO",
-	"IMPRIMIR", "PEDIR", "OPERADOR", "OPERACION",
-	"COMAS", "FIN_COMANDO",	"ESPACIO", "COMILLAS",
-	"PARENTESIS_DERECHO", "PARENTESIS_IZQUIERDO",
-	"VARIABLE", "IGUAL", "CARACTER", "DIVISOR", "TEXTO"};
-	return retorno[(int)token];
+    // El array está indexado por el valor entero del enum.
+    // Cualquier valor fuera de rango devuelve "NULO" (índice 0).
+    static const std::string TIPOS[] = {
+        "NULO",
+        "ENTERO", "DECIMAL", "DINAMICO",
+        "NUMERO",
+        "IMPRIMIR", "PEDIR",
+        "OPERADOR", "OPERACION",
+        "COMAS", "FIN_COMANDO", "ESPACIO",
+        "COMILLAS",
+        "PARENTESIS_DERECHO", "PARENTESIS_IZQUIERDO",
+        "VARIABLE", "IGUAL", "CARACTER", "DIVISOR", "TEXTO"
+    };
+    static constexpr size_t N = sizeof(TIPOS) / sizeof(TIPOS[0]);
+
+    const auto idx = static_cast<size_t>(tok);
+    return (idx < N) ? TIPOS[idx] : TIPOS[0];
 }

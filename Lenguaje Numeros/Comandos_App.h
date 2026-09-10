@@ -40,6 +40,7 @@ public:
 	void Sintaxis(string comando);
 	void Interpretar();
 	void Compilar_I();
+	void TipoAyuda();
 };
 
 class Comandos_App

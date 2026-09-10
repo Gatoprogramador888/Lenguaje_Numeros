@@ -1,0 +1,7 @@
+Package: boost-compat
+Version: 1.91.0
+Depends: boost-assert, boost-cmake, boost-config, boost-headers, boost-throw-exception
+Architecture: x64-windows
+Multi-Arch: same
+Abi: 6680347cdb901e542a560624b90d0c4a17bd98bfdfe0728923e04303469f03af
+Description: Boost compat module

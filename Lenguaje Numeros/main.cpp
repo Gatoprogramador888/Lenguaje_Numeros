@@ -10,7 +10,5 @@ int main(int argc, char** argv)
 {	
 	Comandos_App CA(argc,argv);
 
-	CA.~Comandos_App();
-
 	return 0;
 }

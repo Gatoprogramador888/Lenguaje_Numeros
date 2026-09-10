@@ -1,0 +1,7 @@
+Package: boost-cmake
+Version: 1.91.0
+Depends: boost-uninstall, vcpkg-boost
+Architecture: x64-windows
+Multi-Arch: same
+Abi: 9d2e3a08bf53507c1f6b05c408ac45b85c14dd5646e21fdd584c6270132c390f
+Description: Boost cmake module
