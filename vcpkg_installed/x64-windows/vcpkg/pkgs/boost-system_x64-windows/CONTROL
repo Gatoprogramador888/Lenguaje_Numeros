@@ -1,0 +1,7 @@
+Package: boost-system
+Version: 1.91.0
+Depends: boost-assert, boost-cmake, boost-compat, boost-config, boost-headers, boost-mp11, boost-throw-exception, boost-variant2, boost-winapi
+Architecture: x64-windows
+Multi-Arch: same
+Abi: d2fc81775898c0b170e21f7679431c861fc3151a41fecbedd539a37ca2a66ee0
+Description: Boost system module

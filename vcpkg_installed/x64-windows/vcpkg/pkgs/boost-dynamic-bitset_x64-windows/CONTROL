@@ -1,0 +1,7 @@
+Package: boost-dynamic-bitset
+Version: 1.91.0
+Depends: boost-assert, boost-cmake, boost-config, boost-container-hash, boost-core, boost-headers, boost-throw-exception
+Architecture: x64-windows
+Multi-Arch: same
+Abi: ded1e3980f038dad757069c4c33e80fd0428f758d6357bc9a76bdb1360a01258
+Description: Boost dynamic_bitset module

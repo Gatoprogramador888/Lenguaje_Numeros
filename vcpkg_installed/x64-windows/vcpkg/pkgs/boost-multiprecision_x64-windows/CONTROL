@@ -1,0 +1,7 @@
+Package: boost-multiprecision
+Version: 1.91.0
+Depends: boost-assert, boost-cmake, boost-config, boost-core, boost-headers, boost-integer, boost-lexical-cast, boost-math, boost-predef, boost-random, boost-throw-exception
+Architecture: x64-windows
+Multi-Arch: same
+Abi: d13a2bc3014b2d7b347684f22c191b825ce09c9db54cf69f232fa688a0be2b76
+Description: Boost multiprecision module

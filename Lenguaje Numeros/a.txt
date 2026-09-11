@@ -1,0 +1,269 @@
+
+!
+a 10i
+>>
+
+!
+b -5i
+>>
+
+!
+c 0i
+>>
+
+!
+x 3.14d
+>>
+
+!
+y -2.5d
+>>
+
+!
+z 0.0d
+>>
+
+!
+d1 1m
+>>
+
+!
+d2 -1.5m
+>>
+
+!
+d3 100m
+>>
+
+>
+--- Valores iniciales ---
+>>
+
+>
+a = 
+{ a
+>>
+
+>
+b = 
+{ b
+>>
+
+>
+c = 
+{ c
+>>
+
+>
+x = 
+{ x
+>>
+
+>
+y = 
+{ y
+>>
+
+>
+d1 = 
+{ d1
+>>
+
+>
+d2 = 
+{ d2
+>>
+
+%
+c
+a
++
+b
+%%
+
+>
+a + b = 
+{ c
+>>
+
+%
+c
+a
+-
+b
+%%
+
+>
+a - b = 
+{ c
+>>
+
+%
+c
+a
+*
+b
+%%
+
+>
+a * b = 
+{ c
+>>
+
+%
+c
+a
+/
+b
+%%
+
+>
+a / b = 
+{ c
+>>
+
+%
+z
+x
++
+y
+%%
+
+>
+x + y = 
+{ z
+>>
+
+%
+z
+x
+-
+y
+%%
+
+>
+x - y = 
+{ z
+>>
+
+%
+z
+x
+*
+y
+%%
+
+>
+x * y = 
+{ z
+>>
+
+%
+z
+x
+/
+y
+%%
+
+>
+x / y = 
+{ z
+>>
+
+%
+c
+a
++
+d2
+%%
+
+>
+a + d2 (entero destino) = 
+{ c
+>>
+
+%
+d3
+b
++
+x
+%%
+
+>
+b + x (dinamico destino) = 
+{ d3
+>>
+
+%
+c
+b
+*
+b
+%%
+
+>
+b * b = 
+{ c
+>>
+
+%
+z
+y
+*
+y
+%%
+
+>
+y * y = 
+{ z
+>>
+
+%
+c
+b
+*
+a
+%%
+
+>
+b * a = 
+{ c
+>>
+
+>
+Escriba un nuevo valor para a
+>>
+
+<
+a
+<<
+
+>
+nuevo valor de a = 
+{ a
+>>
+
+>
+Escriba un nuevo valor para x
+>>
+
+<
+x
+<<
+
+>
+nuevo valor de x = 
+{ x
+>>
+
+%
+c
+a
++
+b
+%%
+
+>
+nuevo a + b = 
+{ c
+>>
