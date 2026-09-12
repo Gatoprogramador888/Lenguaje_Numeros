@@ -49,6 +49,7 @@ private:
     void Declarar();
 
     // ── estado de cálculo ─────────────────────────────────────────────────────
+    size_t id_variable{ 0 }, id_segunda_variable{ 0 };
     std::string Variable = "";
     std::string segunda_variable = "";
     std::string operador = "";

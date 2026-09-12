@@ -26,6 +26,7 @@ private:
 
 public:
     static std::string Get_Tipo(Tokens tok);
+	static std::string Get_Tipo_Variable(Tipos tipo);
 
     /// Tokeniza una instrucción y devuelve un mapa ordenado "línea.pos" → Informacion.
     /// linea se incrementa en el LLAMADOR, una vez por instrucción completa.

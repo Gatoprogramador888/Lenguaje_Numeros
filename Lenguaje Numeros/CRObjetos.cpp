@@ -18,18 +18,18 @@ void BorrarOBJ::Borrar()
 
 // ── Objeto ───────────────────────────────────────────────────────────────────
 
-void Objeto::SetObjeto(std::string _valor)
+void Objeto::SetObjeto(std::string_view _valor)
 {
-    valor = std::move(_valor);
+    valor = _valor;
 }
 
 std::string Objeto::GetNombre() const { return nombre; }
 std::string Objeto::GetValor()  const { return valor; }
-std::string Objeto::GetType()   const { return tipo; }
+Tipos Objeto::GetType()   const { return tipo; }
 
 // ── Administrador ─────────────────────────────────────────────────────────────
 
-bool Administrador::Iguales(const std::string& _nombre) const
+bool Administrador::Iguales(std::string_view _nombre) const
 {
     size_t i = PosOBj(_nombre);
     return i != SIZE_MAX;
@@ -42,17 +42,23 @@ void Administrador::Crear(Informacion_Variable informacion_variable)
     else
         obj.push_back(new Objeto(informacion_variable.valor,
             informacion_variable.nombre,
-            informacion_variable.Tipo));
+            informacion_variable.tipo,
+            informacion_variable.id));
 }
 
-void Administrador::NuevaIgualdad(const std::string& _nombre,
-    const std::string& _valor)
+void Administrador::NuevaIgualdad(std::string_view _nombre,
+    std::string_view _valor)
 {
     size_t i = PosOBj(_nombre);
     obj[i]->SetObjeto(_valor);
 }
 
-size_t Administrador::PosOBj(const std::string& _nombre) const
+void Administrador::NuevaIgualdad(size_t _id_variable, std::string_view _valor)
+{
+	obj[_id_variable]->SetObjeto(_valor);
+}
+
+size_t Administrador::PosOBj(std::string_view _nombre) const
 {
     auto it = std::find_if(obj.begin(), obj.end(),
         [&_nombre](const Objeto* o) { return o->GetNombre() == _nombre; });
@@ -62,15 +68,15 @@ size_t Administrador::PosOBj(const std::string& _nombre) const
 }
 
 // Returns true and removes the object; returns false if not found.
-bool Administrador::Borrar_Objeto(const std::string& nombre)
+bool Administrador::Borrar_Objeto(size_t _id_variable)
 {
-    const size_t posicion = PosOBj(nombre);
-    if (posicion == SIZE_MAX)
-        return false;
-
-    delete obj[posicion];                          // ① proper destruction + free
-    obj.erase(obj.begin() + static_cast<std::ptrdiff_t>(posicion)); // ② remove slot
-    return true;
+	if (_id_variable < obj.size())
+	{
+		delete obj[_id_variable];                          // ① proper destruction + free
+		obj.erase(obj.begin() + static_cast<std::ptrdiff_t>(_id_variable)); // ② remove slot
+		return true;
+	}
+    return false;
 }
 
 // ── Global singletons ─────────────────────────────────────────────────────────

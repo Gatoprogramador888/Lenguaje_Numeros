@@ -10,12 +10,14 @@
 class Objeto {
     std::string valor;
     std::string nombre;
-    std::string tipo;
+    Tipos tipo;
+	size_t id_variable{ 0 };
 public:
-    Objeto(std::string _valor, std::string _nombre, std::string _tipo)
+    Objeto(std::string _valor, std::string _nombre, Tipos _tipo, size_t _id_variable)
         : valor(std::move(_valor))
         , nombre(std::move(_nombre))
-        , tipo(std::move(_tipo))
+        , tipo(_tipo)
+        , id_variable(_id_variable)
     {}
 
     // Non-copyable: these objects are always owned through a raw pointer in
@@ -23,11 +25,11 @@ public:
     Objeto(const Objeto&) = delete;
     Objeto& operator=(const Objeto&) = delete;
 
-    void        SetObjeto(std::string _valor);
+    void        SetObjeto(std::string_view _valor);
 
     std::string GetNombre() const;
     std::string GetValor()  const;
-    std::string GetType()   const;
+    Tipos GetType()   const;
 
     ~Objeto() = default;
 };
@@ -43,17 +45,26 @@ public:
 // ── Administrador ─────────────────────────────────────────────────────────────
 
 class Administrador {
-    bool Iguales(const std::string& _nombre) const;
+private:
+	mutable size_t id_variable{ 0 };
+
+private:
+    bool Iguales(std::string_view _nombre) const;
 public:
     void   Crear(Informacion_Variable informacion_variable);
-    void   NuevaIgualdad(const std::string& _nombre, const std::string& _valor);
+    [[deprecated("Ahora es con el id de la variable no con el nombre.")]]
+    void   NuevaIgualdad(std::string_view _nombre, std::string_view _valor);
+
+    void   NuevaIgualdad(size_t _id_variable, std::string_view _valor);
 
     /// Returns SIZE_MAX when the name is not found.
-    /// !! Callers MUST check the return value before using it as an index !!
-    size_t PosOBj(const std::string& _nombre) const;
+    /// !! Callers MUST check the return value before using it as an index !!!
+    size_t PosOBj(std::string_view _nombre) const;
 
     /// Deletes the object and erases its slot.  Returns false if not found.
-    bool   Borrar_Objeto(const std::string& nombre);
+    bool   Borrar_Objeto(size_t _id_variable);
+
+    size_t GetIdVariable() const { return id_variable++; }
 };
 
 // ── Globals ───────────────────────────────────────────────────────────────────

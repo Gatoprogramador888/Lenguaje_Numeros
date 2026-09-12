@@ -190,3 +190,13 @@ std::string Tokenizador::Get_Tipo(Tokens tok)
     const auto idx = static_cast<size_t>(tok);
     return (idx < N) ? TIPOS[idx] : TIPOS[0];
 }
+
+std::string Tokenizador::Get_Tipo_Variable(Tipos tipo)
+{
+	static const std::string TIPOS[] = {
+		"ENTERO", "DECIMAL", "DINAMICO"
+	};
+	static constexpr size_t N = sizeof(TIPOS) / sizeof(TIPOS[0]);
+	const auto idx = static_cast<size_t>(tipo);
+    return (idx < N) ? TIPOS[idx] : TIPOS[0];
+}
