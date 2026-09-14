@@ -77,9 +77,9 @@ size_t Analizador_Tokens_Compilacion::obtener_o_agregar_string(const std::string
 
 void Analizador_Tokens_Compilacion::Guardar_Archivo_CRB()
 {
-    if (bytecode.empty() || bytecode.back() != static_cast<uint8_t>(OpCode::HALT)) {
-        emit_u8(OpCode::HALT);
-    }
+    //if (bytecode.empty() || bytecode.back() != static_cast<uint8_t>(OpCode::HALT)) {
+    emit_u8(OpCode::HALT);
+    //}
 
     // 2. CALCULAR POSICIONES (PCT) EN RAM
     uint64_t pos_CED = 28;
@@ -416,6 +416,8 @@ void Analizador_Tokens_Compilacion::Imprimir()
                     estado = Estados::ERROR;
                 }
 
+                size_t pos_var = pos_segura(comandos[posicion], posicion);
+                operandos.push_back(codificar_variable(static_cast<uint64_t>(pos_var)));
             }
             break;
 
@@ -749,16 +751,16 @@ void Analizador_Tokens_Compilacion::Entero_Decimal_Dinamico()
 
         // 2. Determinar el byte del Tipo de Dato
         uint8_t byte_tipo = TIPO_ENTERO;
-        if (informacion.tipo == Tipos::DECIMAL) {
+        if (informacion.tipo & Tipos::DECIMAL) {
             byte_tipo = TIPO_DECIMAL;
         }
-        else if (informacion.tipo == Tipos::DINAMICO) {
+        else if (informacion.tipo & Tipos::DINAMICO) {
             byte_tipo = TIPO_DINAMICO;
         }
 
         // 3. Evaluar el campo de Igualdad (8 bytes)
         uint64_t igualdad_bytes = 0;
-        bool es_decimal = (informacion.tipo == Tipos::DECIMAL) || (val_puro.find('.') != std::string::npos);
+        bool es_decimal = (informacion.tipo & Tipos::DECIMAL) || (val_puro.find('.') != std::string::npos);
 
         if (es_decimal)
         {
@@ -938,7 +940,7 @@ void Analizador_Tokens_Compilacion::Operacion()
                 // Validaciones de tipo contra la variable destino
                 const bool tiene_punto = (comandos[posicion].find('.') != std::string::npos);
 
-                if (tipo_destino == Tipos::ENTERO && tiene_punto)
+                if (tipo_destino & Tipos::ENTERO && tiene_punto)
                 {
                     error = "El numero " + comandos[posicion]
                         + " no es de tipo Entero.\nLinea: " + std::to_string(linea)
@@ -946,7 +948,7 @@ void Analizador_Tokens_Compilacion::Operacion()
                     estado = Estados::ERROR;
                     break;
                 }
-                if (tipo_destino == Tipos::DECIMAL && !tiene_punto)
+                if (tipo_destino & Tipos::DECIMAL && !tiene_punto)
                 {
                     error = "El numero " + comandos[posicion]
                         + " no es de tipo Decimal (falta '.').\nLinea: " + std::to_string(linea)
@@ -1242,10 +1244,17 @@ void Analizador_Semantico_Interpretacion::Verificar_Peticion(std::string_view te
 		throw std::runtime_error(err.c_str());
 	}
 
-	if (type == Tipos::ENTERO && texto.find('.') != std::string::npos)
+	if (type & Tipos::ENTERO && texto.find('.') != std::string::npos)
 	{
 		const std::string err =
 			"No puedes agregar decimales a un entero.\nPeticion: "
+			+ std::string(texto) + ".\n";
+		throw std::runtime_error(err.c_str());
+	}
+	else if (type & Tipos::DECIMAL && texto.find('.') == std::string::npos)
+	{
+		const std::string err =
+			"No puedes agregar enteros a un decimal.\nPeticion: "
 			+ std::string(texto) + ".\n";
 		throw std::runtime_error(err.c_str());
 	}

@@ -37,7 +37,7 @@ bool Administrador::Iguales(std::string_view _nombre) const
 
 void Administrador::Crear(Informacion_Variable informacion_variable)
 {
-    if (Iguales(informacion_variable.nombre))
+    if (Iguales(informacion_variable.nombre) &&  informacion_variable.nombre != "")
         NuevaIgualdad(informacion_variable.nombre, informacion_variable.valor);
     else
         obj.push_back(new Objeto(informacion_variable.valor,

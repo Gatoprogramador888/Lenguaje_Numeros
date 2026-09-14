@@ -18,9 +18,13 @@ enum class Tokens {
 	VARIABLE, IGUAL, CARACTER, DIVISOR, TEXTO
 };
 
-enum class Tipos {
-	ENTERO, DECIMAL, DINAMICO
+enum class Tipos : int{
+	ENTERO = 1, DECIMAL = 2, DINAMICO = 4
 };
+
+inline int operator&(Tipos a, Tipos b) {
+	return static_cast<int>(a) & static_cast<int>(b);
+}
 
 constexpr uint8_t TIPO_ENTERO = 1;
 constexpr uint8_t TIPO_DECIMAL = 2;

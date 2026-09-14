@@ -27,6 +27,7 @@ public:
 
     void        SetObjeto(std::string_view _valor);
 
+	size_t      GetIdVariable() const { return id_variable; }
     std::string GetNombre() const;
     std::string GetValor()  const;
     Tipos GetType()   const;

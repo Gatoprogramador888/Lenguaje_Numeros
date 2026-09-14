@@ -97,8 +97,8 @@ Comandos_App::Comandos_App(int argc, char** argv)
     //   argv[3] = archivo 2   (solo para compilar / compilar_I)
 
 	//Desensamblar_CRB("a.crb");
-    compile.Set_Compilar("prueba.crd", "a.crb");
-	//inter.Set_Interpretar("a.txt");
+    //compile.Set_Compilar("prueba.crd", "a.crb");
+	inter.Set_Interpretar("a.crb");
     return;
 
     if (argc < 2)
@@ -294,31 +294,17 @@ void Tipo_Comandos::Compilar::Set_Compilar(std::string archivo_compilar,
 
 void Tipo_Comandos::CInterpretar::Set_Interpretar(std::string archivo_compilado_interpretar)
 {
-    std::ifstream archivo_interpretar(archivo_compilado_interpretar);
-    Interpretar   interprete;
-    size_t        linea_t = 1;
-
-    if (!archivo_interpretar.is_open())
+    Interpretar interprete;
+    try
     {
-        std::cout << "El archivo " << archivo_compilado_interpretar
-            << " no existe o es incorrecto\n";
-        exit(1);
-    }
-
-    std::string linea;
-    while (std::getline(archivo_interpretar, linea))
+        if (interprete.CargarArchivoCRB(archivo_compilado_interpretar))
+        {
+            interprete.Ejecutar();
+        }
+	}
+    catch (std::runtime_error& error)
     {
-        try
-        {
-            interprete.SetText(linea);
-        }
-        catch (std::runtime_error& error)
-        {
-            std::cerr << error.what();
-            break;
-        }
-        linea_t++;
+        std::cerr << error.what();
+        return;
     }
-
-    archivo_interpretar.close();
 }
