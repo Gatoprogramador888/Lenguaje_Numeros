@@ -79,6 +79,7 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LinkIncremental>true</LinkIncremental>
     <PublicIncludeDirectories>C:\Users\gatob\Documents\Libreria_de_numeros_infinitos_c_pulus_plus\x64\Debug;$(PublicIncludeDirectories)</PublicIncludeDirectories>
+    <TargetName>CRD</TargetName>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LinkIncremental>false</LinkIncremental>

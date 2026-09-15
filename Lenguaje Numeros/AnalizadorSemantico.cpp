@@ -777,9 +777,11 @@ void Analizador_Tokens_Compilacion::Entero_Decimal_Dinamico()
 
                 if (num_64 < (1ULL << 62))
                     igualdad_bytes = codificar_inline_int(num_64);
-
-                size_t pos_const = obtener_o_agregar_constante(val_puro);
-                igualdad_bytes = codificar_constante(static_cast<uint64_t>(pos_const));
+                else 
+                {
+                    size_t pos_const = obtener_o_agregar_constante(val_puro);
+                    igualdad_bytes = codificar_constante(static_cast<uint64_t>(pos_const));
+                }
             }
             catch (const std::out_of_range&) {
                 // Superó los 8 bytes: guardar en la tabla de constantes

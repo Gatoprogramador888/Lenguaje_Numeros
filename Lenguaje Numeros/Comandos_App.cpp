@@ -98,8 +98,8 @@ Comandos_App::Comandos_App(int argc, char** argv)
 
 	//Desensamblar_CRB("a.crb");
     //compile.Set_Compilar("prueba.crd", "a.crb");
-	inter.Set_Interpretar("a.crb");
-    return;
+	//inter.Set_Interpretar("a.crb");
+    //return;
 
     if (argc < 2)
     {
@@ -187,7 +187,7 @@ void Tipo_Comandos::Ayuda::Comandos()
 
 void Tipo_Comandos::Ayuda::Compilar()
 {
-    std::cout << "\"Lenguaje Numeros\" compilar archivo_codigo.txt archivo_a_compilar.txt\n";
+    std::cout << "\"Lenguaje Numeros\" compilar archivo_codigo.crd archivo_a_compilar.crb\n";
 }
 
 void Tipo_Comandos::Ayuda::Sintaxis(std::string comando)
@@ -212,12 +212,12 @@ void Tipo_Comandos::Ayuda::Sintaxis(std::string comando)
 
 void Tipo_Comandos::Ayuda::Interpretar()
 {
-    std::cout << "\"Lenguaje Numeros\" interpretar archivo_compilado.txt\n";
+    std::cout << "\"Lenguaje Numeros\" interpretar archivo_compilado.crb\n";
 }
 
 void Tipo_Comandos::Ayuda::Compilar_I()
 {
-    std::cout << "\"Lenguaje Numeros\" compilar_I archivo_codigo.txt archivo_compilado_interpretar.txt\n";
+    std::cout << "\"Lenguaje Numeros\" compilar_I archivo_codigo.crd archivo_compilado_interpretar.crb\n";
 }
 
 void Tipo_Comandos::Ayuda::TipoAyuda()

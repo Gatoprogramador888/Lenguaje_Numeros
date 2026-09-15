@@ -24,8 +24,8 @@ Operacion : prueba = 0.1 + 0.2;
 Imprimir : $ "0.1 + 0.2 = {prueba}"; 
 
 #operaciones entero + entero
-Operacion : c = a + b + d1;
-Imprimir : $ "a + b + d1 = {c}";
+Operacion : c = a + b * d1;
+Imprimir : $ "a + b * d1 = {c}";
 
 Operacion : c = a - b;
 Imprimir : $ "a - b = {c}";
