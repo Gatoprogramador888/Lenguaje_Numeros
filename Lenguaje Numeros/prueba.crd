@@ -27,6 +27,12 @@ Imprimir : $ "0.1 + 0.2 = {prueba}";
 Operacion : c = a + b * d1;
 Imprimir : $ "a + b * d1 = {c}";
 
+Entero: var = 1;
+
+Operacion : var = 0;
+
+Entero: var2 = 0;
+
 Operacion : c = a - b;
 Imprimir : $ "a - b = {c}";
 

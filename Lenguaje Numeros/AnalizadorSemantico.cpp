@@ -5,6 +5,7 @@
 #include <iostream>
 #include <stdexcept>
 #include <string>
+#include "InfDec.h"
 
 // ═══════════════════════════════════════════════════════════════════════════════
 // Utilidades internas
@@ -24,7 +25,7 @@
 size_t Analizador_Tokens_Compilacion::pos_segura(const std::string& nombre,
     size_t posicion_token)
 {
-    const size_t pos = administrador.PosOBj(nombre);
+    size_t pos = simbolos.BuscarId(nombre);
     if (pos == SIZE_MAX)
     {
         error = nombre + " no existe.\nLinea: " + std::to_string(linea)
@@ -75,8 +76,10 @@ size_t Analizador_Tokens_Compilacion::obtener_o_agregar_string(const std::string
     return nueva_pos;
 }
 
+
 void Analizador_Tokens_Compilacion::Guardar_Archivo_CRB()
 {
+    CerrarScope();
     //if (bytecode.empty() || bytecode.back() != static_cast<uint8_t>(OpCode::HALT)) {
     emit_u8(OpCode::HALT);
     //}
@@ -408,7 +411,7 @@ void Analizador_Tokens_Compilacion::Imprimir()
 
                 // PosOBj guard — no accedemos a obj[]
                 if (estado != Estados::ERROR
-                    && administrador.PosOBj(comandos[posicion]) == SIZE_MAX)
+                    && simbolos.BuscarId(comandos[posicion]) == SIZE_MAX)
                 {
                     error = comandos[posicion] + " no existe.\nLinea: "
                         + std::to_string(linea) + ", posicion: "
@@ -560,29 +563,31 @@ void Analizador_Tokens_Compilacion::Entero_Decimal_Dinamico()
             break;
 
         case Estados::Espera_VARIABLE:
-
-            // Verificar duplicado en el administrador (líneas anteriores)
-            // Y también en las variables ya declaradas en ESTA misma línea
-            ya_existe_global = administrador.PosOBj(comandos[posicion]) != SIZE_MAX;
-            ya_existe_local = false;
-            for (const auto& v : Variables)
-                if (v.nombre == comandos[posicion]) { ya_existe_local = true; break; }
-
-            if (tokens[posicion] == Tokens::VARIABLE
-                && !ya_existe_global && !ya_existe_local)
             {
-                estado = Estados::Espera_IGUAL;
-                nombre_variable = comandos[posicion];
-                variable.nombre = nombre_variable;
-                variable.valor = "";
-            }
-            else
-            {
-                error = comandos[posicion] + " ya existe o es de tipo "
-                    + Tokenizador::Get_Tipo(tokens[posicion])
-                    + " no de tipo Variable.\nLinea: " + std::to_string(linea)
-                    + ", posicion: " + std::to_string(posiciones[posicion]) + ".\n";
-                throw std::runtime_error(error.c_str());
+                // Verificar duplicado en el administrador (líneas anteriores)
+                // Y también en las variables ya declaradas en ESTA misma línea
+                size_t pos = simbolos.BuscarId(comandos[posicion]);
+                ya_existe_global = pos != SIZE_MAX;
+                ya_existe_local = false;
+                for (const auto& v : Variables)
+                    if (v.nombre == comandos[posicion]) { ya_existe_local = true; break; }
+
+                if (tokens[posicion] == Tokens::VARIABLE
+                    && !ya_existe_global && !ya_existe_local)
+                {
+                    estado = Estados::Espera_IGUAL;
+                    nombre_variable = comandos[posicion];
+                    variable.nombre = nombre_variable;
+                    variable.valor = "";
+                }
+                else
+                {
+                    error = comandos[posicion] + " ya existe o es de tipo "
+                        + Tokenizador::Get_Tipo(tokens[posicion])
+                        + " no de tipo Variable.\nLinea: " + std::to_string(linea)
+                        + ", posicion: " + std::to_string(posiciones[posicion]) + ".\n";
+                    throw std::runtime_error(error.c_str());
+                }
             }
             break;
 
@@ -721,10 +726,12 @@ void Analizador_Tokens_Compilacion::Entero_Decimal_Dinamico()
                 throw std::runtime_error(error.c_str());
             }
 
-			variable.id = administrador.GetIdVariable();
-			variable.tipo = (Tipo_Dato == Tokens::ENTERO) ? Tipos::ENTERO
-				: (Tipo_Dato == Tokens::DECIMAL) ? Tipos::DECIMAL
-				: Tipos::DINAMICO; 
+            variable.tipo = (Tipo_Dato == Tokens::ENTERO) ? Tipos::ENTERO
+                : (Tipo_Dato == Tokens::DECIMAL) ? Tipos::DECIMAL
+                : Tipos::DINAMICO;
+
+            variable.id = simbolos.Registrar(variable.nombre, variable.tipo);
+			 
             Variables.push_back(variable);
             ultimo_pusheado = true;
             variable = {};  // limpiar para la próxima variable de la misma línea
@@ -742,10 +749,8 @@ void Analizador_Tokens_Compilacion::Entero_Decimal_Dinamico()
     // ═════════════════════════════════════════════════════════════════════════
     // EMISIÓN BINARIA DE BYTECODE
     // ═════════════════════════════════════════════════════════════════════════
-    for (const auto& informacion : Variables)
+    for (auto& informacion : Variables)
     {
-        administrador.Crear(informacion);
-
         // 1. Extraer el valor puro (remover sufijos 'i', 'd', 'm')
         std::string val_puro = informacion.valor;
 
@@ -892,9 +897,10 @@ void Analizador_Tokens_Compilacion::Operacion()
                 break;
             }
 
-            const size_t pos = pos_segura(comandos[posicion], posicion);
-            tipo_destino = obj[pos]->GetType();
+            size_t pos = pos_segura(comandos[posicion], posicion);
+            tipo_destino = simbolos.BuscarTipo(comandos[posicion]);
             id_destino = pos;
+
             break;
         }
 
@@ -977,8 +983,9 @@ void Analizador_Tokens_Compilacion::Operacion()
             }
             else  // VARIABLE
             {
+
                 const size_t pos_op = pos_segura(comandos[posicion], posicion);
-                const Tipos  tipo_op = obj[pos_op]->GetType();
+                const Tipos  tipo_op = simbolos.BuscarTipo(comandos[posicion]);
 
                 // Compatibilidad de tipos (DINAMICO acepta cualquier cosa)
                 if (tipo_op != tipo_destino
@@ -1072,6 +1079,26 @@ void Analizador_Tokens_Compilacion::Operacion()
 
     const uint64_t cod_destino = codificar_variable(static_cast<uint64_t>(id_destino));
 
+    if (operandos.size() < 2 && operandos[0] > BIT_STRING && simbolos.BuscarTipo(cod_destino) != Tipos::ENTERO)
+    {
+		bool es_decimal = (operandos[0] & BIT_CONSTANTE);
+        if (es_decimal && InfDec(tabla_constantes[operandos[0]]).is_zero())
+        {
+			lifetime_guard(cod_destino);
+            return;
+        }
+        emit_u8(OpCode::ADD);
+        emit_u64(cod_destino);
+        emit_u64(operandos[0]);
+        emit_u64(BIT_STRING);
+        return;
+    }
+    else if (operandos.size() < 2 && operandos[0] == BIT_STRING)
+    {
+        lifetime_guard(cod_destino);
+        return;
+    }
+
     // Helper local: emite una instrucción y "comprime" la lista
     auto emitir_op = [&](size_t i, OpCode op)
         {
@@ -1080,6 +1107,7 @@ void Analizador_Tokens_Compilacion::Operacion()
             emit_u64(operandos[i]);
             emit_u64(operandos[i + 1]);
 
+			uint64_t id_var = cod_destino & ~(BIT_CONSTANTE | BIT_STRING);
             // El par i / i+1 queda reducido a `destino` en la posición i
             operandos[i] = cod_destino;
             operandos.erase(operandos.begin() + static_cast<std::ptrdiff_t>(i) + 1);
@@ -1111,6 +1139,28 @@ void Analizador_Tokens_Compilacion::Operacion()
         }
     }
 }
+
+void Analizador_Tokens_Compilacion::lifetime_guard(uint64_t id_variable)
+{
+    emit_u8(OpCode::FREE);
+    emit_u64(id_variable);  // id inline para identificarlo al parchear
+
+	simbolos.free_list.push_back(id_variable);
+    simbolos.EliminarDeTabla(id_variable);
+}
+
+//USAR SOLO CUANDO TERMINEN {} BUCLES O FUNCIONES, PARA LIBERAR TODAS LAS VARIABLES DE ESE SCOPE
+void Analizador_Tokens_Compilacion::CerrarScope()
+{
+	//usar tabla local de simbolos para liberar todas las variables de ese scope
+    for (auto& [nombre, contenido] : simbolos.tabla_local) {
+        emit_u8(OpCode::FREE);
+        emit_u64(contenido.id);
+        simbolos.free_list.push_back(contenido.id);
+    }
+    simbolos.tabla_local.clear();
+}
+
 
 // ═══════════════════════════════════════════════════════════════════════════════
 // Pedir

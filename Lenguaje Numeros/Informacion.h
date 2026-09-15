@@ -48,12 +48,11 @@ struct Informacion_Variable
 // Garantiza que cada OpCode ocupe exactamente 1 byte (uint8_t)
 enum class OpCode : uint8_t {
 	HALT = 0x00,
-	CRB = 0xFF, // Cabecera de archivo
-	CED = 0xFE, // Cabecera de sección de constantes
-	CS = 0xFD,  // Cabecera de sección de strings
-	DECLARAR = 0x01,  // Declarar variable
-	INPUT = 0x02, // Pedir
-	PRINT = 0x03, // Imprimir
+	NOP = 0x01, 
+	DECLARAR = 0x02,  // Declarar variable
+	INPUT = 0x03, // Pedir
+	PRINT = 0x04, // Imprimir
+	FREE = 0x05, // Liberar variable
 
 	// Agregaremos los de operaciones matemáticas más adelante
 	ADD = 0x0A, // Suma

@@ -4,6 +4,7 @@
 #include <cstddef>   // SIZE_MAX
 #include <string>
 #include <vector>
+#include <algorithm>
 
 // ── Objeto ───────────────────────────────────────────────────────────────────
 
@@ -66,6 +67,46 @@ public:
     bool   Borrar_Objeto(size_t _id_variable);
 
     size_t GetIdVariable() const { return id_variable++; }
+};
+
+
+
+class GC
+{
+
+};
+
+struct TablaSimbolos {
+    struct Contenido
+    {
+        size_t id;
+        Tipos type;
+        //size_t offset_ultimo_nop{ SIZE_MAX };
+    };
+    std::map<std::string, Contenido> tabla;
+    std::map<std::string, Contenido> tabla_local;
+	std::vector<size_t> free_list;  // IDs liberados para reutilización
+    size_t proximo_id{ 0 };
+
+    // Registra y devuelve el ID asignado
+    size_t Registrar(const std::string& nombre, Tipos type); 
+
+    size_t RegistrarLocal(const std::string& nombre, Tipos type); 
+
+    void EliminarDeTabla(size_t id_variable);
+
+    // Devuelve SIZE_MAX si no existe
+    size_t BuscarId(const std::string& nombre) const; 
+
+    Tipos BuscarTipo(const std::string& nombre) const; 
+
+    Tipos BuscarTipo(size_t id_variable) const; 
+
+    bool Existe(const std::string& nombre) const {
+        return tabla_local.count(nombre) > 0 || tabla.count(nombre) > 0;
+    }
+
+    void Limpiar() { tabla.clear(); proximo_id = 0; }
 };
 
 // ── Globals ───────────────────────────────────────────────────────────────────

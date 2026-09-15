@@ -7,18 +7,26 @@
 #include <stdexcept>
 #include <string>
 #include <vector>
+#include <variant>
 
 // ── Analizador de compilación ─────────────────────────────────────────────────
 
 class Analizador_Tokens_Compilacion : public Interfaz_Compilador
 {
 private:
+    TablaSimbolos simbolos;
+
+
     // ── helpers ──────────────────────────────────────────────────────────────
     void Fin_Linea(Tokens fin_tokens);
     void Imprimir();
     void Pedir();
     void Entero_Decimal_Dinamico();
     void Operacion();
+
+	void lifetime_guard(uint64_t id_variable);
+
+    void CerrarScope();
 
     // ── helpers internos ─────────────────────────────────────────────────────
 
@@ -57,6 +65,7 @@ public:
 		if (!archivo_a_compilar.is_open())
 			throw std::runtime_error("Error al crear el archivo binario: " + nombre_archivo);
 	}
+
     void Guardar_Archivo_CRB();
 	
     void Inicio_analizacion(std::map<std::string, Informacion> mapa);
@@ -64,6 +73,7 @@ public:
 
     ~Analizador_Tokens_Compilacion()
     {
+		simbolos.Limpiar();
 		archivo_a_compilar.close();
         tokens.shrink_to_fit();
         comandos.shrink_to_fit();

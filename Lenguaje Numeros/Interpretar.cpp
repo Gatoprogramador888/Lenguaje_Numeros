@@ -374,6 +374,19 @@ void Interpretar::Ejecutar()
             break;
         }
 
+		case OpCode::FREE:
+		{
+			std::cout << "FREE OPCODE: Liberando variable: "<<leer_u64(pc)<<'\n';
+			//uint64_t id_var = leer_u64(pc);
+			//administrador.Borrar_Objeto(id_var);
+			break;
+		}
+
+		case OpCode::NOP:
+		{
+			break;
+		}
+
         case OpCode::HALT:
             return;
 
@@ -416,10 +429,15 @@ void Interpretar::Declarar()
     uint64_t igualdad = leer_u64(pc);
     uint8_t tipo = leer_u8(pc);
     uint64_t posicion_valor = igualdad & ~(BIT_CONSTANTE | BIT_STRING); // Limpiar máscaras
+    bool es_constante_grande = (igualdad & BIT_CONSTANTE) != 0;
+
+    std::string valor = es_constante_grande ? tabla_CED[posicion_valor] : 
+        std::to_string(igualdad & ~(BIT_STRING));
+
 
     Informacion_Variable var;
     var.id = id_var;
-    var.valor = tabla_CED[posicion_valor];
+    var.valor = valor;
     var.tipo = static_cast<Tipos>(tipo);
     administrador.Crear(var);
 }

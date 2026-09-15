@@ -10,79 +10,6 @@
 #include <iomanip>
 #include <cstdint>
 
-void Desensamblar_CRB(const std::string& ruta_archivo)
-{
-    std::ifstream archivo(ruta_archivo, std::ios::binary);
-    if (!archivo) {
-        std::cout << "Error al abrir " << ruta_archivo << "\n";
-        return;
-    }
-
-    std::cout << "========== DESENSAMBLADO DE BYTECODE (.crb) ==========\n";
-
-    uint8_t opcode_raw = 0;
-    size_t instruccion_num = 0;
-
-    while (archivo.read(reinterpret_cast<char*>(&opcode_raw), 1))
-    {
-        OpCode op = static_cast<OpCode>(opcode_raw);
-        std::cout << "[" << std::setw(4) << std::setfill('0') << instruccion_num++ << "] OpCode: 0x"
-            << std::hex << std::setw(2) << static_cast<int>(opcode_raw) << std::dec << " -> ";
-
-        switch (op)
-        {
-        case OpCode::DECLARAR: {
-            uint64_t id_var = 0, igualdad = 0;
-            uint8_t tipo = 0;
-            archivo.read(reinterpret_cast<char*>(&id_var), 8);
-            archivo.read(reinterpret_cast<char*>(&igualdad), 8);
-            archivo.read(reinterpret_cast<char*>(&tipo), 1);
-
-            std::cout << "DECLARAR | ID Var: " << id_var
-                << " | Valor/Raw: 0x" << std::hex << igualdad << std::dec
-                << " | Tipo Byte: " << static_cast<int>(tipo) << "\n";
-            break;
-        }
-        case OpCode::INPUT: {
-            uint64_t id_var = 0;
-            archivo.read(reinterpret_cast<char*>(&id_var), 8);
-            std::cout << "INPUT | ID Var: " << id_var << "\n";
-            break;
-        }
-        case OpCode::PRINT: {
-            uint64_t total_ops = 0;
-            archivo.read(reinterpret_cast<char*>(&total_ops), 8);
-            std::cout << "PRINT | Cantidad de operandos: " << total_ops << "\n";
-            for (uint64_t i = 0; i < total_ops; i++) {
-                uint64_t operando = 0;
-                archivo.read(reinterpret_cast<char*>(&operando), 8);
-                std::cout << "         -> Operando [" << i << "]: 0x" << std::hex << operando << std::dec << "\n";
-            }
-            break;
-        }
-        case OpCode::ADD:
-        case OpCode::SUB:
-        case OpCode::MUL:
-        case OpCode::DIV: {
-            uint64_t dest = 0, op1 = 0, op2 = 0;
-            archivo.read(reinterpret_cast<char*>(&dest), 8);
-            archivo.read(reinterpret_cast<char*>(&op1), 8);
-            archivo.read(reinterpret_cast<char*>(&op2), 8);
-
-            std::string nombre_op = (op == OpCode::ADD) ? "ADD" : (op == OpCode::SUB) ? "SUB" : (op == OpCode::MUL) ? "MUL" : "DIV";
-
-            std::cout << nombre_op << " (25 bytes) | Destino: " << dest
-                << " | Op1: 0x" << std::hex << op1
-                << " | Op2: 0x" << op2 << std::dec << "\n";
-            break;
-        }
-        default:
-            std::cout << "DESCONOCIDO / HALT (0x" << std::hex << static_cast<int>(opcode_raw) << std::dec << ")\n";
-            break;
-        }
-    }
-    std::cout << "======================================================\n";
-}
 
 // ── Comandos_App ──────────────────────────────────────────────────────────────
 
@@ -98,8 +25,8 @@ Comandos_App::Comandos_App(int argc, char** argv)
 
 	//Desensamblar_CRB("a.crb");
     //compile.Set_Compilar("prueba.crd", "a.crb");
-	//inter.Set_Interpretar("a.crb");
-    //return;
+	inter.Set_Interpretar("a.crb");
+    return;
 
     if (argc < 2)
     {
