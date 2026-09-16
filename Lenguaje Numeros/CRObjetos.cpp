@@ -3,86 +3,29 @@
 #include <cassert>
 #include <stdexcept>
 #include <string>
-#include <algorithm>
-
-vector<Objeto*> obj;
-
-// ── BorrarOBJ ────────────────────────────────────────────────────────────────
-
-void BorrarOBJ::Borrar()
-{
-    for (auto* i : obj)
-        delete i;           // properly invokes destructor AND frees memory
-    obj.clear();            // leave the vector in a valid, empty state
-}
 
 // ── Objeto ───────────────────────────────────────────────────────────────────
 
-void Objeto::SetObjeto(std::string_view _valor)
+
+InfDinamico Objeto::ObtenerComoDinamico() const
 {
-    valor = _valor;
+    return std::visit([](const auto& v) -> InfDinamico {
+        using T = std::decay_t<decltype(v)>;
+
+        if constexpr (std::is_same_v<T, InfDinamico>) {
+            return v; // Coincidencia exacta, costo cero
+        }
+        else {
+            // Conversión nativa entre tipos de Boost en tiempo de compilación
+            return InfDinamico(v);
+        }
+        }, valor);
 }
 
-std::string Objeto::GetNombre() const { return nombre; }
-std::string Objeto::GetValor()  const { return valor; }
 Tipos Objeto::GetType()   const { return tipo; }
 
+
 // ── Administrador ─────────────────────────────────────────────────────────────
-
-bool Administrador::Iguales(std::string_view _nombre) const
-{
-    size_t i = PosOBj(_nombre);
-    return i != SIZE_MAX;
-}
-
-void Administrador::Crear(Informacion_Variable informacion_variable)
-{
-    if (Iguales(informacion_variable.nombre) &&  informacion_variable.nombre != "")
-        NuevaIgualdad(informacion_variable.nombre, informacion_variable.valor);
-    else
-        obj.push_back(new Objeto(informacion_variable.valor,
-            informacion_variable.nombre,
-            informacion_variable.tipo,
-            informacion_variable.id));
-}
-
-void Administrador::NuevaIgualdad(std::string_view _nombre,
-    std::string_view _valor)
-{
-    size_t i = PosOBj(_nombre);
-    obj[i]->SetObjeto(_valor);
-}
-
-void Administrador::NuevaIgualdad(size_t _id_variable, std::string_view _valor)
-{
-	obj[_id_variable]->SetObjeto(_valor);
-}
-
-size_t Administrador::PosOBj(std::string_view _nombre) const
-{
-    auto it = std::find_if(obj.begin(), obj.end(),
-        [&_nombre](const Objeto* o) { return o->GetNombre() == _nombre; });
-    if (it == obj.end())return SIZE_MAX;
-    size_t pos_t = std::distance(obj.begin(), it);
-    return pos_t;
-}
-
-// Returns true and removes the object; returns false if not found.
-bool Administrador::Borrar_Objeto(size_t _id_variable)
-{
-	if (_id_variable < obj.size())
-	{
-		delete obj[_id_variable];                          // ① proper destruction + free
-		obj.erase(obj.begin() + static_cast<std::ptrdiff_t>(_id_variable)); // ② remove slot
-		return true;
-	}
-    return false;
-}
-
-// ── Global singletons ─────────────────────────────────────────────────────────
-BorrarOBJ    BOBJ;
-Administrador administrador;
-
 size_t TablaSimbolos::Registrar(const std::string& nombre, Tipos type)
 {
     size_t id;
@@ -170,3 +113,60 @@ Tipos TablaSimbolos::BuscarTipo(size_t id_variable) const
 }
 
 
+// ── Garbage Collector ─────────────────────────────────────────────────────────────
+
+void GC::Alojar(size_t id, Informacion_Variable iv)
+{
+    if(pool.empty())
+    {
+        pool.resize(50, nullptr);
+    }
+    else if(id >= pool.size())
+    {
+        pool.resize(id * 2, nullptr);
+    }
+    ValorNumerico valor;
+    switch (iv.tipo) {
+    case Tipos::ENTERO:   valor = InfInt(iv.valor);      break;
+    case Tipos::DECIMAL:  valor = InfDec(iv.valor);      break;
+    case Tipos::DINAMICO: valor = InfDinamico(iv.valor); break;
+    }
+    pool[id] = new Objeto(valor, iv.tipo, id);
+}
+
+void GC::Liberar(size_t id)
+{
+	pool[id] = nullptr; // Evitar dangling pointer]
+	//Se reutiliza el id liberado para futuros objetos
+}
+
+void GC::Actualizar(size_t id, InfDinamico valor)
+{
+    switch (pool[id]->GetType()) {
+    case Tipos::ENTERO:   pool[id]->SetValor(InfInt(valor.operator InfInt()));      break;
+    case Tipos::DECIMAL:  pool[id]->SetValor(InfDec(valor.operator InfDec()));      break;
+    case Tipos::DINAMICO: pool[id]->SetValor(valor); break;
+    }
+}
+
+Objeto* GC::Obtener(size_t id)
+{
+    return pool[id];
+}
+
+
+
+GC::~GC()
+{
+	//Limpiar la memoria de todos los objetos alojados
+	for (size_t i = 0; i < pool.size(); ++i)
+	{
+        delete pool[i];
+		pool[i] = nullptr; // Evitar dangling pointer
+	}
+	pool.clear();
+}
+
+
+// ── Global singletons ─────────────────────────────────────────────────────────
+GC administrador;
