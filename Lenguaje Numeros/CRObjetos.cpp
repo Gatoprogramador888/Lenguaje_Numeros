@@ -26,7 +26,7 @@ Tipos Objeto::GetType()   const { return tipo; }
 
 
 // ── Administrador ─────────────────────────────────────────────────────────────
-size_t TablaSimbolos::Registrar(const std::string& nombre, Tipos type)
+size_t TablaSimbolos::Registrar(const std::string& nombre, Tipos type, bool es_constante)
 {
     size_t id;
     if (!free_list.empty()) {
@@ -36,11 +36,15 @@ size_t TablaSimbolos::Registrar(const std::string& nombre, Tipos type)
     else {
         id = proximo_id++;       // ID nuevo
     }
-    tabla[nombre] = { id, type };
+    tabla[nombre] = Contenido{
+    .id = id,
+    .type = type,
+    .es_constante = es_constante
+    };
     return id;
 }
 
-size_t TablaSimbolos::RegistrarLocal(const std::string& nombre, Tipos type)
+size_t TablaSimbolos::RegistrarLocal(const std::string& nombre, Tipos type, bool es_constante)
 {
     size_t id;
     if (!free_list.empty()) {
@@ -50,7 +54,11 @@ size_t TablaSimbolos::RegistrarLocal(const std::string& nombre, Tipos type)
     else {
         id = proximo_id++;       // ID nuevo
     }
-    tabla_local[nombre] = { id, type };
+    tabla_local[nombre] = Contenido{
+    .id = id,
+    .type = type,
+    .es_constante = es_constante
+    };
     return id;
 }
 

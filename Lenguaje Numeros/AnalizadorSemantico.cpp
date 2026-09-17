@@ -538,7 +538,7 @@ void Analizador_Tokens_Compilacion::Entero_Decimal_Dinamico()
     Estados estado = Estados::INICIO;
     std::vector<Informacion_Variable> Variables;
     Informacion_Variable variable;
-    bool ultimo_pusheado = false, ya_existe_global = false, ya_existe_local = false;
+    bool ultimo_pusheado = false, ya_existe_global = false, ya_existe_local = false, es_constante = false;
     std::string tipo{};
 
     for (size_t posicion = 0; posicion < tokens.size(); posicion++)
@@ -548,6 +548,8 @@ void Analizador_Tokens_Compilacion::Entero_Decimal_Dinamico()
         switch (estado)
         {
         case Estados::INICIO:
+
+            
             if (tokens[posicion] == Tokens::ENTERO
                 || tokens[posicion] == Tokens::DECIMAL
                 || tokens[posicion] == Tokens::DINAMICO)
@@ -555,6 +557,10 @@ void Analizador_Tokens_Compilacion::Entero_Decimal_Dinamico()
                 estado = Estados::Espera_DIVISOR;
                 Tipo_Dato = tokens[posicion];
                 tipo = Tokenizador::Get_Tipo(tokens[posicion]);
+            }
+            else if (tokens[posicion] == Tokens::CONSTANTE)
+            {
+                es_constante = true;
             }
             else
             {
@@ -745,7 +751,7 @@ void Analizador_Tokens_Compilacion::Entero_Decimal_Dinamico()
                 : (Tipo_Dato == Tokens::DECIMAL) ? Tipos::DECIMAL
                 : Tipos::DINAMICO;
 
-            variable.id = simbolos.Registrar(variable.nombre, variable.tipo);
+            variable.id = simbolos.Registrar(variable.nombre, variable.tipo, es_constante);
 			 
             Variables.push_back(variable);
             ultimo_pusheado = true;
@@ -910,6 +916,12 @@ void Analizador_Tokens_Compilacion::Operacion()
                     + ", posicion: " + std::to_string(posiciones[posicion]) + ".\n";
                 estado = Estados::ERROR;
                 break;
+            }
+            else if (simbolos.Es_Constante(comandos[posicion]))
+            {
+                error = comandos[posicion] + " es de tipo Constante no se puede modificar.\n"
+                    + std::to_string(linea) + ", posicion: " + std::to_string(posiciones[posicion]) + ".\n";
+                estado = Estados::ERROR;
             }
 
             size_t pos = pos_segura(comandos[posicion], posicion);
@@ -1231,6 +1243,12 @@ void Analizador_Tokens_Compilacion::Pedir()
                     + ", posicion: " + std::to_string(posiciones[i]) + ".\n";
                 estado = Estados::ERROR;
             }
+            else if (simbolos.Es_Constante(comandos[i]))
+            {
+                error = comandos[i] + " es de tipo Constante no se puede modificar.\n"
+                    + std::to_string(linea) + ", posicion: " + std::to_string(posiciones[i]) + ".\n";
+                estado = Estados::ERROR;
+            }
             else
             {
                 size_t pos_var = pos_segura(comandos[i], i);
@@ -1281,6 +1299,7 @@ void Analizador_Tokens_Compilacion::Inicio_analizacion(std::map<std::string, Inf
     {
     case Tokens::IMPRIMIR:                             Imprimir();               break;
     case Tokens::PEDIR:                                Pedir();                  break;
+    case Tokens::CONSTANTE:
     case Tokens::ENTERO:
     case Tokens::DECIMAL:
     case Tokens::DINAMICO:                             Entero_Decimal_Dinamico(); break;

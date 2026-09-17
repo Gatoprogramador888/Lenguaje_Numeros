@@ -95,9 +95,9 @@ struct TablaSimbolos {
     size_t proximo_id{ 0 };
 
     // Registra y devuelve el ID asignado
-    size_t Registrar(const std::string& nombre, Tipos type); 
+    size_t Registrar(const std::string& nombre, Tipos type, bool es_constante); 
 
-    size_t RegistrarLocal(const std::string& nombre, Tipos type); 
+    size_t RegistrarLocal(const std::string& nombre, Tipos type, bool es_constante);
 
     void EliminarDeTabla(size_t id_variable);
 

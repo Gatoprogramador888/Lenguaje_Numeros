@@ -10,7 +10,7 @@
 
 bool Tokenizador::Variable(const std::string& palabra)
 {
-    static const std::string TIPOS[] = { "Entero", "Decimal", "Dinamico" };
+    static const std::string TIPOS[] = { "Entero", "Decimal", "Dinamico", "Const", "Constante"};
 
     for (const auto& tipo : TIPOS)
     {
@@ -18,7 +18,8 @@ bool Tokenizador::Variable(const std::string& palabra)
         {
             if (palabra == TIPOS[0]) token = Tokens::ENTERO;
             else if (palabra == TIPOS[1]) token = Tokens::DECIMAL;
-            else                          token = Tokens::DINAMICO;
+            else if (palabra == TIPOS[2]) token = Tokens::DINAMICO;
+            else if (palabra == TIPOS[3] || palabra == TIPOS[4]) token = Tokens::CONSTANTE;
             return true;
         }
     }
@@ -184,7 +185,7 @@ std::string Tokenizador::Get_Tipo(Tokens tok)
         "COMAS", "FIN_COMANDO", "ESPACIO",
         "COMILLAS",
         "PARENTESIS_DERECHO", "PARENTESIS_IZQUIERDO",
-        "VARIABLE", "IGUAL", "CARACTER", "DIVISOR", "TEXTO"
+        "VARIABLE", "IGUAL", "CARACTER", "DIVISOR", "TEXTO", "CONSTANTE"
     };
     static constexpr size_t N = sizeof(TIPOS) / sizeof(TIPOS[0]);
 

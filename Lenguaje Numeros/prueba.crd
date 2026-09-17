@@ -1,10 +1,15 @@
 #programa correcto - prueba de todos los tipos y operaciones
 
 #declaracion de enteros
-Entero : var = 0;
+Entero : var = 1;
+
 #Pruebas
-Operacion: var = 1;
-Imprimir: var;
+Const Entero: v = 2;
+
+Operacion: var = var * v; 
+
+Imprimir: $ "var despues de ser multiplicado por 2 {var}";
+
 Operacion: var = nulo;
 
 Entero : a = 10, b = -5, c = 0;
