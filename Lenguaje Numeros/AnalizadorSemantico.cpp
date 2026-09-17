@@ -32,6 +32,13 @@ size_t Analizador_Tokens_Compilacion::pos_segura(const std::string& nombre,
             + ", posicion: " + std::to_string(posiciones[posicion_token]) + ".\n";
         throw std::runtime_error(error.c_str());
     }
+    else if (simbolos.Es_Nulo(nombre))
+    {
+        error = nombre + " es nulo no se puede volver a usar\n"
+            + "Linea:" + std::to_string(linea)
+            + ", posicion: " + std::to_string(posiciones[posicion_token]) + ".\n";
+        throw std::runtime_error(error.c_str());
+    }
     return pos;
 }
 
@@ -414,6 +421,14 @@ void Analizador_Tokens_Compilacion::Imprimir()
                     && simbolos.BuscarId(comandos[posicion]) == SIZE_MAX)
                 {
                     error = comandos[posicion] + " no existe.\nLinea: "
+                        + std::to_string(linea) + ", posicion: "
+                        + std::to_string(posiciones[posicion]) + ".\n";
+                    estado = Estados::ERROR;
+                }
+
+                if (estado != Estados::ERROR && simbolos.Es_Nulo(comandos[posicion]))
+                {
+                    error = comandos[posicion] + " se hizo nulo anteriormente.\nLinea: "
                         + std::to_string(linea) + ", posicion: "
                         + std::to_string(posiciones[posicion]) + ".\n";
                     estado = Estados::ERROR;
@@ -919,7 +934,8 @@ void Analizador_Tokens_Compilacion::Operacion()
             // ── ESPERA_NUMERO (operando) ──────────────────────────────────────────
         case Estados::ESPERA_NUMERO:
         {
-            if (tokens[posicion] != Tokens::VARIABLE && tokens[posicion] != Tokens::NUMERO)
+            if (tokens[posicion] != Tokens::VARIABLE && tokens[posicion] != Tokens::NUMERO 
+                && tokens[posicion] != Tokens::NULO)
             {
                 error = comandos[posicion] + " es de tipo "
                     + Tokenizador::Get_Tipo(tokens[posicion])
@@ -930,7 +946,16 @@ void Analizador_Tokens_Compilacion::Operacion()
             }
 
             // Determinar estado siguiente antes de consumir el token
-            if (posicion + 1 < tokens.size())
+            if (posicion + 1 < tokens.size() && tokens[posicion] == Tokens::NULO
+                && tokens[posicion + 1] != Tokens::FIN_COMANDO)
+            {
+                error = "No se puede hacer una operacion cuando existe una asignacion nula."
+                    "\nLinea: "+ std::to_string(linea) + ".\n"
+                    + ", posicion: " + std::to_string(posiciones[posicion]) + ".\n";
+                estado = Estados::ERROR;
+                break;
+            }
+            else if (posicion + 1 < tokens.size())
                 estado = (tokens[posicion + 1] != Tokens::FIN_COMANDO)
                 ? Estados::ESPERA_OPERADOR
                 : Estados::ESPERA_FIN_COMANDO;
@@ -943,7 +968,12 @@ void Analizador_Tokens_Compilacion::Operacion()
             }
 
             // ── Codificar el operando ─────────────────────────────────────────
-            if (tokens[posicion] == Tokens::NUMERO)
+            if (tokens[posicion] == Tokens::NULO)
+            {
+                uint64_t valor = BIT_NULL;
+                operandos.push_back(valor);
+            }
+            else if (tokens[posicion] == Tokens::NUMERO)
             {
                 // Validaciones de tipo contra la variable destino
                 const bool tiene_punto = (comandos[posicion].find('.') != std::string::npos);
@@ -1079,24 +1109,17 @@ void Analizador_Tokens_Compilacion::Operacion()
 
     const uint64_t cod_destino = codificar_variable(static_cast<uint64_t>(id_destino));
 
-    if (operandos.size() < 2 && operandos[0] > BIT_STRING && simbolos.BuscarTipo(cod_destino) != Tipos::ENTERO)
-    {
-		bool es_decimal = (operandos[0] & BIT_CONSTANTE);
-        if (es_decimal && InfDec(tabla_constantes[operandos[0]]).is_zero())
-        {
-			lifetime_guard(cod_destino);
-            return;
-        }
-        emit_u8(OpCode::ADD);
-        emit_u64(cod_destino);
-        emit_u64(operandos[0]);
-        emit_u64(BIT_STRING);
-        return;
-    }
-    else if (operandos.size() < 2 && operandos[0] == BIT_STRING)
+    if (operandos.size() < 2 && operandos[0] == BIT_NULL)
     {
         lifetime_guard(cod_destino);
         return;
+    }
+    else if (operandos.size() < 2)
+    {
+        emit_u8(OpCode::ADD);
+        emit_u64(cod_destino);
+        emit_u64(operandos[0]);
+        emit_u64(0);
     }
 
     // Helper local: emite una instrucción y "comprime" la lista

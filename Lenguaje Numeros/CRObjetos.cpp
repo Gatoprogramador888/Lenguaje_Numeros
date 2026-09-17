@@ -56,44 +56,39 @@ size_t TablaSimbolos::RegistrarLocal(const std::string& nombre, Tipos type)
 
 void TablaSimbolos::EliminarDeTabla(size_t id_variable)
 {
-    std::erase_if(tabla, [id_variable](const auto& pair) {
+    //Buscar el objeto por si id
+    auto it = std::find_if(tabla.begin(), tabla.end(), [id_variable](const auto& pair) {
         return pair.second.id == id_variable;
         });
+
+    it->second.es_nulo = true;
+}
+
+bool TablaSimbolos::Es_Constante(std::string nombre)
+{
+    if (tabla.contains(nombre)) return tabla.at(nombre).es_constante;
+    if (tabla_local.contains(nombre)) return tabla_local.at(nombre).es_constante;
+    return false;
+}
+
+bool TablaSimbolos::Es_Nulo(std::string nombre)
+{
+    if (tabla.contains(nombre)) return tabla.at(nombre).es_nulo;
+    if (tabla_local.contains(nombre)) return tabla_local.at(nombre).es_nulo;
+    return false;
 }
 
 size_t TablaSimbolos::BuscarId(const std::string& nombre) const
 {
-    // 1. Buscar primero en el ámbito/tabla local
-    auto it_local = tabla_local.find(nombre);
-    if (it_local != tabla_local.end()) {
-        return it_local->second.id;
-    }
-
-    // 2. Si no está en la local, buscar en la tabla global
-    auto it_global = tabla.find(nombre);
-    if (it_global != tabla.end()) {
-        return it_global->second.id;
-    }
-
-    // 3. No existe en ningún scope
+    if (tabla.contains(nombre)) return tabla.at(nombre).id;
+    if (tabla_local.contains(nombre)) return tabla_local.at(nombre).id;
     return SIZE_MAX;
 }
 
 Tipos TablaSimbolos::BuscarTipo(const std::string& nombre) const
 {
-    // 1. Buscar en el ámbito local
-    auto it_local = tabla_local.find(nombre);
-    if (it_local != tabla_local.end()) {
-        return it_local->second.type;
-    }
-
-    // 2. Si no existe en local, buscar en el ámbito global
-    auto it_global = tabla.find(nombre);
-    if (it_global != tabla.end()) {
-        return it_global->second.type;
-    }
-
-    // 3. Si no existe en ningún ámbito, retornar DINAMICO por defecto
+    if (tabla.contains(nombre)) return tabla.at(nombre).type;
+    if (tabla_local.contains(nombre)) return tabla_local.at(nombre).type;
     return Tipos::DINAMICO;
 }
 

@@ -66,6 +66,7 @@ constexpr const char magic[4] = { 'C', 'R', 'B', '\0' };
 // Mascaras de Bits para operando (uint64_t)
 constexpr uint64_t BIT_CONSTANTE = 1ULL << 63; // Bit 63: 1 = Constante/Decimal
 constexpr uint64_t BIT_STRING = 1ULL << 62; // Bit 62: 1 = String (requiere Bit 63 en 1)
+constexpr uint64_t BIT_NULL = 1ULL << 61; // Bit 61: 1 = Nulo (requiere Bit 61 en 1) solo compilacion
 
 // Helpers de codificación
 inline uint64_t codificar_variable(uint64_t pos) {

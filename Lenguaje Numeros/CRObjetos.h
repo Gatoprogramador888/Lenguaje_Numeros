@@ -84,8 +84,9 @@ public:
 struct TablaSimbolos {
     struct Contenido
     {
-        size_t id;
-        Tipos type;
+        size_t id{};
+        Tipos type{};
+        bool es_constante{ false }, es_nulo{ false };
         //size_t offset_ultimo_nop{ SIZE_MAX };
     };
     std::map<std::string, Contenido> tabla;
@@ -99,6 +100,10 @@ struct TablaSimbolos {
     size_t RegistrarLocal(const std::string& nombre, Tipos type); 
 
     void EliminarDeTabla(size_t id_variable);
+
+    bool Es_Constante(std::string nombre);
+
+    bool Es_Nulo(std::string nombre); 
 
     // Devuelve SIZE_MAX si no existe
     size_t BuscarId(const std::string& nombre) const; 

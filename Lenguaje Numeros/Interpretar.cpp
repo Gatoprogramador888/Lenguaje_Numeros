@@ -225,15 +225,26 @@ void Interpretar::Operacion(uint8_t opcode)
 
     bool es_constante_src1 = (src1 & BIT_CONSTANTE) != 0;
     bool es_constante_src2 = (src2 & BIT_CONSTANTE) != 0;
+    bool es_inline_src1 = (src1 & BIT_STRING) != 0;
+    bool es_inline_src2 = (src2 & BIT_STRING) != 0;
     uint64_t posicion_puro_src1 = src1 & ~(BIT_CONSTANTE | BIT_STRING);
     uint64_t posicion_puro_src2 = src2 & ~(BIT_CONSTANTE | BIT_STRING);
 
-    InfDinamico vp1 = es_constante_src1
-        ? InfDinamico(tabla_CED[posicion_puro_src1])
+    //Revisar si es constante o inline
+    InfDinamico vp1 = es_constante_src1 || es_inline_src1
+        ? InfDinamico( 
+            es_constante_src1 
+            ? tabla_CED[posicion_puro_src1]
+            : std::to_string(posicion_puro_src1)
+            )
         : administrador.Obtener(posicion_puro_src1)->ObtenerComoDinamico();
 
-    InfDinamico vp2 = es_constante_src2
-        ? InfDinamico(tabla_CED[posicion_puro_src2])
+    InfDinamico vp2 = es_constante_src2 || es_inline_src2
+        ? InfDinamico(
+            es_constante_src2
+            ? tabla_CED[posicion_puro_src2]
+            : std::to_string(posicion_puro_src2)
+            )
         : administrador.Obtener(posicion_puro_src2)->ObtenerComoDinamico();
 
     InfDinamico resultado{};

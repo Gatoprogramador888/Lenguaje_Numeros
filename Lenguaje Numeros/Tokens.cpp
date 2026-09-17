@@ -105,6 +105,7 @@ std::map<std::string, Informacion> Tokenizador::Mapa_Informacion(
             // BUG FIX #2 — palabra[0] == NULL compara char con puntero: UB.
             // Correcto: verificar que la cadena no esté vacía antes de acceder [0].
             else if (palabra.empty() || palabra[0] == '\0') { /* ignorar */ }
+            else if (palabra == "nulo")             Recopilar_informacion(info[i], Tokens::NULO);
             else if (std::isalpha(static_cast<unsigned char>(palabra[0])))
                 Recopilar_informacion(info[i], Tokens::VARIABLE);
             else                                   Recopilar_informacion(info[i], Tokens::CARACTER);
