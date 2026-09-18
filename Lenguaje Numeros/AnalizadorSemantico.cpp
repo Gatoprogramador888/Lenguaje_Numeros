@@ -28,15 +28,15 @@ size_t Analizador_Tokens_Compilacion::pos_segura(const std::string& nombre,
     size_t pos = simbolos.BuscarId(nombre);
     if (pos == SIZE_MAX)
     {
-        error = nombre + " no existe.\nLinea: " + std::to_string(linea)
-            + ", posicion: " + std::to_string(posiciones[posicion_token]) + ".\n";
+        error = nombre + " it doesn't exist.\nLine: " + std::to_string(linea)
+            + ", position: " + std::to_string(posiciones[posicion_token]) + ".\n";
         throw std::runtime_error(error.c_str());
     }
     else if (simbolos.Es_Nulo(nombre))
     {
-        error = nombre + " es nulo no se puede volver a usar\n"
-            + "Linea:" + std::to_string(linea)
-            + ", posicion: " + std::to_string(posiciones[posicion_token]) + ".\n";
+        error = nombre + " It is null; it cannot be used again.\n"
+            + "Line:" + std::to_string(linea)
+            + ", position: " + std::to_string(posiciones[posicion_token]) + ".\n";
         throw std::runtime_error(error.c_str());
     }
     return pos;
@@ -45,7 +45,6 @@ size_t Analizador_Tokens_Compilacion::pos_segura(const std::string& nombre,
 void Analizador_Tokens_Compilacion::emit_u8(uint8_t val)
 {
     bytecode.push_back(val);
-    //archivo_a_compilar.write(reinterpret_cast<const char*>(&val), sizeof(val));
 }
 
 void Analizador_Tokens_Compilacion::emit_u8(OpCode op)
@@ -57,7 +56,6 @@ void Analizador_Tokens_Compilacion::emit_u64(uint64_t val)
 {
     const uint8_t* bytes = reinterpret_cast<const uint8_t*>(&val);
     bytecode.insert(bytecode.end(), bytes, bytes + sizeof(uint64_t));
-    //archivo_a_compilar.write(reinterpret_cast<const char*>(&val), sizeof(val));
 }
 
 size_t Analizador_Tokens_Compilacion::obtener_o_agregar_constante(const std::string& valor_str)
@@ -153,9 +151,9 @@ void Analizador_Tokens_Compilacion::Fin_Linea(Tokens fin_tokens)
     if (fin_tokens != Tokens::FIN_COMANDO)
     {
         const std::string err =
-            "Se esperaba ';' en vez de " + comandos[comandos.size() - 1]
-            + " .\nLinea: " + std::to_string(linea)
-            + ", posicion: " + std::to_string(posiciones[posiciones.size() - 1]) + ".\n";
+            "';' was expected instead of " + comandos[comandos.size() - 1]
+            + ".\nLine: " + std::to_string(linea)
+            + ", position: " + std::to_string(posiciones[posiciones.size() - 1]) + ".\n";
         throw std::runtime_error(err.c_str());
     }
 }
@@ -197,8 +195,8 @@ void Analizador_Tokens_Compilacion::Imprimir()
                 estado = Estados::ESPERA_DIVISOR;
                 if (tokens[posicion] != Tokens::IMPRIMIR)
                 {
-                    error = comandos[posicion] + " no es de tipo Imprimir.\nLinea: "
-                        + std::to_string(linea) + ", posicion: "
+                    error = comandos[posicion] + " is not of the Print type.\nLine: "
+                        + std::to_string(linea) + ", position: "
                         + std::to_string(posiciones[posicion]) + ".\n";
                     estado = Estados::ERROR;
                 }
@@ -208,8 +206,8 @@ void Analizador_Tokens_Compilacion::Imprimir()
                 estado = Estados::ESPERA_VARIABLE;
                 if (tokens[posicion] != Tokens::DIVISOR)
                 {
-                    error = "Se esperaba ':' no " + comandos[posicion] + ".\nLinea: "
-                        + std::to_string(linea) + ", posicion: "
+                    error = "':' was expected instead of " + comandos[posicion] + ".\nLine: "
+                        + std::to_string(linea) + ", position: "
                         + std::to_string(posiciones[posicion]) + ".\n";
                     estado = Estados::ERROR;
                 }
@@ -220,8 +218,8 @@ void Analizador_Tokens_Compilacion::Imprimir()
                 estado = Estados::ESPERA_COMAS_FIN_COMANDO;
                 if (tokens[posicion] != Tokens::VARIABLE)
                 {
-                    error = comandos[posicion] + " no existe dicha variable.\nLinea: "
-                        + std::to_string(linea) + ", posicion: "
+                    error = comandos[posicion] + " such a variable does not exist.\nLine: "
+                        + std::to_string(linea) + ", position: "
                         + std::to_string(posiciones[posicion]) + ".\n";
                     estado = Estados::ERROR;
                     break;
@@ -236,8 +234,8 @@ void Analizador_Tokens_Compilacion::Imprimir()
                     estado = Estados::ESPERA_VARIABLE;
                 else if (tokens[posicion] != Tokens::FIN_COMANDO)
                 {
-                    error = "Se esperaba ';' no " + comandos[posicion] + ".\nLinea: "
-                        + std::to_string(linea) + ", posicion: "
+                    error = "';' was expected instead of " + comandos[posicion] + ".\nLine: "
+                        + std::to_string(linea) + ", position: "
                         + std::to_string(posiciones[posicion]) + ".\n";
                     estado = Estados::ERROR;
                 }
@@ -257,8 +255,8 @@ void Analizador_Tokens_Compilacion::Imprimir()
                 estado = Estados::ESPERA_DIVISOR;
                 if (tokens[posicion] != Tokens::IMPRIMIR)
                 {
-                    error = comandos[posicion] + " no es de tipo Imprimir.\nLinea: "
-                        + std::to_string(linea) + ", posicion: "
+                    error = comandos[posicion] + " is not of the Print type.\nLine: "
+                        + std::to_string(linea) + ", position: "
                         + std::to_string(posiciones[posicion]) + ".\n";
                     estado = Estados::ERROR;
                 }
@@ -268,8 +266,8 @@ void Analizador_Tokens_Compilacion::Imprimir()
                 estado = Estados::ESPERA_TEXTO;
                 if (tokens[posicion] != Tokens::DIVISOR)
                 {
-                    error = "Se esperaba ':' no " + comandos[posicion] + ".\nLinea: "
-                        + std::to_string(linea) + ", posicion: "
+                    error = "':' was expected instead of " + comandos[posicion] + ".\nLine: "
+                        + std::to_string(linea) + ", position: "
                         + std::to_string(posiciones[posicion]) + ".\n";
                     estado = Estados::ERROR;
                 }
@@ -299,15 +297,15 @@ void Analizador_Tokens_Compilacion::Imprimir()
                             estado = Estados::ESPERA_COMAS_FIN_COMANDO;
                         else
                         {
-                            error = "Se esperaba '\"' en vez de " + comandos[posicion + 1]
-                                + ".\nLinea: " + std::to_string(linea) + ", posicion: "
+                            error = "'\"' was expected instead of " + comandos[posicion + 1]
+                                + ".\nLine: " + std::to_string(linea) + ", position: "
                                 + std::to_string(posiciones[posicion]) + ".\n";
                             estado = Estados::ERROR;
                         }
                         break;
                     default:
-                        error = "Se esperaba '\"' en vez de " + comandos[posicion + 1]
-                            + ".\nLinea: " + std::to_string(linea) + ", posicion: "
+                        error = "'\"' was expected instead of " + comandos[posicion + 1]
+                            + ".\nLine: " + std::to_string(linea) + ", position: "
                             + std::to_string(posiciones[posicion]) + ".\n";
                         estado = Estados::ERROR;
                         break;
@@ -315,16 +313,16 @@ void Analizador_Tokens_Compilacion::Imprimir()
                 }
                 else
                 {
-                    error = "Se esperaba ';' no " + comandos[posicion] + ".\nLinea: "
-                        + std::to_string(linea) + ", posicion: "
+                    error = "';' was expected instead of " + comandos[posicion] + ".\nLine: "
+                        + std::to_string(linea) + ", position: "
                         + std::to_string(posiciones[posicion]) + ".\n";
                     estado = Estados::ERROR;
                 }
 
                 if (tokens[posicion] != Tokens::COMILLAS)
                 {
-                    error = "Se esperaba \" en vez de " + comandos[posicion] + ".\nLinea: "
-                        + std::to_string(linea) + ", posicion: "
+                    error = "'\"' was expected instead of " + comandos[posicion] + ".\nLine: "
+                        + std::to_string(linea) + ", position: "
                         + std::to_string(posiciones[posicion]) + ".\n";
                     estado = Estados::ERROR;
                 }
@@ -357,15 +355,15 @@ void Analizador_Tokens_Compilacion::Imprimir()
                         }
                         else
                         {
-                            error = "Se esperaba '\"' en vez de " + comandos[posicion + 1]
-                                + ".\nLinea: " + std::to_string(linea) + ", posicion: "
+                            error = "'\"' was expected instead of " + comandos[posicion + 1]
+                                + ".\nLine: " + std::to_string(linea) + ", position: "
                                 + std::to_string(posiciones[posicion]) + ".\n";
                             estado = Estados::ERROR;
                         }
                         break;
                     default:
-                        error = "Se esperaba '\"' en vez de " + comandos[posicion + 1]
-                            + ".\nLinea: " + std::to_string(linea) + ", posicion: "
+                        error = "'\"' was expected instead of " + comandos[posicion + 1]
+                            + ".\nLine: " + std::to_string(linea) + ", position: "
                             + std::to_string(posiciones[posicion]) + ".\n";
                         estado = Estados::ERROR;
                         break;
@@ -373,8 +371,8 @@ void Analizador_Tokens_Compilacion::Imprimir()
                 }
                 else
                 {
-                    error = "Se esperaba ';' no " + comandos[posicion] + ".\nLinea: "
-                        + std::to_string(linea) + ", posicion: "
+                    error = "';' was expected instead of " + comandos[posicion] + ".\nLine: "
+                        + std::to_string(linea) + ", position: "
                         + std::to_string(posiciones[posicion]) + ".\n";
                     estado = Estados::ERROR;
                 }
@@ -386,8 +384,8 @@ void Analizador_Tokens_Compilacion::Imprimir()
                 estado = Estados::ESPERA_VARIABLE;
                 if (tokens[posicion] != Tokens::LLAVE_IZQUIERDO)
                 {
-                    error = "Se esperaba '{' no " + comandos[posicion] + ".\nLinea: "
-                        + std::to_string(linea) + ", posicion: "
+                    error = "'{' was expected instead of " + comandos[posicion] + ".\nLine: "
+                        + std::to_string(linea) + ", position: "
                         + std::to_string(posiciones[posicion]) + ".\n";
                     estado = Estados::ERROR;
                 }
@@ -401,18 +399,18 @@ void Analizador_Tokens_Compilacion::Imprimir()
                     : Estados::ESPERA_COMAS_FIN_COMANDO;
                 else
                 {
-                    error = "Se esperaba ';' no " + comandos[posicion] + ".\nLinea: "
-                        + std::to_string(linea) + ", posicion: "
+                    error = "';' was expected instead of " + comandos[posicion] + ".\nLine: "
+                        + std::to_string(linea) + ", position: "
                         + std::to_string(posiciones[posicion]) + ".\n";
                     estado = Estados::ERROR;
                 }
 
                 if (tokens[posicion] != Tokens::VARIABLE)
                 {
-                    error = comandos[posicion] + " es de tipo "
+                    error = comandos[posicion] + " it is of the ... type "
                         + Tokenizador::Get_Tipo(tokens[posicion])
-                        + " en vez de VARIABLE.\nLinea: " + std::to_string(linea)
-                        + ", posicion: " + std::to_string(posiciones[posicion]) + ".\n";
+                        + " instead of VARIABLE.\nLine: " + std::to_string(linea)
+                        + ", position: " + std::to_string(posiciones[posicion]) + ".\n";
                     estado = Estados::ERROR;
                 }
 
@@ -420,16 +418,16 @@ void Analizador_Tokens_Compilacion::Imprimir()
                 if (estado != Estados::ERROR
                     && simbolos.BuscarId(comandos[posicion]) == SIZE_MAX)
                 {
-                    error = comandos[posicion] + " no existe.\nLinea: "
-                        + std::to_string(linea) + ", posicion: "
+                    error = comandos[posicion] + " it doesn't exist.\nLine: "
+                        + std::to_string(linea) + ", position: "
                         + std::to_string(posiciones[posicion]) + ".\n";
                     estado = Estados::ERROR;
                 }
 
                 if (estado != Estados::ERROR && simbolos.Es_Nulo(comandos[posicion]))
                 {
-                    error = comandos[posicion] + " se hizo nulo anteriormente.\nLinea: "
-                        + std::to_string(linea) + ", posicion: "
+                    error = comandos[posicion] + " It is null; it cannot be used again..\nLine: "
+                        + std::to_string(linea) + ", position: "
                         + std::to_string(posiciones[posicion]) + ".\n";
                     estado = Estados::ERROR;
                 }
@@ -459,15 +457,15 @@ void Analizador_Tokens_Compilacion::Imprimir()
                             estado = Estados::ESPERA_COMAS_FIN_COMANDO;
                         else
                         {
-                            error = "Se esperaba '\"' en vez de " + comandos[posicion + 1]
-                                + ".\nLinea: " + std::to_string(linea) + ", posicion: "
+                            error = "'\"' was expected instead of " + comandos[posicion + 1]
+                                + ".\nLine: " + std::to_string(linea) + ", position: "
                                 + std::to_string(posiciones[posicion]) + ".\n";
                             estado = Estados::ERROR;
                         }
                         break;
                     default:
-                        error = "Se esperaba '\"' en vez de " + comandos[posicion + 1]
-                            + ".\nLinea: " + std::to_string(linea) + ", posicion: "
+                        error = "'\"' was expected instead of " + comandos[posicion + 1]
+                            + ".\nLine: " + std::to_string(linea) + ", position: "
                             + std::to_string(posiciones[posicion]) + ".\n";
                         estado = Estados::ERROR;
                         break;
@@ -475,16 +473,16 @@ void Analizador_Tokens_Compilacion::Imprimir()
                 }
                 else
                 {
-                    error = "Se esperaba ';' no " + comandos[posicion] + ".\nLinea: "
-                        + std::to_string(linea) + ", posicion: "
+                    error = "';' was expected instead of " + comandos[posicion] + ".\nLine: "
+                        + std::to_string(linea) + ", position: "
                         + std::to_string(posiciones[posicion]) + ".\n";
                     estado = Estados::ERROR;
                 }
 
                 if (tokens[posicion] != Tokens::LLAVE_DERECHO)
                 {
-                    error = "Se esperaba '}' no " + comandos[posicion] + ".\nLinea: "
-                        + std::to_string(linea) + ", posicion: "
+                    error = "'}' was expected instead of " + comandos[posicion] + ".\nLine: "
+                        + std::to_string(linea) + ", position: "
                         + std::to_string(posiciones[posicion]) + ".\n";
                     estado = Estados::ERROR;
                 }
@@ -496,8 +494,8 @@ void Analizador_Tokens_Compilacion::Imprimir()
                     estado = Estados::ESPERA_VARIABLE;
                 else if (tokens[posicion] != Tokens::FIN_COMANDO)
                 {
-                    error = "Se esperaba ';' no " + comandos[posicion] + ".\nLinea: "
-                        + std::to_string(linea) + ", posicion: "
+                    error = "';' was expected instead of " + comandos[posicion] + ".\nLine: "
+                        + std::to_string(linea) + ", position: "
                         + std::to_string(posiciones[posicion]) + ".\n";
                     estado = Estados::ERROR;
                 }
@@ -564,8 +562,8 @@ void Analizador_Tokens_Compilacion::Entero_Decimal_Dinamico()
             }
             else
             {
-                error = "Se esperaba un identificador.\nLinea: "
-                    + std::to_string(linea) + ", posicion: "
+                error = "An identifier was expected..\nLine: "
+                    + std::to_string(linea) + ", position: "
                     + std::to_string(posiciones[posicion]) + ".\n";
                 throw std::runtime_error(error.c_str());
             }
@@ -576,8 +574,8 @@ void Analizador_Tokens_Compilacion::Entero_Decimal_Dinamico()
                 estado = Estados::Espera_VARIABLE;
             else
             {
-                error = "Se esperaba un ':' no un " + comandos[posicion] + ".\nLinea: "
-                    + std::to_string(linea) + ", posicion: "
+                error = "':' was expected instead of " + comandos[posicion] + ".\nLine: "
+                    + std::to_string(linea) + ", position: "
                     + std::to_string(posiciones[posicion]) + ".\n";
                 throw std::runtime_error(error.c_str());
             }
@@ -603,10 +601,10 @@ void Analizador_Tokens_Compilacion::Entero_Decimal_Dinamico()
                 }
                 else
                 {
-                    error = comandos[posicion] + " ya existe o es de tipo "
+                    error = comandos[posicion] + " already exists or is of the type "
                         + Tokenizador::Get_Tipo(tokens[posicion])
-                        + " no de tipo Variable.\nLinea: " + std::to_string(linea)
-                        + ", posicion: " + std::to_string(posiciones[posicion]) + ".\n";
+                        + " not of VARIABLE type.\nLine: " + std::to_string(linea)
+                        + ", position: " + std::to_string(posiciones[posicion]) + ".\n";
                     throw std::runtime_error(error.c_str());
                 }
             }
@@ -622,17 +620,17 @@ void Analizador_Tokens_Compilacion::Entero_Decimal_Dinamico()
                 // Corrección: verificación explícita de bounds antes de acceder.
                 if (posicion + 1 >= tokens.size())
                 {
-                    error = "Se esperaba ';'.\nLinea: " + std::to_string(linea)
-                        + ", posicion: " + std::to_string(posiciones[posicion]) + ".\n";
+                    error = "';' was expected instead of.\nLine: " + std::to_string(linea)
+                        + ", position: " + std::to_string(posiciones[posicion]) + ".\n";
                 }
                 else if (tokens[posicion + 1] == Tokens::OPERADOR)
                     estado = Estados::Espera_OPERADOR;
                 else if (tokens[posicion + 1] == Tokens::NUMERO)
                     estado = Estados::Espera_IGUALDAD;
                 else
-                    error = "Se esperaba una variable no " + comandos[posicion]
-                    + ".\nLinea: " + std::to_string(linea)
-                    + ", posicion: " + std::to_string(posiciones[posicion]) + ".\n";
+                    error = " An VARIABLE was expected." + comandos[posicion]
+                    + ".\nLine: " + std::to_string(linea)
+                    + ", position: " + std::to_string(posiciones[posicion]) + ".\n";
 
                 if (!error.empty()) throw std::runtime_error(error.c_str());
             }
@@ -640,9 +638,9 @@ void Analizador_Tokens_Compilacion::Entero_Decimal_Dinamico()
                 || tokens[posicion] == Tokens::FIN_COMANDO)
             {
                 // BUG FIX #6: usar posicion actual para el mensaje, no posicion-1
-                error = "La variable: " + nombre_variable
-                    + " no ha sido inicializada.\nLinea: " + std::to_string(linea)
-                    + ", posicion: " + std::to_string(posiciones[posicion]) + ".\n";
+                error = "The variable: " + nombre_variable
+                    + " has not been initialized.\nLine: " + std::to_string(linea)
+                    + ", position: " + std::to_string(posiciones[posicion]) + ".\n";
                 std::cout << error;
                 variable.valor = (Tipo_Dato != Tokens::DECIMAL) ? "0" : "0.00";
                 estado = Estados::Espera_COMA_O_FIN;
@@ -651,10 +649,10 @@ void Analizador_Tokens_Compilacion::Entero_Decimal_Dinamico()
             }
             else
             {
-                error = comandos[posicion] + " es de tipo "
+                error = comandos[posicion] + " it is of the ... type "
                     + Tokenizador::Get_Tipo(tokens[posicion])
-                    + " no de tipo Igual.\nLinea: " + std::to_string(linea)
-                    + ", posicion: " + std::to_string(posiciones[posicion]) + ".\n";
+                    + " not of the Igua typel.\nLine: " + std::to_string(linea)
+                    + ", position: " + std::to_string(posiciones[posicion]) + ".\n";
                 throw std::runtime_error(error.c_str());
             }
             break;
@@ -662,9 +660,9 @@ void Analizador_Tokens_Compilacion::Entero_Decimal_Dinamico()
         case Estados::Espera_OPERADOR:
             if (comandos[posicion] != "-")
             {
-                error = "Las variables solo pueden ser inicializadas con numeros positivos"
-                    " o negativos.\nLinea: " + std::to_string(linea)
-                    + ", posicion: " + std::to_string(posiciones[posicion]) + ".\n";
+                error = "Variables can only be initialized with positive numbers"
+                    " or negative ones.\nLine: " + std::to_string(linea)
+                    + ", position: " + std::to_string(posiciones[posicion]) + ".\n";
                 throw std::runtime_error(error.c_str());
             }
             variable.valor = "-";
@@ -687,9 +685,9 @@ void Analizador_Tokens_Compilacion::Entero_Decimal_Dinamico()
             {
                 if (!std::isdigit(static_cast<unsigned char>(c)) && c != '.')
                 {
-                    error = "Los Numeros no pueden tener caracteres: "
-                        + comandos[posicion] + ".\nLinea: " + std::to_string(linea)
-                        + ", posicion: " + std::to_string(posiciones[posicion]) + ".\n";
+                    error = "Numbers cannot contain characters.: "
+                        + comandos[posicion] + ".\nLine: " + std::to_string(linea)
+                        + ", position: " + std::to_string(posiciones[posicion]) + ".\n";
                     throw std::runtime_error(error.c_str());
                 }
             }
@@ -700,9 +698,9 @@ void Analizador_Tokens_Compilacion::Entero_Decimal_Dinamico()
             {
                 if (comandos[posicion].find('.') == std::string::npos)
                 {
-                    error = "La igualdad " + comandos[posicion] + " de la variable "
-                        + nombre_variable + " es incorrecta.\nLinea: "
-                        + std::to_string(linea) + ", posicion: "
+                    error = "Equality " + comandos[posicion] + " of the variable "
+                        + nombre_variable + " It is incorrect..\nLine: "
+                        + std::to_string(linea) + ", position: "
                         + std::to_string(posiciones[posicion]) + ".\n";
                     throw std::runtime_error(error.c_str());
                 }
@@ -711,18 +709,18 @@ void Analizador_Tokens_Compilacion::Entero_Decimal_Dinamico()
             {
                 if (comandos[posicion].find('.') != std::string::npos)
                 {
-                    error = "La igualdad " + comandos[posicion] + " de la variable "
-                        + nombre_variable + " es incorrecta.\nLinea: "
-                        + std::to_string(linea) + ", posicion: "
+                    error = "Equality " + comandos[posicion] + " of the variable "
+                        + nombre_variable + " It is incorrect..\nLine: "
+                        + std::to_string(linea) + ", position: "
                         + std::to_string(posiciones[posicion]) + ".\n";
                     throw std::runtime_error(error.c_str());
                 }
             }
             else if (Tipo_Dato != Tokens::DINAMICO)
             {
-                error = comandos[posicion] + " no es de tipo Numero es de tipo "
-                    + Tokenizador::Get_Tipo(tokens[posicion]) + ".\nLinea: "
-                    + std::to_string(linea) + ", posicion: "
+                error = comandos[posicion] + " It is not of type Number; it is of type "
+                    + Tokenizador::Get_Tipo(tokens[posicion]) + ".\nLine: "
+                    + std::to_string(linea) + ", position: "
                     + std::to_string(posiciones[posicion]) + ".\n";
                 throw std::runtime_error(error.c_str());
             }
@@ -741,8 +739,8 @@ void Analizador_Tokens_Compilacion::Entero_Decimal_Dinamico()
             else if (tokens[posicion] != Tokens::FIN_COMANDO)
             {
                 error = comandos[posicion]
-                    + " no es de tipo Fin de linea ';'.\nLinea: "
-                    + std::to_string(linea) + ", posicion: "
+                    + " it is not of the end-of-line ';' type.\nLine: "
+                    + std::to_string(linea) + ", position: "
                     + std::to_string(posiciones[posicion]) + ".\n";
                 throw std::runtime_error(error.c_str());
             }
@@ -759,10 +757,10 @@ void Analizador_Tokens_Compilacion::Entero_Decimal_Dinamico()
             break;
 
         case Estados::ERROR:
-            error = comandos[posicion] + " es de tipo "
+            error = comandos[posicion] + " it is of the type "
                 + Tokenizador::Get_Tipo(tokens[posicion])
-                + " en vez de tipo VARIABLE.\nLinea: " + std::to_string(linea)
-                + ", posicion: " + std::to_string(posiciones[posicion]) + ".\n";
+                + " instead of VARIABLE type.\nLine: " + std::to_string(linea)
+                + ", position: " + std::to_string(posiciones[posicion]) + ".\n";
             throw std::runtime_error(error.c_str());
         }
     }
@@ -885,8 +883,8 @@ void Analizador_Tokens_Compilacion::Operacion()
             estado = Estados::DIVISOR;
             if (tokens[posicion] != Tokens::OPERACION)
             {
-                error = comandos[posicion] + " no es de tipo Operacion.\nLinea: "
-                    + std::to_string(linea) + ", posicion: "
+                error = comandos[posicion] + " It is not of the Operation type.\nLine: "
+                    + std::to_string(linea) + ", position: "
                     + std::to_string(posiciones[posicion]) + ".\n";
                 estado = Estados::ERROR;
             }
@@ -897,8 +895,8 @@ void Analizador_Tokens_Compilacion::Operacion()
             estado = Estados::ESPERA_VARIABLE;
             if (tokens[posicion] != Tokens::DIVISOR)
             {
-                error = "Se esperaba ':' no " + comandos[posicion] + ".\nLinea: "
-                    + std::to_string(linea) + ", posicion: "
+                error = "':' expected, not " + comandos[posicion] + ".\nLine: "
+                    + std::to_string(linea) + ", position: "
                     + std::to_string(posiciones[posicion]) + ".\n";
                 estado = Estados::ERROR;
             }
@@ -911,17 +909,17 @@ void Analizador_Tokens_Compilacion::Operacion()
 
             if (tokens[posicion] != Tokens::VARIABLE)
             {
-                error = comandos[posicion] + " es de tipo "
+                error = comandos[posicion] + " it is of the type "
                     + Tokenizador::Get_Tipo(tokens[posicion])
-                    + " en vez de tipo Variable.\nLinea: " + std::to_string(linea)
-                    + ", posicion: " + std::to_string(posiciones[posicion]) + ".\n";
+                    + " instead of the Variable type.\nLine: " + std::to_string(linea)
+                    + ", position: " + std::to_string(posiciones[posicion]) + ".\n";
                 estado = Estados::ERROR;
                 break;
             }
             else if (simbolos.Es_Constante(comandos[posicion]))
             {
-                error = comandos[posicion] + " es de tipo Constante no se puede modificar.\n"
-                    + std::to_string(linea) + ", posicion: " + std::to_string(posiciones[posicion]) + ".\n";
+                error = comandos[posicion] + " It is of the Constant type and cannot be modified.\nLine: "
+                    + std::to_string(linea) + ", position: " + std::to_string(posiciones[posicion]) + ".\n";
                 estado = Estados::ERROR;
                 break;
             }
@@ -933,8 +931,8 @@ void Analizador_Tokens_Compilacion::Operacion()
             }
             else
             {
-                error = comandos[posicion] + " la operacion esta incompleta.\n"
-                    + std::to_string(linea) + ", posicion: " + std::to_string(posiciones[posicion]) + ".\n";
+                error = comandos[posicion] + " The operation is incomplete.\nLine: "
+                    + std::to_string(linea) + ", position: " + std::to_string(posiciones[posicion]) + ".\n";
                 estado = Estados::ERROR;
                 break;
             }
@@ -951,8 +949,8 @@ void Analizador_Tokens_Compilacion::Operacion()
 
             if (tokens[posicion] != Tokens::IGUAL)
             {
-                error = "Se esperaba '=' no " + comandos[posicion] + ".\nLinea: "
-                    + std::to_string(linea) + ", posicion: "
+                error = "'=' expected, not " + comandos[posicion] + ".\nLine: "
+                    + std::to_string(linea) + ", position: "
                     + std::to_string(posiciones[posicion]) + ".\n";
                 estado = Estados::ERROR;
                 break;
@@ -967,10 +965,10 @@ void Analizador_Tokens_Compilacion::Operacion()
             if (tokens[posicion] != Tokens::VARIABLE && tokens[posicion] != Tokens::NUMERO 
                 && tokens[posicion] != Tokens::NULO)
             {
-                error = comandos[posicion] + " es de tipo "
+                error = comandos[posicion] + " it is of the type "
                     + Tokenizador::Get_Tipo(tokens[posicion])
-                    + " en vez de Variable o Numero.\nLinea: " + std::to_string(linea)
-                    + ", posicion: " + std::to_string(posiciones[posicion]) + ".\n";
+                    + " instead of Variable or Number.\nLine: " + std::to_string(linea)
+                    + ", position: " + std::to_string(posiciones[posicion]) + ".\n";
                 estado = Estados::ERROR;
                 break;
             }
@@ -979,9 +977,9 @@ void Analizador_Tokens_Compilacion::Operacion()
             if (posicion + 1 < tokens.size() && tokens[posicion] == Tokens::NULO
                 && tokens[posicion + 1] != Tokens::FIN_COMANDO)
             {
-                error = "No se puede hacer una operacion cuando existe una asignacion nula."
-                    "\nLinea: "+ std::to_string(linea) + ".\n"
-                    + ", posicion: " + std::to_string(posiciones[posicion]) + ".\n";
+                error = "An operation cannot be performed when there is a null assignment."
+                    "\nLine: "+ std::to_string(linea) + ".\n"
+                    + ", position: " + std::to_string(posiciones[posicion]) + ".\n";
                 estado = Estados::ERROR;
                 break;
             }
@@ -991,8 +989,8 @@ void Analizador_Tokens_Compilacion::Operacion()
                 : Estados::ESPERA_FIN_COMANDO;
             else
             {
-                error = "Se esperaba ';'.\nLinea: " + std::to_string(linea)
-                    + ", posicion: " + std::to_string(posiciones[posicion]) + ".\n";
+                error = "';' expected.\nLine: " + std::to_string(linea)
+                    + ", position: " + std::to_string(posiciones[posicion]) + ".\n";
                 estado = Estados::ERROR;
                 break;
             }
@@ -1010,17 +1008,17 @@ void Analizador_Tokens_Compilacion::Operacion()
 
                 if (tipo_destino & Tipos::ENTERO && tiene_punto)
                 {
-                    error = "El numero " + comandos[posicion]
-                        + " no es de tipo Entero.\nLinea: " + std::to_string(linea)
-                        + ", posicion: " + std::to_string(posiciones[posicion]) + ".\n";
+                    error = "The number " + comandos[posicion]
+                        + " is not of the Integer type.\nLine: " + std::to_string(linea)
+                        + ", position: " + std::to_string(posiciones[posicion]) + ".\n";
                     estado = Estados::ERROR;
                     break;
                 }
                 if (tipo_destino & Tipos::DECIMAL && !tiene_punto)
                 {
-                    error = "El numero " + comandos[posicion]
-                        + " no es de tipo Decimal (falta '.').\nLinea: " + std::to_string(linea)
-                        + ", posicion: " + std::to_string(posiciones[posicion]) + ".\n";
+                    error = "The number " + comandos[posicion]
+                        + " is not of type Decimal (missing '.').\nLine: " + std::to_string(linea)
+                        + ", position: " + std::to_string(posiciones[posicion]) + ".\n";
                     estado = Estados::ERROR;
                     break;
                 }
@@ -1030,8 +1028,8 @@ void Analizador_Tokens_Compilacion::Operacion()
                 {
                     if (!std::isdigit(static_cast<unsigned char>(c)) && c != '.')
                     {
-                        error = "Los Numeros no pueden tener letras.\nLinea: "
-                            + std::to_string(linea) + ", posicion: "
+                        error = "Numbers cannot contain letters.\nLine: "
+                            + std::to_string(linea) + ", position: "
                             + std::to_string(posiciones[posicion]) + ".\n";
                         estado = Estados::ERROR;
                         break;
@@ -1052,12 +1050,12 @@ void Analizador_Tokens_Compilacion::Operacion()
                     && tipo_op != Tipos::DINAMICO
                     && tipo_destino != Tipos::DINAMICO)
                 {
-                    error = comandos[posicion] + " es de tipo "
+                    error = comandos[posicion] + " it is of the type "
                         + Tokenizador::Get_Tipo_Variable(tipo_op)
-                        + " y no de tipo "
+                        + " and not of the type "
                         + Tokenizador::Get_Tipo_Variable(tipo_destino)
-                        + ".\nLinea: " + std::to_string(linea)
-                        + ", posicion: " + std::to_string(posiciones[posicion]) + ".\n";
+                        + ".\nLine: " + std::to_string(linea)
+                        + ", position: " + std::to_string(posiciones[posicion]) + ".\n";
                     estado = Estados::ERROR;
                     break;
                 }
@@ -1077,19 +1075,19 @@ void Analizador_Tokens_Compilacion::Operacion()
                     && tokens[posicion + 1] != Tokens::IGUAL
                     && tokens[posicion + 1] != Tokens::OPERADOR))
             {
-                error = "Se esperaba Variable o Numero despues del operador '"
-                    + comandos[posicion] + "'.\nLinea: " + std::to_string(linea)
-                    + ", posicion: " + std::to_string(posiciones[posicion]) + ".\n";
+                error = "Variable or number expected after the operator. "
+                    + comandos[posicion] + "'.\nLine: " + std::to_string(linea)
+                    + ", position: " + std::to_string(posiciones[posicion]) + ".\n";
                 estado = Estados::ERROR;
                 break;
             }
 
             if (tokens[posicion] != Tokens::OPERADOR)
             {
-                error = comandos[posicion] + " es de tipo "
+                error = comandos[posicion] + " it is of the type "
                     + Tokenizador::Get_Tipo(tokens[posicion])
-                    + ", se esperaba tipo Operador.\nLinea: " + std::to_string(linea)
-                    + ", posicion: " + std::to_string(posiciones[posicion]) + ".\n";
+                    + ", An operator-type role was expected..\nLine: " + std::to_string(linea)
+                    + ", position: " + std::to_string(posiciones[posicion]) + ".\n";
                 estado = Estados::ERROR;
                 break;
             }
@@ -1122,9 +1120,9 @@ void Analizador_Tokens_Compilacion::Operacion()
             }
             else if (inicio_con_operador && tokens[posicion + 1] == Tokens::OPERADOR && op_char != comandos[posicion + 1][0])
             {
-                error = comandos[posicion] + " y " + op_char
-                    + "no son iguales use en su caso ++ o --.\nLinea: " + std::to_string(linea)
-                    + ", posicion: " + std::to_string(posiciones[posicion]) + ".\n";
+                error = comandos[posicion] + " and " + op_char
+                    + "They are not the same; use the one that applies to your case. ++ o --.\nLine: " + std::to_string(linea)
+                    + ", position: " + std::to_string(posiciones[posicion]) + ".\n";
                 estado = Estados::ERROR;
                 break;
             }
@@ -1138,8 +1136,8 @@ void Analizador_Tokens_Compilacion::Operacion()
         case Estados::ESPERA_FIN_COMANDO:
             if (tokens[posicion] != Tokens::FIN_COMANDO)
             {
-                error = "Se esperaba ';' no '" + comandos[posicion] + "'.\nLinea: "
-                    + std::to_string(linea) + ", posicion: "
+                error = "';' expected, not '" + comandos[posicion] + "'.\nLine: "
+                    + std::to_string(linea) + ", position: "
                     + std::to_string(posiciones[posicion]) + ".\n";
                 estado = Estados::ERROR;
             }
@@ -1259,9 +1257,9 @@ void Analizador_Tokens_Compilacion::Pedir()
             estado = Estados::ESPERA_DIVISOR;
             if (tokens[i] != Tokens::PEDIR)
             {
-                error = comandos[i] + " no es de tipo Pedir es de tipo "
-                    + Tokenizador::Get_Tipo(tokens[i]) + ".\nLinea: "
-                    + std::to_string(linea) + ", posicion: "
+                error = comandos[i] + " It is not of the \"input\" type; it is of the type "
+                    + Tokenizador::Get_Tipo(tokens[i]) + ".\nLine: "
+                    + std::to_string(linea) + ", position: "
                     + std::to_string(posiciones[i]) + ".\n";
                 estado = Estados::ERROR;
             }
@@ -1271,8 +1269,8 @@ void Analizador_Tokens_Compilacion::Pedir()
             estado = Estados::ESPERA_VARIABLE;
             if (tokens[i] != Tokens::DIVISOR)
             {
-                error = "Se esperaba ':' no " + comandos[i] + ".\nLinea: "
-                    + std::to_string(linea) + ", posicion: "
+                error = "':' expected, not " + comandos[i] + ".\nLine: "
+                    + std::to_string(linea) + ", position: "
                     + std::to_string(posiciones[i]) + ".\n";
                 estado = Estados::ERROR;
             }
@@ -1282,16 +1280,16 @@ void Analizador_Tokens_Compilacion::Pedir()
             estado = Estados::ESPERA_COMA_O_FIN;
             if (tokens[i] != Tokens::VARIABLE)
             {
-                error = comandos[i] + " es de tipo "
+                error = comandos[i] + " it is of the type "
                     + Tokenizador::Get_Tipo(tokens[i])
-                    + " en vez de tipo Variable.\nLinea: " + std::to_string(linea)
-                    + ", posicion: " + std::to_string(posiciones[i]) + ".\n";
+                    + " instead of the Variable type.\nLine: " + std::to_string(linea)
+                    + ", position: " + std::to_string(posiciones[i]) + ".\n";
                 estado = Estados::ERROR;
             }
             else if (simbolos.Es_Constante(comandos[i]))
             {
-                error = comandos[i] + " es de tipo Constante no se puede modificar.\n"
-                    + std::to_string(linea) + ", posicion: " + std::to_string(posiciones[i]) + ".\n";
+                error = comandos[i] + " It is of the Constant type and cannot be modified.\nLine: "
+                    + std::to_string(linea) + ", position: " + std::to_string(posiciones[i]) + ".\n";
                 estado = Estados::ERROR;
             }
             else
@@ -1312,8 +1310,8 @@ void Analizador_Tokens_Compilacion::Pedir()
                 estado = Estados::ESPERA_VARIABLE;
             else if (tokens[i] != Tokens::FIN_COMANDO)
             {
-                error = "Se esperaba ';' no un " + comandos[i] + ".\nLinea: "
-                    + std::to_string(linea) + ", posicion: "
+                error = "Expected ';' but found " + comandos[i] + ".\nLine: "
+                    + std::to_string(linea) + ", position: "
                     + std::to_string(posiciones[i]) + ".\n";
                 estado = Estados::ERROR;
             }
@@ -1351,8 +1349,8 @@ void Analizador_Tokens_Compilacion::Inicio_analizacion(std::map<std::string, Inf
     case Tokens::OPERACION:                            Operacion();              break;
     default:
 		archivo_a_compilar.close();
-        error = comandos[0] + " no es una palabra clave.\nLinea: "
-            + std::to_string(linea) + ", posicion: 0.\n";
+        error = comandos[0] + " It is not a keyword.\nLine: "
+            + std::to_string(linea) + ", position: 0.\n";
         throw std::runtime_error(error.c_str());
     }
 
@@ -1378,7 +1376,7 @@ void Analizador_Semantico_Interpretacion::Verificar_Peticion(std::string_view te
 	if (queNoContenga != std::string::npos)
 	{
 		const std::string err =
-			"No puedes agregar caracteres raros solo numeros.\nPeticion: "
+			"You cannot add special characters; only numbers.\ninput: "
 			+ std::string(texto) + ".\n";
 		throw std::runtime_error(err.c_str());
 	}
@@ -1386,14 +1384,14 @@ void Analizador_Semantico_Interpretacion::Verificar_Peticion(std::string_view te
 	if (type & Tipos::ENTERO && texto.find('.') != std::string::npos)
 	{
 		const std::string err =
-			"No puedes agregar decimales a un entero.\nPeticion: "
+			"You cannot add decimals to an integer.\ninput: "
 			+ std::string(texto) + ".\n";
 		throw std::runtime_error(err.c_str());
 	}
 	else if (type & Tipos::DECIMAL && texto.find('.') == std::string::npos)
 	{
 		const std::string err =
-			"No puedes agregar enteros a un decimal.\nPeticion: "
+			"You cannot add integers to a decimal.\ninput: "
 			+ std::string(texto) + ".\n";
 		throw std::runtime_error(err.c_str());
 	}

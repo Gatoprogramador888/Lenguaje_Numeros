@@ -10,7 +10,7 @@
 
 bool Tokenizador::Variable(const std::string& palabra)
 {
-    static const std::string TIPOS[] = { "Entero", "Decimal", "Dinamico", "Const", "Constante"};
+    static const std::string TIPOS[] = { "int", "decimal", "dynamic", "const"};
 
     for (const auto& tipo : TIPOS)
     {
@@ -19,7 +19,7 @@ bool Tokenizador::Variable(const std::string& palabra)
             if (palabra == TIPOS[0]) token = Tokens::ENTERO;
             else if (palabra == TIPOS[1]) token = Tokens::DECIMAL;
             else if (palabra == TIPOS[2]) token = Tokens::DINAMICO;
-            else if (palabra == TIPOS[3] || palabra == TIPOS[4]) token = Tokens::CONSTANTE;
+            else if (palabra == TIPOS[3]) token = Tokens::CONSTANTE;
             return true;
         }
     }
@@ -35,7 +35,7 @@ bool Tokenizador::Impresion_Peticion(const std::string& palabra)
     // Correcto:
     //   "Pedir"    → PEDIR
     //   "Imprimir" → IMPRIMIR
-    static const std::string TIPOS[] = { "Pedir", "Imprimir" };
+    static const std::string TIPOS[] = { "input", "print" };
 
     for (const auto& tipo : TIPOS)
     {
@@ -84,7 +84,7 @@ std::map<std::string, Informacion> Tokenizador::Mapa_Informacion(
         {
             if (Variable(palabra))           Recopilar_informacion(info[i], token);
             else if (Impresion_Peticion(palabra))  Recopilar_informacion(info[i], token);
-            else if (palabra == "Operacion")       Recopilar_informacion(info[i], Tokens::OPERACION);
+            else if (palabra == "operation")       Recopilar_informacion(info[i], Tokens::OPERACION);
             else if (palabra == "#")               break;
             else if (!palabra.empty() && palabra[0] >= '0' && palabra[0] <= '9')
                 Recopilar_informacion(info[i], Tokens::NUMERO);
@@ -106,7 +106,7 @@ std::map<std::string, Informacion> Tokenizador::Mapa_Informacion(
             // BUG FIX #2 — palabra[0] == NULL compara char con puntero: UB.
             // Correcto: verificar que la cadena no esté vacía antes de acceder [0].
             else if (palabra.empty() || palabra[0] == '\0') { /* ignorar */ }
-            else if (palabra == "nulo")             Recopilar_informacion(info[i], Tokens::NULO);
+            else if (palabra == "null")             Recopilar_informacion(info[i], Tokens::NULO);
             else if (std::isalpha(static_cast<unsigned char>(palabra[0])))
                 Recopilar_informacion(info[i], Tokens::VARIABLE);
             else                                   Recopilar_informacion(info[i], Tokens::CARACTER);
@@ -177,15 +177,15 @@ std::string Tokenizador::Get_Tipo(Tokens tok)
     // El array está indexado por el valor entero del enum.
     // Cualquier valor fuera de rango devuelve "NULO" (índice 0).
     static const std::string TIPOS[] = {
-        "NULO",
-        "ENTERO", "DECIMAL", "DINAMICO",
-        "NUMERO",
-        "IMPRIMIR", "PEDIR",
-        "OPERADOR", "OPERACION",
-        "COMAS", "FIN_COMANDO", "ESPACIO",
-        "COMILLAS",
-        "PARENTESIS_DERECHO", "PARENTESIS_IZQUIERDO",
-        "VARIABLE", "IGUAL", "CARACTER", "DIVISOR", "TEXTO", "CONSTANTE"
+        "NULL",
+        "INTERGER", "DECIMAL", "DYNAMIC",
+        "NUMBER",
+        "PRINT", "INPUT",
+        "OPERATOR", "OPERATION",
+        "COMMAS", "END COMMAND", "SPACE",
+        "QUOTATION MARKS",
+        "RIGHT PARENTHESIS", "LEFT PARENTHESIS",
+        "VARIABLE", "EQUALS", "CHARACTER", "DIVIDER", "TEXT", "CONSTANT"
     };
     static constexpr size_t N = sizeof(TIPOS) / sizeof(TIPOS[0]);
 
@@ -196,7 +196,7 @@ std::string Tokenizador::Get_Tipo(Tokens tok)
 std::string Tokenizador::Get_Tipo_Variable(Tipos tipo)
 {
 	static const std::string TIPOS[] = {
-		"ENTERO", "DECIMAL", "DINAMICO"
+		"INTERGER", "DECIMAL", "DYNAMIC"
 	};
 	static constexpr size_t N = sizeof(TIPOS) / sizeof(TIPOS[0]);
 	const auto idx = static_cast<size_t>(tipo);

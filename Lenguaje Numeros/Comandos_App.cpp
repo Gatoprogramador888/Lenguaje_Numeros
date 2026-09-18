@@ -5,10 +5,7 @@
 #include <iostream>
 #include <stdexcept>
 #include <string>
-
-//Auxiliares para desensamblar el bytecode
-#include <iomanip>
-#include <cstdint>
+#include <chrono>
 
 
 // ── Comandos_App ──────────────────────────────────────────────────────────────
@@ -30,8 +27,8 @@ Comandos_App::Comandos_App(int argc, char** argv)
 
     if (argc < 2)
     {
-        std::cout << "Uso: LenguajeNumeros <comando> [argumentos]\n"
-            << "     LenguajeNumeros ayuda comandos\n";
+        std::cout << "Uso: crd <comand> [arguments]\n"
+            << "     crd help comands\n";
         return;
     }
 
@@ -42,12 +39,12 @@ Comandos_App::Comandos_App(int argc, char** argv)
     // para cualquier comando distinto de "compilar_I", incluyendo los válidos.
     // Corrección: if / else if / ... / else.
 
-    if (cmd == "ayuda")
+    if (cmd == "help")
     {
         // ayuda necesita al menos argv[2] para saber qué ayuda mostrar
         if (argc < 3)
         {
-            std::cout << "Uso: LenguajeNumeros ayuda <tema>\n";
+            std::cout << "Uso: crd help <issue>\n";
             return;
         }
         // Set_Ayuda espera string* apuntando desde argv[1]
@@ -57,29 +54,29 @@ Comandos_App::Comandos_App(int argc, char** argv)
             args[i] = argv[i + 1];
         help.Set_Ayuda(args, argc - 1);
     }
-    else if (cmd == "compilar")
+    else if (cmd == "-c")
     {
         if (argc < 4)
         {
-            std::cout << "Uso: LenguajeNumeros compilar <archivo_fuente> <archivo_salida>\n";
+            std::cout << "Uso: crd -c <source_file.crd> <output_file.crb>\n";
             return;
         }
         compile.Set_Compilar(argv[2], argv[3]);
     }
-    else if (cmd == "interpretar")
+    else if (cmd == "-i")
     {
         if (argc < 3)
         {
-            std::cout << "Uso: LenguajeNumeros interpretar <archivo_compilado>\n";
+            std::cout << "Uso: crd -i <compiled_file.crb>\n";
             return;
         }
         inter.Set_Interpretar(argv[2]);
     }
-    else if (cmd == "compilar_I")
+    else if (cmd == "-ci")
     {
         if (argc < 4)
         {
-            std::cout << "Uso: LenguajeNumeros compilar_I <archivo_fuente> <archivo_compilado>\n";
+            std::cout << "Uso: crd -ci <source_file.crd> <output_file.crb>\n";
             return;
         }
         compile.Set_Compilar(argv[2], argv[3]);
@@ -87,7 +84,7 @@ Comandos_App::Comandos_App(int argc, char** argv)
     }
     else
     {
-        std::cout << "Dicho comando no existe: " << cmd << "\n";
+        std::cout << "That command does not exist.: " << cmd << "\n";
     }
 }
 
@@ -99,58 +96,66 @@ void Tipo_Comandos::Ayuda::Set_Ayuda(std::string* comandos, int argc)
 {
     if (argc < 2) return;
 
-    if (comandos[1] == "comandos")   Comandos();
-    else if (comandos[1] == "compilar")   Compilar();
-    else if (comandos[1] == "sintaxis") { Sintaxis(comandos[2]);}
-    else if (comandos[1] == "interpretar") Interpretar();
-    else if (comandos[1] == "compilar_I") Compilar_I();
+    if (comandos[1] == "commands")   Comandos();
+    else if (comandos[1] == "compile")   Compilar();
+    else if (comandos[1] == "syntax") { Sintaxis(comandos[2]);}
+    else if (comandos[1] == "interpret") Interpretar();
+    else if (comandos[1] == "compile_I") Compilar_I();
     else TipoAyuda();
 }
 
 void Tipo_Comandos::Ayuda::Comandos()
 {
-    std::cout << "-comandos\n-compilar\n-sintaxis\n-interpretar\n-compilar_I\n";
+    std::cout << "-commands\n-compile\n-syntax\n-interpret\n-compile_I\n";
 }
 
 void Tipo_Comandos::Ayuda::Compilar()
 {
-    std::cout << "\"Lenguaje Numeros\" compilar archivo_codigo.crd archivo_a_compilar.crb\n";
+    std::cout << "\"crd\" -c code_file.crd file_to_compile.crb\n";
 }
 
 void Tipo_Comandos::Ayuda::Sintaxis(std::string comando)
 {
     
-    if (comando == "todo" || comando == "")
-        std::cout << "-todo\n-imprimir\n-pedir\n-declarar\n-operacion\n";
-    else if (comando == "imprimir")
-        std::cout << "Imprimir : mi_variable;\n"
-        "Imprimir : mi_variable,...;\n"
-        "Imprimir : $ \"hola mundo\";\n"
-        "Imprimir : $ \"El valor es: {mi_variable}.\";\n";
-    else if (comando == "pedir")
-        std::cout << "Pedir : mi_variable;\nPedir : mi_variable,...;\n";
-    else if (comando == "declarar")
-        std::cout << "Tipo Variables:\n-Entero\n-Decimal\n-Dinamico\n\n"
-        "Sintaxis:\nDinamico : var = 1;\nDinamico : var = 1, var2 = 1.5,...;\n";
-    else if (comando == "operacion")
-        std::cout << "Operacion : variable = 1;\n"
-        "Operacion : variable = otra_variable + 1;\n";
+    if (comando == "all" || comando == "")
+        std::cout << "-all\n-print\n-input\n-declare\n-operation\n";
+    else if (comando == "print")
+        std::cout << "print : my_var;\n"
+        "print : my_var,...;\n"
+        "print : $ \"hello world\";\n"
+        "print : $ \"The value is: {my_var}.\";\n";
+
+    else if (comando == "input")
+        std::cout << "input : my_var;\ninput : my_var,...;\n";
+
+    else if (comando == "declare")
+        std::cout << "Variable Type:\n-int\n-ecimal\n-dynamic\n\n"
+        "Sintaxis:\ndynamic : var = 1;\ndynamic: var = 1, var2 = 1.5,...;\nconst dynamic: pi = 3.1416;\n";
+
+    else if (comando == "operation")
+        std::cout << "operation : var = 1;\n"
+        << "operation : var = null;\n"
+        << "operation : var += other;\n"
+        << "operation : var += other + 1;\n"
+        << "operation : var++;\n"
+        << "operation : var = other + 1;\n";
 }
 
 void Tipo_Comandos::Ayuda::Interpretar()
 {
-    std::cout << "\"Lenguaje Numeros\" interpretar archivo_compilado.crb\n";
+    std::cout << "\"crd\" -i compiled_file.crb\n";
 }
 
 void Tipo_Comandos::Ayuda::Compilar_I()
 {
-    std::cout << "\"Lenguaje Numeros\" compilar_I archivo_codigo.crd archivo_compilado_interpretar.crb\n";
+    std::cout << "!!!ATTENTION: THIS IS EXPERIMENTAL AND MAY ENCOUNTER ISSUES.!!!\n";
+    std::cout << "\"crd\" -ci code_file.crd interpret_compiled_file.crb\n";
 }
 
 void Tipo_Comandos::Ayuda::TipoAyuda()
 {
-    std::cout << "comandos:\ncomandos: mostrar comandos.\ncompilar: muestra compilacion.\nsintaxis: muestra sintaxis\n"
-        << "interpretar: muestra como interpretar.\ncompilar_I: compilar e interpretar.\n";
+    std::cout << "commands:\ncommands: show commands.\ncompile: shows compilation.\nsyntax: show syntax\n"
+        << "interpret: shows how to interpret.\ncompilar_I: compile and interpret.\n";
 }
 
 // ── Compilar ──────────────────────────────────────────────────────────────────
@@ -162,13 +167,15 @@ void Tipo_Comandos::Compilar::Set_Compilar(std::string archivo_compilar,
     size_t      linea = 1;
     Analizador_Tokens_Compilacion ATC;
     std::ifstream archivo_a_compilar(archivo_compilar);
+    constexpr double duracion_minuto = 60;
 
     if (!archivo_a_compilar.is_open())
     {
-        std::cout << "El archivo " << archivo_compilar << " no existe.\n";
+        std::cout << "The archive " << archivo_compilar << " it doesn't exist.\n";
         exit(1);
     }
 	
+    auto inicio = std::chrono::high_resolution_clock::now();
 	ATC.Inicio_analizador(archivo_compilado);
     while (std::getline(archivo_a_compilar, linea_contenido))
     {
@@ -194,27 +201,25 @@ void Tipo_Comandos::Compilar::Set_Compilar(std::string archivo_compilar,
                 std::cerr << contenido << endl;
                 std::cerr << error.what();
                 archivo_a_compilar.close();
-
-                if (remove(archivo_compilado.c_str()) != 0)
-                    std::cout << "El nombre del archivo " << archivo_compilado
-                    << " no existe o no se dio correctamente";
-
                 return;
             }
             catch (std::out_of_range& error)
             {
                 std::cerr << error.what();
                 archivo_a_compilar.close();
-                if (remove(archivo_compilado.c_str()) != 0)
-                    std::cout << "El nombre del archivo " << archivo_compilado
-                    << " no existe o no se dio correctamente";
                 return;
             }
         }
 
         linea++;
     }
+
     ATC.Guardar_Archivo_CRB();
+
+    auto fin = std::chrono::high_resolution_clock::now();
+
+    std::chrono::duration<double, std::milli> duracion = fin - inicio;
+    std::cout << "The compilation took: " << (duracion.count() / duracion_minuto) << " seconds." << std::endl;
 }
 
 // ── CInterpretar ──────────────────────────────────────────────────────────────

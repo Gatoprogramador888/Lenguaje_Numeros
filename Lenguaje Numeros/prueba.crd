@@ -1,107 +1,48 @@
 #programa correcto - prueba de todos los tipos y operaciones
 
 #declaracion de enteros
-Entero : var = 1, var2 = 3;
-Imprimir: var;
-Operacion: var++;
-Imprimir: var;
-Operacion: var += var2;
-Imprimir: var;
-Operacion: var += var2 + 1; 
-Imprimir: var;
-Operacion: var--;
-Imprimir: var;
-Operacion: var -= var2;
-Imprimir: var;
-Operacion: var -= var2 - 1; 
-Imprimir: var;
-#Pruebas
-#Const Entero: v = 2;
+# ==========================================================
+# Programa de prueba con las nuevas palabras clave
+# ==========================================================
 
-#Errores
-#Operacion: v = 0;
-#Pedir: v = 0;
+# 1. Declaración de constantes y variables
+const decimal : PI = 3.1416;
+int : contador = 5, limite = 20, resultado = 0;
+decimal : precio = 150.50, descuento = 12.25, total = 0.00;
+dynamic : estado = 1;
 
-#Operacion: var = var * v; 
+# 2. Impresión de mensajes y cadenas interpoladas
+print : $ "=== BIENVENIDO AL SISTEMA ===";
+print : $ "Valor inicial del contador: {contador}";
+print : $ "Constante PI: {PI}";
 
-#Imprimir: $ "var despues de ser multiplicado por 2 {var}";
+# 3. Operaciones matemáticas (incrementos, decrementos y asignaciones)
+operation : contador++;
+print : $ "Contador tras ++: {contador}";
 
-Operacion: var = nulo;
+operation : contador += 10;
+print : $ "Contador tras += 10: {contador}";
 
-Entero : a = 10, b = -5, c = 0;
+operation : total = precio - descuento;
+print : $ "Total calculado (precio - descuento): {total}";
 
-#declaracion de decimales
-Decimal : x = 3.14, y = -2.5, z = 0.0, prueba = 0.0;
+operation : resultado = contador * 2 + limite / 4;
+print : $ "Resultado de expresion combinada: {resultado}";
 
-#declaracion de dinamicos
-Dinamico : d1 = 1, d2 = -1.5, d3 = 100;
+# 4. Entrada de datos por teclado (input)
+print : $ "Ingrese un nuevo valor para la variable 'limite':";
+input : limite;
+print : $ "El nuevo limite ingresado es: {limite}";
 
-#imprimir texto literal
-Imprimir : $"--- Valores iniciales ---";
-Imprimir : $ "a = {a}";
-Imprimir : $ "b = {b}";
-Imprimir : $ "c = {c}";
-Imprimir : $ "x = {x}";
-Imprimir : $ "y = {y}";
-Imprimir : $ "d1 = {d1}";
-Imprimir : $ "d2 = {d2}";
+# Recalcular con el nuevo limite
+operation : resultado = limite + 5;
+print : $ "Nuevo resultado (limite + 5): {resultado}";
 
-#Prueba definitiva
-Operacion : prueba = 0.1 + 0.2;
-Imprimir : $ "0.1 + 0.2 = {prueba}"; 
+# 5. Modificación de tipo dinamico y asignacion de null
+operation : estado = 99.9;
+print : $ "Variable dinamica actualizada a decimal: {estado}";
 
-#operaciones entero + entero
-Operacion : c = a + b * d1;
-Imprimir : $ "a + b * d1 = {c}";
+operation : estado = null;
+print : $ "Se ha asignado 'null' a la variable estado.";
 
-Operacion : c = a - b;
-Imprimir : $ "a - b = {c}";
-
-Operacion : c = a * b;
-Imprimir : $ "a * b = {c}";
-
-Operacion : c = a / b;
-Imprimir : $ "a / b = {c}";
-
-#operaciones decimal + decimal
-Operacion : z = x + y;
-Imprimir : $ "x + y = {z}";
-
-Operacion : z = x - y;
-Imprimir : $ "x - y = {z}";
-
-Operacion : z = x * y;
-Imprimir : $ "x * y = {z}";
-
-Operacion : z = x / y;
-Imprimir : $ "x / y = {z}";
-
-#operaciones mixtas entero + dinamico
-Operacion : c = a + d2;
-Imprimir : $ "a + d2 (entero destino) = {c}";
-
-Operacion : d3 = b + x;
-Imprimir : $ "b + x (dinamico destino) = {d3}";
-
-#operaciones con negativos
-Operacion : c = b * b;
-Imprimir : $ "b * b = {c}";
-
-Operacion : z = y * y;
-Imprimir : $ "y * y = {z}";
-
-Operacion : c = b * a;
-Imprimir : $ "b * a = {c}";
-
-#pedir valores
-Imprimir : $ "Escriba un nuevo valor para a";
-Pedir : a;
-Imprimir : $ "nuevo valor de a = {a}";
-
-Imprimir : $ "Escriba un nuevo valor para x";
-Pedir : x;
-Imprimir : $ "nuevo valor de x = {x}";
-
-#operacion con valor pedido
-Operacion : c = a + b;
-Imprimir : $ "nuevo a + b = {c}";
+print : $ "=== FIN DEL PROGRAMA ===";
