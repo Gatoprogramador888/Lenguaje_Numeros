@@ -25,8 +25,8 @@ Comandos_App::Comandos_App(int argc, char** argv)
 
 	//Desensamblar_CRB("a.crb");
     //compile.Set_Compilar("prueba.crd", "a.crb");
-	inter.Set_Interpretar("a.crb");
-    return;
+	//inter.Set_Interpretar("a.crb");
+    //return;
 
     if (argc < 2)
     {

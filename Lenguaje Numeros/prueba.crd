@@ -1,14 +1,30 @@
 #programa correcto - prueba de todos los tipos y operaciones
 
 #declaracion de enteros
-Entero : var = 1;
-
+Entero : var = 1, var2 = 3;
+Imprimir: var;
+Operacion: var++;
+Imprimir: var;
+Operacion: var += var2;
+Imprimir: var;
+Operacion: var += var2 + 1; 
+Imprimir: var;
+Operacion: var--;
+Imprimir: var;
+Operacion: var -= var2;
+Imprimir: var;
+Operacion: var -= var2 - 1; 
+Imprimir: var;
 #Pruebas
-Const Entero: v = 2;
+#Const Entero: v = 2;
 
-Operacion: var = var * v; 
+#Errores
+#Operacion: v = 0;
+#Pedir: v = 0;
 
-Imprimir: $ "var despues de ser multiplicado por 2 {var}";
+#Operacion: var = var * v; 
+
+#Imprimir: $ "var despues de ser multiplicado por 2 {var}";
 
 Operacion: var = nulo;
 

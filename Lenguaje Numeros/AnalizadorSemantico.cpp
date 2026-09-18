@@ -287,7 +287,7 @@ void Analizador_Tokens_Compilacion::Imprimir()
                     {
                     case Tokens::CARACTER:
                         estado = Estados::ESPERA_CARACTER; break;
-                    case Tokens::PARENTESIS_IZQUIERDO:
+                    case Tokens::LLAVE_IZQUIERDO:
                         estado = Estados::ESPERA_PARENTESIS_IZQUIERDO; break;
                     case Tokens::COMILLAS:
                         estado = (comillas != 2)
@@ -340,7 +340,7 @@ void Analizador_Tokens_Compilacion::Imprimir()
                     {
                     case Tokens::CARACTER:
                         estado = Estados::ESPERA_CARACTER; break;
-                    case Tokens::PARENTESIS_IZQUIERDO:
+                    case Tokens::LLAVE_IZQUIERDO:
                         flush_buffer_texto();
                         estado = Estados::ESPERA_PARENTESIS_IZQUIERDO; break;
                     case Tokens::COMILLAS:
@@ -384,7 +384,7 @@ void Analizador_Tokens_Compilacion::Imprimir()
 
             case Estados::ESPERA_PARENTESIS_IZQUIERDO:
                 estado = Estados::ESPERA_VARIABLE;
-                if (tokens[posicion] != Tokens::PARENTESIS_IZQUIERDO)
+                if (tokens[posicion] != Tokens::LLAVE_IZQUIERDO)
                 {
                     error = "Se esperaba '{' no " + comandos[posicion] + ".\nLinea: "
                         + std::to_string(linea) + ", posicion: "
@@ -447,7 +447,7 @@ void Analizador_Tokens_Compilacion::Imprimir()
                     {
                     case Tokens::CARACTER:
                         estado = Estados::ESPERA_CARACTER; break;
-                    case Tokens::PARENTESIS_IZQUIERDO:
+                    case Tokens::LLAVE_IZQUIERDO:
                         estado = Estados::ESPERA_PARENTESIS_IZQUIERDO; break;
                     case Tokens::COMILLAS:
                         estado = (comillas != 2)
@@ -481,7 +481,7 @@ void Analizador_Tokens_Compilacion::Imprimir()
                     estado = Estados::ERROR;
                 }
 
-                if (tokens[posicion] != Tokens::PARENTESIS_DERECHO)
+                if (tokens[posicion] != Tokens::LLAVE_DERECHO)
                 {
                     error = "Se esperaba '}' no " + comandos[posicion] + ".\nLinea: "
                         + std::to_string(linea) + ", posicion: "
@@ -842,6 +842,7 @@ void Analizador_Tokens_Compilacion::Operacion()
 
     std::vector<uint64_t> operandos;   // codificados (var / inline[constantes pequeñas] / constante)
     std::vector<char>     operadores;  // '+' '-' '*' '/'
+    bool inicio_con_operador{ false };
 
     // ── Helper local: codifica un operando numérico ──────────────────────────
     // Devuelve el valor uint64_t codificado listo para emit_u64.
@@ -922,6 +923,20 @@ void Analizador_Tokens_Compilacion::Operacion()
                 error = comandos[posicion] + " es de tipo Constante no se puede modificar.\n"
                     + std::to_string(linea) + ", posicion: " + std::to_string(posiciones[posicion]) + ".\n";
                 estado = Estados::ERROR;
+                break;
+            }
+
+            if (posicion + 1 < tokens.size())
+            {
+                inicio_con_operador = tokens[posicion + 1] == Tokens::OPERADOR;
+                estado = inicio_con_operador ? Estados::ESPERA_OPERADOR : Estados::ESPERA_IGUAL;
+            }
+            else
+            {
+                error = comandos[posicion] + " la operacion esta incompleta.\n"
+                    + std::to_string(linea) + ", posicion: " + std::to_string(posiciones[posicion]) + ".\n";
+                estado = Estados::ERROR;
+                break;
             }
 
             size_t pos = pos_segura(comandos[posicion], posicion);
@@ -933,14 +948,17 @@ void Analizador_Tokens_Compilacion::Operacion()
 
         // ── ESPERA_IGUAL ('=') ────────────────────────────────────────────────
         case Estados::ESPERA_IGUAL:
-            estado = Estados::ESPERA_NUMERO;
+
             if (tokens[posicion] != Tokens::IGUAL)
             {
                 error = "Se esperaba '=' no " + comandos[posicion] + ".\nLinea: "
                     + std::to_string(linea) + ", posicion: "
                     + std::to_string(posiciones[posicion]) + ".\n";
                 estado = Estados::ERROR;
+                break;
             }
+            inicio_con_operador = false;
+            estado = Estados::ESPERA_NUMERO;
             break;
 
             // ── ESPERA_NUMERO (operando) ──────────────────────────────────────────
@@ -1055,7 +1073,9 @@ void Analizador_Tokens_Compilacion::Operacion()
             // El siguiente token debe ser un operando válido
             if (posicion + 1 >= tokens.size()
                 || (tokens[posicion + 1] != Tokens::NUMERO
-                    && tokens[posicion + 1] != Tokens::VARIABLE))
+                    && tokens[posicion + 1] != Tokens::VARIABLE
+                    && tokens[posicion + 1] != Tokens::IGUAL
+                    && tokens[posicion + 1] != Tokens::OPERADOR))
             {
                 error = "Se esperaba Variable o Numero despues del operador '"
                     + comandos[posicion] + "'.\nLinea: " + std::to_string(linea)
@@ -1075,10 +1095,35 @@ void Analizador_Tokens_Compilacion::Operacion()
             }
 
             const char op_char = comandos[posicion][0];
-            if (op_char != '+' && op_char != '-' && op_char != '*' && op_char != '/')
+            /*if (op_char != '+' && op_char != '-' && op_char != '*' && op_char != '/')
             {
                 error = "Operador no valido: '" + comandos[posicion]
                     + "'.\nLinea: " + std::to_string(linea)
+                    + ", posicion: " + std::to_string(posiciones[posicion]) + ".\n";
+                estado = Estados::ERROR;
+                break;
+            }*/
+
+            if (inicio_con_operador && tokens[posicion + 1] == Tokens::IGUAL)
+            {
+                operandos.push_back(codificar_variable(static_cast<uint64_t>(id_destino)));
+                operadores.push_back(op_char);
+                estado = Estados::ESPERA_IGUAL;
+                break;
+            }
+            else if (inicio_con_operador && tokens[posicion + 1] == Tokens::OPERADOR && op_char == comandos[posicion + 1][0])
+            {
+                posicion++;
+                operandos.push_back(codificar_variable(static_cast<uint64_t>(id_destino)));
+                operadores.push_back(op_char);
+                operandos.push_back(codificar_numero("1"));
+                estado = Estados::ESPERA_FIN_COMANDO;
+                break;
+            }
+            else if (inicio_con_operador && tokens[posicion + 1] == Tokens::OPERADOR && op_char != comandos[posicion + 1][0])
+            {
+                error = comandos[posicion] + " y " + op_char
+                    + "no son iguales use en su caso ++ o --.\nLinea: " + std::to_string(linea)
                     + ", posicion: " + std::to_string(posiciones[posicion]) + ".\n";
                 estado = Estados::ERROR;
                 break;

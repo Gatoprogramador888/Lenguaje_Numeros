@@ -101,8 +101,8 @@ std::map<std::string, Informacion> Tokenizador::Mapa_Informacion(
                 Recopilar_informacion(info[i], Tokens::COMILLAS);
                 ++comillas;   // comillas pasa a 1 → entramos en la rama else
             }
-            else if (palabra == "{")               Recopilar_informacion(info[i], Tokens::PARENTESIS_IZQUIERDO);
-            else if (palabra == "}")               Recopilar_informacion(info[i], Tokens::PARENTESIS_DERECHO);
+            else if (palabra == "{")               Recopilar_informacion(info[i], Tokens::LLAVE_IZQUIERDO);
+            else if (palabra == "}")               Recopilar_informacion(info[i], Tokens::LLAVE_DERECHO);
             // BUG FIX #2 — palabra[0] == NULL compara char con puntero: UB.
             // Correcto: verificar que la cadena no esté vacía antes de acceder [0].
             else if (palabra.empty() || palabra[0] == '\0') { /* ignorar */ }
@@ -115,12 +115,12 @@ std::map<std::string, Informacion> Tokenizador::Mapa_Informacion(
         {
             if (palabra == "{")
             {
-                Recopilar_informacion(info[i], Tokens::PARENTESIS_IZQUIERDO);
+                Recopilar_informacion(info[i], Tokens::LLAVE_IZQUIERDO);
                 parentesis = true;
             }
             else if (palabra == "}")
             {
-                Recopilar_informacion(info[i], Tokens::PARENTESIS_DERECHO);
+                Recopilar_informacion(info[i], Tokens::LLAVE_DERECHO);
                 parentesis = false;
             }
             else if (palabra == "\"")
