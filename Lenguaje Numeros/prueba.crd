@@ -1,20 +1,52 @@
-#programa correcto - prueba de todos los tipos y operaciones
-
-#declaracion de enteros
 # ==========================================================
-# Programa de prueba con las nuevas palabras clave
+# Programa de prueba con operaciones matemáticas complejas
 # ==========================================================
 
 # 1. Declaración de constantes y variables
 const decimal : PI = 3.1416;
 int : contador = 5, limite = 20, resultado = 0;
-decimal : precio = 150.50, descuento = 12.25, total = 0.00;
+decimal : precio = 150.50, descuento = 12.25, total = 0.00, radio = 0.0, area_total_circulo = 0.0;
 dynamic : estado = 1;
+
+# Variables para pruebas matemáticas complejas
+decimal : posicion = 0.0, pos_inicial = 10.0, vel_inicial = 5.0, tiempo = 2.0, aceleracion = 9.8;
+decimal : volumen = 0.0, altura = 12.0, r1 = 3.0, r2 = 5.0;
+int : a = 10, b = 5, c = 20, d = 8, e = 2, f = 4, g = 3, h = 7, i = 15, res_complejo = 0;
 
 # 2. Impresión de mensajes y cadenas interpoladas
 print : $ "=== BIENVENIDO AL SISTEMA ===";
 print : $ "Valor inicial del contador: {contador}";
 print : $ "Constante PI: {PI}";
+
+print : $ "Escribe el tamaño de radio: ";
+input : radio;
+
+# Operación de prueba básica con paréntesis
+operation: area_total_circulo = PI * (radio * radio);
+print: $ "Área del círculo: {area_total_circulo}";
+
+# ==========================================================
+# PRUEBAS DE OPERACIONES MATEMÁTICAS COMPLEJAS (SHUNTING YARD)
+# ==========================================================
+
+# PRUEBA 1: Cinemática (Paréntesis anidados + multiplicación y división)
+operation : posicion = pos_inicial + (vel_inicial * tiempo) + ((aceleracion * (tiempo * tiempo)) / 2.0);
+print : $ "Posición calculada (Cinemática): {posicion}";
+
+# PRUEBA 2: Geometría - Cono Truncado (Múltiples subexpresiones)
+operation : volumen = (PI * altura / 3.0) * ((r1 * r1) + (r2 * r2) + (r1 * r2));
+print : $ "Volumen del cono truncado: {volumen}";
+
+# PRUEBA 3: Prueba de fuego (Álgebra anidada de enteros con múltiples niveles)
+operation : res_complejo = ((a + b) * (c - (d / e))) + ((f * (g + h)) - i);
+print : $ "Resultado de expresión compleja anidada: {res_complejo}";
+
+# ==========================================================
+
+operation: area_total_circulo = 0.0;
+print: area_total_circulo;
+
+operation: area_total_circulo = null;
 
 # 3. Operaciones matemáticas (incrementos, decrementos y asignaciones)
 operation : contador++;

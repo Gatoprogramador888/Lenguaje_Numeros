@@ -20,7 +20,6 @@ Comandos_App::Comandos_App(int argc, char** argv)
     //   argv[2] = archivo 1   (según comando)
     //   argv[3] = archivo 2   (solo para compilar / compilar_I)
 
-	//Desensamblar_CRB("a.crb");
     //compile.Set_Compilar("prueba.crd", "a.crb");
 	//inter.Set_Interpretar("a.crb");
     //return;

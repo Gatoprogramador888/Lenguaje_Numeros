@@ -103,6 +103,8 @@ std::map<std::string, Informacion> Tokenizador::Mapa_Informacion(
             }
             else if (palabra == "{")               Recopilar_informacion(info[i], Tokens::LLAVE_IZQUIERDO);
             else if (palabra == "}")               Recopilar_informacion(info[i], Tokens::LLAVE_DERECHO);
+            else if (palabra == "(")               Recopilar_informacion(info[i], Tokens::PARENTESIS_IZQUIERDO);
+            else if (palabra == ")")               Recopilar_informacion(info[i], Tokens::PARENTESIS_DERECHO);
             // BUG FIX #2 — palabra[0] == NULL compara char con puntero: UB.
             // Correcto: verificar que la cadena no esté vacía antes de acceder [0].
             else if (palabra.empty() || palabra[0] == '\0') { /* ignorar */ }
@@ -185,7 +187,7 @@ std::string Tokenizador::Get_Tipo(Tokens tok)
         "COMMAS", "END COMMAND", "SPACE",
         "QUOTATION MARKS",
         "RIGHT PARENTHESIS", "LEFT PARENTHESIS",
-        "VARIABLE", "EQUALS", "CHARACTER", "DIVIDER", "TEXT", "CONSTANT"
+        "VARIABLE", "EQUALS", "CHARACTER", "DIVIDER", "TEXT", "CONSTANT", "RIGHT_PARENTHESIS", "LEFT_PARENTHESIS"
     };
     static constexpr size_t N = sizeof(TIPOS) / sizeof(TIPOS[0]);
 

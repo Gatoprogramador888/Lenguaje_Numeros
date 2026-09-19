@@ -828,57 +828,59 @@ void Analizador_Tokens_Compilacion::Entero_Decimal_Dinamico()
 
 void Analizador_Tokens_Compilacion::Operacion()
 {
-    // ── Estados de la máquina ────────────────────────────────────────────────
+    // ── Estados de la máquina de estados intacta ──────────────────────────────
     enum class Estados {
         INICIO, DIVISOR, ESPERA_VARIABLE, ESPERA_IGUAL,
-        ESPERA_NUMERO, ESPERA_OPERADOR, ESPERA_FIN_COMANDO, ERROR
+        ESPERA_NUMERO, ESPERA_OPERADOR, ESPERA_PARENTESIS_DERECHO, ESPERA_PARENTESIS_IZQUIERDO,
+        ESPERA_FIN_COMANDO, ERROR
     };
 
     Estados     estado = Estados::INICIO;
-    Tipos       tipo_destino = Tipos::ENTERO;   
-    size_t      id_destino = SIZE_MAX;         
+    Tipos       tipo_destino = Tipos::ENTERO;
+    size_t      id_destino = SIZE_MAX;
+    uint8_t     parentesis_de_lado_izquierdo{ 0 };
 
-    std::vector<uint64_t> operandos;   // codificados (var / inline[constantes pequeñas] / constante)
-    std::vector<char>     operadores;  // '+' '-' '*' '/'
+    // ── Estructuras para Shunting Yard ────────────────────────────────────────
+    struct ElementoExpr {
+        enum class Tipo { OPERANDO, OPERADOR, PARENTESIS_IZQ, PARENTESIS_DER } tipo;
+        uint64_t valor_codificado{ 0 };
+        char op{ 0 };
+    };
+
+    std::vector<ElementoExpr> expresion_infix;
     bool inicio_con_operador{ false };
 
     // ── Helper local: codifica un operando numérico ──────────────────────────
-    // Devuelve el valor uint64_t codificado listo para emit_u64.
     auto codificar_numero = [&](const std::string& lexema) -> uint64_t
         {
             const bool es_decimal = (lexema.find('.') != std::string::npos);
 
             if (es_decimal)
             {
-                // Siempre va a la tabla de constantes (bits 10)
                 size_t idx = obtener_o_agregar_constante(lexema);
                 return codificar_constante(static_cast<uint64_t>(idx));
             }
 
-            // Entero: intentar caber en 62 bits (sin tabla de constantes)
             try
             {
                 uint64_t val = static_cast<uint64_t>(std::stoll(lexema));
                 if (val < (1ULL << 62))
-                    return codificar_inline_int(val);   // bits 01
-                // No cabe inline → tabla de constantes
+                    return codificar_inline_int(val);
                 size_t idx = obtener_o_agregar_constante(lexema);
                 return codificar_constante(static_cast<uint64_t>(idx));
             }
             catch (...)
             {
-                // stoull falló (negativo o demasiado grande) → tabla de constantes
                 size_t idx = obtener_o_agregar_constante(lexema);
                 return codificar_constante(static_cast<uint64_t>(idx));
             }
         };
 
-    // ── Recorrido FSM ────────────────────────────────────────────────────────
+    // ── Recorrido FSM (Mantenida exactamente igual) ──────────────────────────
     for (size_t posicion = 0; posicion < tokens.size(); posicion++)
     {
         switch (estado)
         {
-            // ── INICIO ───────────────────────────────────────────────────────────
         case Estados::INICIO:
             estado = Estados::DIVISOR;
             if (tokens[posicion] != Tokens::OPERACION)
@@ -890,7 +892,6 @@ void Analizador_Tokens_Compilacion::Operacion()
             }
             break;
 
-            // ── DIVISOR (':') ─────────────────────────────────────────────────────
         case Estados::DIVISOR:
             estado = Estados::ESPERA_VARIABLE;
             if (tokens[posicion] != Tokens::DIVISOR)
@@ -902,7 +903,6 @@ void Analizador_Tokens_Compilacion::Operacion()
             }
             break;
 
-            // ── ESPERA_VARIABLE (var. destino) ────────────────────────────────────
         case Estados::ESPERA_VARIABLE:
         {
             estado = Estados::ESPERA_IGUAL;
@@ -940,13 +940,11 @@ void Analizador_Tokens_Compilacion::Operacion()
             size_t pos = pos_segura(comandos[posicion], posicion);
             tipo_destino = simbolos.BuscarTipo(comandos[posicion]);
             id_destino = pos;
-
             break;
         }
 
-        // ── ESPERA_IGUAL ('=') ────────────────────────────────────────────────
         case Estados::ESPERA_IGUAL:
-
+            inicio_con_operador = false;
             if (tokens[posicion] != Tokens::IGUAL)
             {
                 error = "'=' expected, not " + comandos[posicion] + ".\nLine: "
@@ -955,14 +953,110 @@ void Analizador_Tokens_Compilacion::Operacion()
                 estado = Estados::ERROR;
                 break;
             }
-            inicio_con_operador = false;
+            if (posicion + 1 >= tokens.size())
+            {
+                error = "';' expected.\nLine: " + std::to_string(linea)
+                    + ", position: " + std::to_string(posiciones[posicion]) + ".\n";
+                estado = Estados::ERROR;
+                break;
+            }
+            else if (tokens[posicion + 1] == Tokens::PARENTESIS_IZQUIERDO)
+            {
+                estado = Estados::ESPERA_PARENTESIS_IZQUIERDO;
+                break;
+            }
+
             estado = Estados::ESPERA_NUMERO;
             break;
 
-            // ── ESPERA_NUMERO (operando) ──────────────────────────────────────────
+        case Estados::ESPERA_PARENTESIS_IZQUIERDO:
+        {
+            parentesis_de_lado_izquierdo++;
+            if (tokens[posicion] != Tokens::PARENTESIS_IZQUIERDO)
+            {
+                error = "'(' expected, not '" + comandos[posicion] + "'.\nLine: "
+                    + std::to_string(linea) + ", position: "
+                    + std::to_string(posiciones[posicion]) + ".\n";
+                estado = Estados::ERROR;
+                break;
+            }
+
+            expresion_infix.push_back({ ElementoExpr::Tipo::PARENTESIS_IZQ, 0, '(' });
+
+            if (posicion + 1 >= tokens.size())
+            {
+                error = "';' expected.\nLine: " + std::to_string(linea)
+                    + ", position: " + std::to_string(posiciones[posicion]) + ".\n";
+                estado = Estados::ERROR;
+                break;
+            }
+            else if (tokens[posicion + 1] == Tokens::PARENTESIS_DERECHO)
+            {
+                estado = Estados::ESPERA_PARENTESIS_DERECHO;
+                break;
+            }
+            else if (tokens[posicion + 1] == Tokens::PARENTESIS_IZQUIERDO)
+            {
+                estado = Estados::ESPERA_PARENTESIS_IZQUIERDO;
+                break;
+            }
+            else
+            {
+                estado = Estados::ESPERA_NUMERO;
+                break;
+            }
+        }
+        break;
+
+        case Estados::ESPERA_PARENTESIS_DERECHO:
+        {
+            parentesis_de_lado_izquierdo--;
+            if (tokens[posicion] != Tokens::PARENTESIS_DERECHO)
+            {
+                error = "')' expected, not '" + comandos[posicion] + "'.\nLine: "
+                    + std::to_string(linea) + ", position: "
+                    + std::to_string(posiciones[posicion]) + ".\n";
+                estado = Estados::ERROR;
+                break;
+            }
+
+            expresion_infix.push_back({ ElementoExpr::Tipo::PARENTESIS_DER, 0, ')' });
+
+            if (posicion + 1 >= tokens.size())
+            {
+                error = "';' expected.\nLine: " + std::to_string(linea)
+                    + ", position: " + std::to_string(posiciones[posicion]) + ".\n";
+                estado = Estados::ERROR;
+                break;
+            }
+            else if (tokens[posicion + 1] == Tokens::FIN_COMANDO)
+            {
+                estado = Estados::ESPERA_FIN_COMANDO;
+                break;
+            }
+            else if (tokens[posicion + 1] == Tokens::PARENTESIS_DERECHO)
+            {
+                estado = Estados::ESPERA_PARENTESIS_DERECHO;
+                break;
+            }
+            else if (tokens[posicion + 1] == Tokens::OPERADOR)
+            {
+                estado = Estados::ESPERA_OPERADOR;
+                break;
+            }
+            else
+            {
+                error = "Operator or ';' expected after ')', not '" + comandos[posicion + 1] + "'.\nLine: "
+                    + std::to_string(linea) + ", position: " + std::to_string(posiciones[posicion + 1]) + ".\n";
+                estado = Estados::ERROR;
+                break;
+            }
+        }
+        break;
+
         case Estados::ESPERA_NUMERO:
         {
-            if (tokens[posicion] != Tokens::VARIABLE && tokens[posicion] != Tokens::NUMERO 
+            if (tokens[posicion] != Tokens::VARIABLE && tokens[posicion] != Tokens::NUMERO
                 && tokens[posicion] != Tokens::NULO)
             {
                 error = comandos[posicion] + " it is of the type "
@@ -973,20 +1067,24 @@ void Analizador_Tokens_Compilacion::Operacion()
                 break;
             }
 
-            // Determinar estado siguiente antes de consumir el token
             if (posicion + 1 < tokens.size() && tokens[posicion] == Tokens::NULO
                 && tokens[posicion + 1] != Tokens::FIN_COMANDO)
             {
                 error = "An operation cannot be performed when there is a null assignment."
-                    "\nLine: "+ std::to_string(linea) + ".\n"
+                    "\nLine: " + std::to_string(linea) + ".\n"
                     + ", position: " + std::to_string(posiciones[posicion]) + ".\n";
                 estado = Estados::ERROR;
                 break;
             }
             else if (posicion + 1 < tokens.size())
-                estado = (tokens[posicion + 1] != Tokens::FIN_COMANDO)
-                ? Estados::ESPERA_OPERADOR
-                : Estados::ESPERA_FIN_COMANDO;
+            {
+                if (tokens[posicion + 1] == Tokens::FIN_COMANDO)
+                    estado = Estados::ESPERA_FIN_COMANDO;
+                else if (tokens[posicion + 1] == Tokens::PARENTESIS_DERECHO)
+                    estado = Estados::ESPERA_PARENTESIS_DERECHO;
+                else
+                    estado = Estados::ESPERA_OPERADOR;
+            }
             else
             {
                 error = "';' expected.\nLine: " + std::to_string(linea)
@@ -999,11 +1097,10 @@ void Analizador_Tokens_Compilacion::Operacion()
             if (tokens[posicion] == Tokens::NULO)
             {
                 uint64_t valor = BIT_NULL;
-                operandos.push_back(valor);
+                expresion_infix.push_back({ ElementoExpr::Tipo::OPERANDO, valor, 0 });
             }
             else if (tokens[posicion] == Tokens::NUMERO)
             {
-                // Validaciones de tipo contra la variable destino
                 const bool tiene_punto = (comandos[posicion].find('.') != std::string::npos);
 
                 if (tipo_destino & Tipos::ENTERO && tiene_punto)
@@ -1023,7 +1120,6 @@ void Analizador_Tokens_Compilacion::Operacion()
                     break;
                 }
 
-                // Verificar que solo tenga dígitos y punto
                 for (char c : comandos[posicion])
                 {
                     if (!std::isdigit(static_cast<unsigned char>(c)) && c != '.')
@@ -1037,15 +1133,13 @@ void Analizador_Tokens_Compilacion::Operacion()
                 }
                 if (estado == Estados::ERROR) break;
 
-                operandos.push_back(codificar_numero(comandos[posicion]));
+                expresion_infix.push_back({ ElementoExpr::Tipo::OPERANDO, codificar_numero(comandos[posicion]), 0 });
             }
             else  // VARIABLE
             {
-
                 const size_t pos_op = pos_segura(comandos[posicion], posicion);
                 const Tipos  tipo_op = simbolos.BuscarTipo(comandos[posicion]);
 
-                // Compatibilidad de tipos (DINAMICO acepta cualquier cosa)
                 if (tipo_op != tipo_destino
                     && tipo_op != Tipos::DINAMICO
                     && tipo_destino != Tipos::DINAMICO)
@@ -1060,22 +1154,21 @@ void Analizador_Tokens_Compilacion::Operacion()
                     break;
                 }
 
-                operandos.push_back(codificar_variable(static_cast<uint64_t>(pos_op)));
+                expresion_infix.push_back({ ElementoExpr::Tipo::OPERANDO, codificar_variable(static_cast<uint64_t>(pos_op)), 0 });
             }
             break;
         }
 
-        // ── ESPERA_OPERADOR (+, -, *, /) ──────────────────────────────────────
         case Estados::ESPERA_OPERADOR:
         {
-            // El siguiente token debe ser un operando válido
             if (posicion + 1 >= tokens.size()
                 || (tokens[posicion + 1] != Tokens::NUMERO
                     && tokens[posicion + 1] != Tokens::VARIABLE
                     && tokens[posicion + 1] != Tokens::IGUAL
-                    && tokens[posicion + 1] != Tokens::OPERADOR))
+                    && tokens[posicion + 1] != Tokens::OPERADOR
+                    && tokens[posicion + 1] != Tokens::PARENTESIS_IZQUIERDO))
             {
-                error = "Variable or number expected after the operator. "
+                error = "Variable, number or '(' expected after operator '"
                     + comandos[posicion] + "'.\nLine: " + std::to_string(linea)
                     + ", position: " + std::to_string(posiciones[posicion]) + ".\n";
                 estado = Estados::ERROR;
@@ -1093,46 +1186,41 @@ void Analizador_Tokens_Compilacion::Operacion()
             }
 
             const char op_char = comandos[posicion][0];
-            /*if (op_char != '+' && op_char != '-' && op_char != '*' && op_char != '/')
-            {
-                error = "Operador no valido: '" + comandos[posicion]
-                    + "'.\nLinea: " + std::to_string(linea)
-                    + ", posicion: " + std::to_string(posiciones[posicion]) + ".\n";
-                estado = Estados::ERROR;
-                break;
-            }*/
 
             if (inicio_con_operador && tokens[posicion + 1] == Tokens::IGUAL)
             {
-                operandos.push_back(codificar_variable(static_cast<uint64_t>(id_destino)));
-                operadores.push_back(op_char);
+                expresion_infix.push_back({ ElementoExpr::Tipo::OPERANDO, codificar_variable(static_cast<uint64_t>(id_destino)), 0 });
+                expresion_infix.push_back({ ElementoExpr::Tipo::OPERADOR, 0, op_char });
                 estado = Estados::ESPERA_IGUAL;
                 break;
             }
             else if (inicio_con_operador && tokens[posicion + 1] == Tokens::OPERADOR && op_char == comandos[posicion + 1][0])
             {
                 posicion++;
-                operandos.push_back(codificar_variable(static_cast<uint64_t>(id_destino)));
-                operadores.push_back(op_char);
-                operandos.push_back(codificar_numero("1"));
+                expresion_infix.push_back({ ElementoExpr::Tipo::OPERANDO, codificar_variable(static_cast<uint64_t>(id_destino)), 0 });
+                expresion_infix.push_back({ ElementoExpr::Tipo::OPERADOR, 0, op_char });
+                expresion_infix.push_back({ ElementoExpr::Tipo::OPERANDO, codificar_numero("1"), 0 });
                 estado = Estados::ESPERA_FIN_COMANDO;
                 break;
             }
             else if (inicio_con_operador && tokens[posicion + 1] == Tokens::OPERADOR && op_char != comandos[posicion + 1][0])
             {
                 error = comandos[posicion] + " and " + op_char
-                    + "They are not the same; use the one that applies to your case. ++ o --.\nLine: " + std::to_string(linea)
+                    + " They are not the same; use ++ or --.\nLine: " + std::to_string(linea)
                     + ", position: " + std::to_string(posiciones[posicion]) + ".\n";
                 estado = Estados::ERROR;
                 break;
             }
 
-            operadores.push_back(op_char);
-            estado = Estados::ESPERA_NUMERO;
+            expresion_infix.push_back({ ElementoExpr::Tipo::OPERADOR, 0, op_char });
+
+            if (tokens[posicion + 1] == Tokens::PARENTESIS_IZQUIERDO)
+                estado = Estados::ESPERA_PARENTESIS_IZQUIERDO;
+            else
+                estado = Estados::ESPERA_NUMERO;
             break;
         }
 
-        // ── ESPERA_FIN_COMANDO (';') ──────────────────────────────────────────
         case Estados::ESPERA_FIN_COMANDO:
             if (tokens[posicion] != Tokens::FIN_COMANDO)
             {
@@ -1148,74 +1236,165 @@ void Analizador_Tokens_Compilacion::Operacion()
         }
     }
 
-    // ── Guardia de seguridad ─────────────────────────────────────────────────
-    if (operandos.empty() || id_destino == SIZE_MAX)
+    if (parentesis_de_lado_izquierdo != 0)
+    {
+        error = "')' expected, missing parenthesis.\nLine: "
+            + std::to_string(linea) + ", position: "
+            + std::to_string(posiciones[posiciones.size() - 1]) + ".\n";
+        throw std::runtime_error(error.c_str());
+    }
+
+    if (expresion_infix.empty() || id_destino == SIZE_MAX)
         return;
 
-    // ── Emisión de bytecode con precedencia ──────────────────────────────────
-    // Cada instrucción ocupa exactamente 25 bytes:
-    //   1 byte  OpCode
-    //   8 bytes destino  (siempre la variable resultado)
-    //   8 bytes src1
-    //   8 bytes src2
-    //
-    // Los operandos ya consumidos se sustituyen por `cod_destino` en la lista
-    // para que la siguiente instrucción pueda usar el resultado intermedio.
+    // Caso asignación simple de valor NULO (ej: a = null;)
+    if (expresion_infix.size() == 1 && expresion_infix[0].valor_codificado == BIT_NULL)
+    {
+        lifetime_guard(codificar_variable(static_cast<uint64_t>(id_destino)));
+        return;
+    }
+
+    // ═════════════════════════════════════════════════════════════════════════
+    // ALGORITMO SHUNTING YARD: Convertir Infix -> Postfix (RPN)
+    // ═════════════════════════════════════════════════════════════════════════
+
+    auto precedencia = [](char op) -> int {
+        if (op == '*' || op == '/') return 2;
+        if (op == '+' || op == '-') return 1;
+        return 0;
+        };
+
+    std::vector<ElementoExpr> rpn;
+    std::vector<ElementoExpr> pila_operadores;
+
+    for (const auto& elem : expresion_infix)
+    {
+        if (elem.tipo == ElementoExpr::Tipo::OPERANDO)
+        {
+            rpn.push_back(elem);
+        }
+        else if (elem.tipo == ElementoExpr::Tipo::PARENTESIS_IZQ)
+        {
+            pila_operadores.push_back(elem);
+        }
+        else if (elem.tipo == ElementoExpr::Tipo::PARENTESIS_DER)
+        {
+            while (!pila_operadores.empty() && pila_operadores.back().tipo != ElementoExpr::Tipo::PARENTESIS_IZQ)
+            {
+                rpn.push_back(pila_operadores.back());
+                pila_operadores.pop_back();
+            }
+            if (!pila_operadores.empty())
+                pila_operadores.pop_back(); // Descartar '('
+        }
+        else if (elem.tipo == ElementoExpr::Tipo::OPERADOR)
+        {
+            while (!pila_operadores.empty() && pila_operadores.back().tipo == ElementoExpr::Tipo::OPERADOR &&
+                precedencia(pila_operadores.back().op) >= precedencia(elem.op))
+            {
+                rpn.push_back(pila_operadores.back());
+                pila_operadores.pop_back();
+            }
+            pila_operadores.push_back(elem);
+        }
+    }
+
+    while (!pila_operadores.empty())
+    {
+        rpn.push_back(pila_operadores.back());
+        pila_operadores.pop_back();
+    }
+
+    // ═════════════════════════════════════════════════════════════════════════
+    // EMISIÓN DE BYTECODE EVALUANDO RPN
+    // ═════════════════════════════════════════════════════════════════════════
+
+    std::vector<size_t> ids_locales_creadas; // Para hacer el free al final en Runtime
+    auto limpiar_locales = [&]() {
+        for (size_t id_loc : ids_locales_creadas)
+        {
+            emit_u8(OpCode::FREE);
+            emit_u64(static_cast<uint64_t>(id_loc));
+        }
+        simbolos.LimpiarLocales();
+        };
 
     const uint64_t cod_destino = codificar_variable(static_cast<uint64_t>(id_destino));
 
-    if (operandos.size() < 2 && operandos[0] == BIT_NULL)
-    {
-        lifetime_guard(cod_destino);
-        return;
-    }
-    else if (operandos.size() < 2)
+    if (rpn.size() == 1 && rpn[0].tipo == ElementoExpr::Tipo::OPERANDO)
     {
         emit_u8(OpCode::ADD);
         emit_u64(cod_destino);
-        emit_u64(operandos[0]);
+        emit_u64(rpn[0].valor_codificado);
         emit_u64(0);
+        limpiar_locales();
+        return;
     }
 
-    // Helper local: emite una instrucción y "comprime" la lista
-    auto emitir_op = [&](size_t i, OpCode op)
-        {
-            emit_u8(op);
-            emit_u64(cod_destino);
-            emit_u64(operandos[i]);
-            emit_u64(operandos[i + 1]);
+    // Mapeo del tipo para el Bytecode (1: ENTERO, 2: DECIMAL, 4: DINAMICO)
+    uint8_t byte_tipo = 1;
+    if (tipo_destino == Tipos::DECIMAL) byte_tipo = 2;
+    else if (tipo_destino == Tipos::DINAMICO) byte_tipo = 4;
 
-			uint64_t id_var = cod_destino & ~(BIT_CONSTANTE | BIT_STRING);
-            // El par i / i+1 queda reducido a `destino` en la posición i
-            operandos[i] = cod_destino;
-            operandos.erase(operandos.begin() + static_cast<std::ptrdiff_t>(i) + 1);
-            operadores.erase(operadores.begin() + static_cast<std::ptrdiff_t>(i));
-        };
+    std::vector<uint64_t> pila_eval;
+    size_t local_counter = 0;
 
-    // Paso 1 — MUL y DIV  (mayor precedencia, izquierda a derecha)
+    for (size_t idx = 0; idx < rpn.size(); idx++)
     {
-        size_t i = 0;
-        while (i < operadores.size())
+        const auto& elem = rpn[idx];
+
+        if (elem.tipo == ElementoExpr::Tipo::OPERANDO)
         {
-            if (operadores[i] == '*' || operadores[i] == '/')
+            pila_eval.push_back(elem.valor_codificado);
+        }
+        else if (elem.tipo == ElementoExpr::Tipo::OPERADOR)
+        {
+            if (pila_eval.size() < 2) continue;
+
+            uint64_t src2 = pila_eval.back(); pila_eval.pop_back();
+            uint64_t src1 = pila_eval.back(); pila_eval.pop_back();
+
+            OpCode op = OpCode::ADD;
+            if (elem.op == '-') op = OpCode::SUB;
+            else if (elem.op == '*') op = OpCode::MUL;
+            else if (elem.op == '/') op = OpCode::DIV;
+
+            uint64_t target;
+
+            // Si es la última operación de la RPN, escribe en el destino final
+            if (idx == rpn.size() - 1)
             {
-                emitir_op(i, operadores[i] == '*' ? OpCode::MUL : OpCode::DIV);
-                // No incrementar: el nuevo operandos[i] es el resultado anterior
+                target = cod_destino;
             }
             else
-                ++i;
+            {
+                // 1. Registrar local en TablaSimbolos
+                std::string nombre_local = "__loc_" + std::to_string(local_counter++);
+                size_t id_local = simbolos.RegistrarLocal(nombre_local, tipo_destino, false);
+
+                // Guardar ID para hacerle free al terminar la operación
+                ids_locales_creadas.push_back(id_local);
+
+                // 2. EMITIR DECLARAR EN RUNTIME (Para que la VM aloje en el GC)
+                emit_u8(OpCode::DECLARAR);                             // Opcode DECLARAR
+                emit_u64(static_cast<uint64_t>(id_local));            // ID de la variable local
+                emit_u64(0);                                           // Valor inicial (0 / nulo)
+                emit_u8(byte_tipo);                                   // Flag de tipo (1, 2 o 4)
+
+                target = codificar_variable(static_cast<uint64_t>(id_local));
+            }
+
+            // 3. Emitir la operación matemática sobre la variable creada
+            emit_u8(op);
+            emit_u64(target);
+            emit_u64(src1);
+            emit_u64(src2);
+
+            pila_eval.push_back(target);
         }
     }
 
-    // Paso 2 — ADD y SUB  (menor precedencia, izquierda a derecha)
-    {
-        size_t i = 0;
-        while (i < operadores.size())
-        {
-            emitir_op(i, operadores[i] == '+' ? OpCode::ADD : OpCode::SUB);
-            // No incrementar: ídem
-        }
-    }
+    limpiar_locales();
 }
 
 void Analizador_Tokens_Compilacion::lifetime_guard(uint64_t id_variable)

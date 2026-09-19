@@ -99,6 +99,8 @@ struct TablaSimbolos {
 
     size_t RegistrarLocal(const std::string& nombre, Tipos type, bool es_constante);
 
+    void LimpiarLocales();
+
     void EliminarDeTabla(size_t id_variable);
 
     bool Es_Constante(std::string nombre);

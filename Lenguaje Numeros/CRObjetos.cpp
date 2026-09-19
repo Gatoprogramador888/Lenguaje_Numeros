@@ -62,6 +62,15 @@ size_t TablaSimbolos::RegistrarLocal(const std::string& nombre, Tipos type, bool
     return id;
 }
 
+void TablaSimbolos::LimpiarLocales()
+{
+    for (const auto& [nombre, contenido] : tabla_local)
+    {
+        free_list.push_back(contenido.id); // Reutiliza el ID para futuras operaciones
+    }
+    tabla_local.clear();
+}
+
 void TablaSimbolos::EliminarDeTabla(size_t id_variable)
 {
     //Buscar el objeto por si id
