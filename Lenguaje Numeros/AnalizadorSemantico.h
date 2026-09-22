@@ -15,6 +15,8 @@ class Analizador_Tokens_Compilacion : public Interfaz_Compilador
 {
 private:
     TablaSimbolos simbolos;
+    struct InstruccionTAC;
+    struct InstruccionDL;
 
 
     // ── helpers ──────────────────────────────────────────────────────────────
@@ -22,6 +24,9 @@ private:
     void Imprimir();
     void Pedir();
     void Entero_Decimal_Dinamico();
+    void Booleano();
+    std::vector<InstruccionTAC> SYOperacionBooleano(size_t& posicion, std::vector<InstruccionDL>* variables_locales_liberar);
+    void OperacionBooleana();
     void Operacion();
 
 	void lifetime_guard(uint64_t id_variable);

@@ -142,6 +142,7 @@ void GC::Alojar(size_t id, Informacion_Variable iv)
     case Tipos::ENTERO:   valor = InfInt(iv.valor);      break;
     case Tipos::DECIMAL:  valor = InfDec(iv.valor);      break;
     case Tipos::DINAMICO: valor = InfDinamico(iv.valor); break;
+    case Tipos::BOOL: valor = InfInt(iv.valor);
     }
     pool[id] = new Objeto(valor, iv.tipo, id);
 }
@@ -156,6 +157,7 @@ void GC::Actualizar(size_t id, InfDinamico valor)
 {
     switch (pool[id]->GetType()) {
     case Tipos::ENTERO:   pool[id]->SetValor(InfInt(valor.operator InfInt()));      break;
+    case Tipos::BOOL:   pool[id]->SetValor(InfInt(valor.operator InfInt()));      break;
     case Tipos::DECIMAL:  pool[id]->SetValor(InfDec(valor.operator InfDec()));      break;
     case Tipos::DINAMICO: pool[id]->SetValor(valor); break;
     }

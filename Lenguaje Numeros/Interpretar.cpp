@@ -104,6 +104,20 @@ void Interpretar::Ejecutar()
             break;
         }
 
+        case OpCode::EQUALS:
+        case OpCode::GREATER:
+        case OpCode::GREATER_THAN:
+        case OpCode::LESS:
+        case OpCode::LESS_THAN:
+        case OpCode::NOT_EQUALS:
+        case OpCode::OR:
+        case OpCode::AND:
+        case OpCode::NOT:
+        {
+            OperacionBooleana(static_cast<OpCode>(opcode));
+            break;
+        }
+
 		case OpCode::FREE:
 		{
             Liberar();
@@ -199,7 +213,11 @@ void Interpretar::Imprimir()
         }
         else {
             // Variable
-            std::cout << administrador.Obtener(valor_puro)->GetValorStr();
+            Objeto* elemento = administrador.Obtener(valor_puro);
+            std::string valor = elemento->GetValorStr();
+
+            std::cout << ((elemento->GetType() != Tipos::BOOL) ? valor
+                : (valor == "1" ? "true" : "false"));
         }
     }
     std::cout << "\n";
@@ -269,6 +287,74 @@ void Interpretar::Operacion(uint8_t opcode)
 	}
 	administrador.Actualizar(dest, resultado);
 
+}
+
+void Interpretar::OperacionBooleana(OpCode op)
+{
+    uint64_t dest = leer_u64(pc);
+    uint64_t src1 = leer_u64(pc);
+    uint64_t src2 = leer_u64(pc);
+
+    bool es_constante_src1 = (src1 & BIT_CONSTANTE) != 0;
+    bool es_constante_src2 = (src2 & BIT_CONSTANTE) != 0;
+    bool es_inline_src1 = (src1 & BIT_STRING) != 0;
+    bool es_inline_src2 = (src2 & BIT_STRING) != 0;
+    uint64_t posicion_puro_src1 = src1 & ~(BIT_CONSTANTE | BIT_STRING);
+    uint64_t posicion_puro_src2 = src2 & ~(BIT_CONSTANTE | BIT_STRING);
+
+    //Revisar si es constante o inline
+    InfDinamico vp1 = es_constante_src1 || es_inline_src1
+        ? InfDinamico(
+            es_constante_src1
+            ? tabla_CED[posicion_puro_src1]
+            : std::to_string(posicion_puro_src1)
+        )
+        : administrador.Obtener(posicion_puro_src1)->ObtenerComoDinamico();
+
+    InfDinamico vp2 = es_constante_src2 || es_inline_src2
+        ? InfDinamico(
+            es_constante_src2
+            ? tabla_CED[posicion_puro_src2]
+            : std::to_string(posicion_puro_src2)
+        )
+        : administrador.Obtener(posicion_puro_src2)->ObtenerComoDinamico();
+
+    InfDinamico resultado{};
+
+    switch (op)
+    {
+    case OpCode::EQUALS:
+        resultado = vp1 == vp2 ? 1 : 0;
+        break;
+    case OpCode::NOT_EQUALS:
+        resultado = vp1 != vp2 ? 1 : 0;
+        break;
+    case OpCode::GREATER:
+        resultado = vp1 > vp2 ? 1 : 0;
+        break;
+    case OpCode::GREATER_THAN:
+        resultado = vp1 >= vp2 ? 1 : 0;
+        break;
+    case OpCode::LESS:
+        resultado = vp1 < vp2 ? 1 : 0;
+        break;
+    case OpCode::LESS_THAN:
+        resultado = vp1 <= vp2 ? 1 : 0;
+        break;
+    case OpCode::OR:
+        resultado = vp1 == 1 || vp2 == 1 ? 1 : 0;
+        break;
+    case OpCode::AND:
+        resultado = vp1 == 1 && vp2 == 1 ? 1 : 0;
+        break;
+    case OpCode::NOT:
+        resultado = vp1 == 0? 1 : 0;
+        break;
+    default:
+        std::cerr << "Opcode de operación no reconocido: 0x" << std::hex << static_cast<int>(op) << std::dec << "\n";
+        return;
+    }
+    administrador.Actualizar(dest, resultado);
 }
 
 void Interpretar::Liberar()

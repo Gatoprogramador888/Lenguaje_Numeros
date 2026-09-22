@@ -55,11 +55,32 @@ print : $ "Contador tras ++: {contador}";
 operation : contador += 10;
 print : $ "Contador tras += 10: {contador}";
 
+bool: verdadero = true;
+print : $ "verdadero? {verdadero}";
+
+#bool: falso = not true;
+bool: falso = !true;
+print : $ "verdadero? {falso}";
+
+bool: contador_es_mayor_a_10 = contador > 10;
+print : $ "contador mayor a 10? {contador_es_mayor_a_10}";
+
+#operation: contador_es_mayor_a_10 = contador < 10;
+#print : $ "contador menor a 10? {contador_es_mayor_a_10}";
+
+bool: dentro_limite_contador = contador < 50 and contador > 10;
+print : $ "contador dentro del limite? {dentro_limite_contador}";
+
 operation : total = precio - descuento;
 print : $ "Total calculado (precio - descuento): {total}";
 
 operation : resultado = contador * 2 + limite / 4;
 print : $ "Resultado de expresion combinada: {resultado}";
+
+bool: iguales = verdadero == contador_es_mayor_a_10;
+print : $ "Verdadero y contador mayor a 10 iguales?: {iguales}";
+#operation: iguales = verdadero != contador_es_mayor_a_10;
+#print : $ "Verdadero y contador mayor a 10 no iguales?: {iguales}";
 
 # 4. Entrada de datos por teclado (input)
 print : $ "Ingrese un nuevo valor para la variable 'limite':";
@@ -69,6 +90,9 @@ print : $ "El nuevo limite ingresado es: {limite}";
 # Recalcular con el nuevo limite
 operation : resultado = limite + 5;
 print : $ "Nuevo resultado (limite + 5): {resultado}";
+
+bool: booleano_complejo = (contador < 50 and contador > 10) or (resultado >= 100 and resultado <= 200);
+print : $ "booleano complejo es true? {booleano_complejo}";
 
 # 5. Modificación de tipo dinamico y asignacion de null
 operation : estado = 99.9;

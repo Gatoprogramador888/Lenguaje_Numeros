@@ -10,7 +10,7 @@
 
 bool Tokenizador::Variable(const std::string& palabra)
 {
-    static const std::string TIPOS[] = { "int", "decimal", "dynamic", "const"};
+    static const std::string TIPOS[] = { "int", "decimal", "dynamic", "const", "bool"};
 
     for (const auto& tipo : TIPOS)
     {
@@ -20,6 +20,7 @@ bool Tokenizador::Variable(const std::string& palabra)
             else if (palabra == TIPOS[1]) token = Tokens::DECIMAL;
             else if (palabra == TIPOS[2]) token = Tokens::DINAMICO;
             else if (palabra == TIPOS[3]) token = Tokens::CONSTANTE;
+            else if (palabra == TIPOS[4]) token = Tokens::BOOL;
             return true;
         }
     }
@@ -94,6 +95,14 @@ std::map<std::string, Informacion> Tokenizador::Mapa_Informacion(
                 palabra == "*" || palabra == "/")
                 Recopilar_informacion(info[i], Tokens::OPERADOR);
             else if (palabra == "=")               Recopilar_informacion(info[i], Tokens::IGUAL);
+            else if (palabra == "<")               Recopilar_informacion(info[i], Tokens::MENORQUE);
+            else if (palabra == ">")               Recopilar_informacion(info[i], Tokens::MAYORQUE);
+            else if (palabra == "!")               Recopilar_informacion(info[i], Tokens::NEGAR);
+            else if (palabra == "and")               Recopilar_informacion(info[i], Tokens::AND);
+            else if (palabra == "or")               Recopilar_informacion(info[i], Tokens::OR);
+            else if (palabra == "not")               Recopilar_informacion(info[i], Tokens::NOT);
+            else if (palabra == "false")               Recopilar_informacion(info[i], Tokens::FALSE);
+            else if (palabra == "true")               Recopilar_informacion(info[i], Tokens::TRUE);
             else if (palabra == ":")               Recopilar_informacion(info[i], Tokens::DIVISOR);
             else if (palabra == "$")               Recopilar_informacion(info[i], Tokens::TEXTO);
             else if (palabra == "\"")
@@ -187,7 +196,8 @@ std::string Tokenizador::Get_Tipo(Tokens tok)
         "COMMAS", "END COMMAND", "SPACE",
         "QUOTATION MARKS",
         "RIGHT PARENTHESIS", "LEFT PARENTHESIS",
-        "VARIABLE", "EQUALS", "CHARACTER", "DIVIDER", "TEXT", "CONSTANT", "RIGHT_PARENTHESIS", "LEFT_PARENTHESIS"
+        "VARIABLE", "EQUALS", "CHARACTER", "DIVIDER", "TEXT", "CONSTANT", "RIGHT_PARENTHESIS", "LEFT_PARENTHESIS",
+        "BOOLEAN", "GREATER THAN", "LESS THAN", "AND", "OR", "NOT", "DENY"
     };
     static constexpr size_t N = sizeof(TIPOS) / sizeof(TIPOS[0]);
 
@@ -198,7 +208,7 @@ std::string Tokenizador::Get_Tipo(Tokens tok)
 std::string Tokenizador::Get_Tipo_Variable(Tipos tipo)
 {
 	static const std::string TIPOS[] = {
-		"INTERGER", "DECIMAL", "DYNAMIC"
+		"INTERGER", "DECIMAL", "DYNAMIC", "BOOLEAN"
 	};
 	static constexpr size_t N = sizeof(TIPOS) / sizeof(TIPOS[0]);
 	const auto idx = static_cast<size_t>(tipo);

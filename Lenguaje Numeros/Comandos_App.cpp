@@ -22,7 +22,7 @@ Comandos_App::Comandos_App(int argc, char** argv)
 
     //compile.Set_Compilar("prueba.crd", "a.crb");
 	//inter.Set_Interpretar("a.crb");
-    //return;
+    return;
 
     if (argc < 2)
     {

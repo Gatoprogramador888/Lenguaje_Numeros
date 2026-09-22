@@ -42,6 +42,8 @@ private:
 
     void Operacion(uint8_t opcode);
 
+    void OperacionBooleana(OpCode op);
+
     void Liberar();
 
 public:

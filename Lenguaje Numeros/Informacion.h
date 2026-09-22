@@ -11,15 +11,16 @@
 using namespace std;
 
 enum class Tokens {
-	NULO ,ENTERO, DECIMAL, DINAMICO, NUMERO,
+	NULO, ENTERO, DECIMAL, DINAMICO, NUMERO,
 	IMPRIMIR, PEDIR, OPERADOR, OPERACION,
-	COMAS, FIN_COMANDO,	ESPACIO, COMILLAS,
+	COMAS, FIN_COMANDO, ESPACIO, COMILLAS,
 	LLAVE_DERECHO, LLAVE_IZQUIERDO,
-	VARIABLE, IGUAL, CARACTER, DIVISOR, TEXTO, CONSTANTE, PARENTESIS_DERECHO, PARENTESIS_IZQUIERDO
+	VARIABLE, IGUAL, CARACTER, DIVISOR, TEXTO, CONSTANTE, PARENTESIS_DERECHO, PARENTESIS_IZQUIERDO,
+	BOOL, MAYORQUE, MENORQUE, AND, OR, NOT, NEGAR, TRUE, FALSE
 };
 
 enum class Tipos : int{
-	ENTERO = 1, DECIMAL = 2, DINAMICO = 4
+	ENTERO = 1, DECIMAL = 2, DINAMICO = 4, BOOL = 6
 };
 
 inline int operator&(Tipos a, Tipos b) {
@@ -29,6 +30,7 @@ inline int operator&(Tipos a, Tipos b) {
 constexpr uint8_t TIPO_ENTERO = 1;
 constexpr uint8_t TIPO_DECIMAL = 2;
 constexpr uint8_t TIPO_DINAMICO = 4;
+constexpr uint8_t TIPO_BOOL = 6;
 
 struct Informacion
 {
@@ -48,7 +50,7 @@ struct Informacion_Variable
 // Garantiza que cada OpCode ocupe exactamente 1 byte (uint8_t)
 enum class OpCode : uint8_t {
 	HALT = 0x00,
-	NOP = 0x01, 
+	NOP = 0x01,
 	DECLARAR = 0x02,  // Declarar variable
 	INPUT = 0x03, // Pedir
 	PRINT = 0x04, // Imprimir
@@ -59,6 +61,18 @@ enum class OpCode : uint8_t {
 	SUB = 0x0B, // Resta
 	MUL = 0x0C, // Multiplicación
 	DIV = 0x0D, // División
+
+	//Agregar condicionales
+	EQUALS = 0xA1, // ==
+	NOT = 0xA2, // NOT
+	GREATER = 0xA3, // >
+	LESS = 0xA4, // <
+	GREATER_THAN = 0xA5, // >=
+	LESS_THAN = 0xA6, // <=
+	NOT_EQUALS = 0xA7, // !=
+	OR = 0xA8, // or
+	AND = 0xA9, // and
+
 };
 
 constexpr const char magic[4] = { 'C', 'R', 'B', '\0' };
