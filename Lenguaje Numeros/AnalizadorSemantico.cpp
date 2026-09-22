@@ -864,7 +864,8 @@ void Analizador_Tokens_Compilacion::Booleano()
     std::vector<std::vector<InstruccionDL>> matriz_variables_liberar;
     std::vector<InstruccionDL> variables_liberar;
     Informacion_Variable_Bool variable;
-    bool ultimo_pusheado = false, ya_existe_global = false, ya_existe_local = false, es_constante = false;
+    bool ultimo_pusheado = false, ya_existe_global = false, ya_existe_local = false;
+    const bool es_constante = false;
     std::string tipo{};
 
     for (size_t posicion = 0; posicion < tokens.size(); posicion++)
@@ -874,12 +875,6 @@ void Analizador_Tokens_Compilacion::Booleano()
         switch (estado)
         {
         case Estados::INICIO:
-            if (tokens[posicion] == Tokens::CONSTANTE)
-            {
-                es_constante = true;
-                break;
-            }
-
             if (tokens[posicion] != Tokens::BOOL)
             {
                 error = "An identifier was expected..\nLine: "
@@ -1163,6 +1158,7 @@ std::vector<Analizador_Tokens_Compilacion::InstruccionTAC> Analizador_Tokens_Com
         else if (t == Tokens::NULO)
         {
             expresion_infix.push_back({ ElementoExpr::Tipo::OPERANDO, BIT_NULL, OpCode::ADD, 0, false });
+            break;
         }
         // 4. Operadores Relacionales y Lógicos (Sencillos y Compuestos)
         else
@@ -1395,66 +1391,17 @@ std::vector<Analizador_Tokens_Compilacion::InstruccionTAC> Analizador_Tokens_Com
     return instrucciones;
 }
 
-void Analizador_Tokens_Compilacion::OperacionBooleana()
+void Analizador_Tokens_Compilacion::DefinirTipoOperacion()
 {
-    throw std::runtime_error("Implementar operacion booleana");
-}
-
-// ═══════════════════════════════════════════════════════════════════════════════
-// Operacion
-// ═══════════════════════════════════════════════════════════════════════════════
-
-void Analizador_Tokens_Compilacion::Operacion()
-{
-    // ── Estados de la máquina de estados intacta ──────────────────────────────
-    enum class Estados {
-        INICIO, DIVISOR, ESPERA_VARIABLE, ESPERA_IGUAL,
-        ESPERA_NUMERO, ESPERA_OPERADOR, ESPERA_PARENTESIS_DERECHO, ESPERA_PARENTESIS_IZQUIERDO,
-        ESPERA_FIN_COMANDO, ERROR
+    enum class Estados
+    {
+        INICIO, DIVISOR, ESPERA_VARIABLE, OPERACION, ESPERA_FIN_COMANDO, ERROR
     };
-
+    
     Estados     estado = Estados::INICIO;
     Tipos       tipo_destino = Tipos::ENTERO;
     size_t      id_destino = SIZE_MAX;
-    uint8_t     parentesis_de_lado_izquierdo{ 0 };
 
-    // ── Estructuras para Shunting Yard ────────────────────────────────────────
-    struct ElementoExpr {
-        enum class Tipo { OPERANDO, OPERADOR, PARENTESIS_IZQ, PARENTESIS_DER } tipo;
-        uint64_t valor_codificado{ 0 };
-        char op{ 0 };
-    };
-
-    std::vector<ElementoExpr> expresion_infix;
-    bool inicio_con_operador{ false };
-
-    // ── Helper local: codifica un operando numérico ──────────────────────────
-    auto codificar_numero = [&](const std::string& lexema) -> uint64_t
-        {
-            const bool es_decimal = (lexema.find('.') != std::string::npos);
-
-            if (es_decimal)
-            {
-                size_t idx = obtener_o_agregar_constante(lexema);
-                return codificar_constante(static_cast<uint64_t>(idx));
-            }
-
-            try
-            {
-                uint64_t val = static_cast<uint64_t>(std::stoll(lexema));
-                if (val < (1ULL << 62))
-                    return codificar_inline_int(val);
-                size_t idx = obtener_o_agregar_constante(lexema);
-                return codificar_constante(static_cast<uint64_t>(idx));
-            }
-            catch (...)
-            {
-                size_t idx = obtener_o_agregar_constante(lexema);
-                return codificar_constante(static_cast<uint64_t>(idx));
-            }
-        };
-
-    // ── Recorrido FSM (Mantenida exactamente igual) ──────────────────────────
     for (size_t posicion = 0; posicion < tokens.size(); posicion++)
     {
         switch (estado)
@@ -1483,7 +1430,7 @@ void Analizador_Tokens_Compilacion::Operacion()
 
         case Estados::ESPERA_VARIABLE:
         {
-            estado = Estados::ESPERA_IGUAL;
+            estado = Estados::OPERACION;
 
             if (tokens[posicion] != Tokens::VARIABLE)
             {
@@ -1502,25 +1449,225 @@ void Analizador_Tokens_Compilacion::Operacion()
                 break;
             }
 
-            if (posicion + 1 < tokens.size())
-            {
-                inicio_con_operador = tokens[posicion + 1] == Tokens::OPERADOR;
-                estado = inicio_con_operador ? Estados::ESPERA_OPERADOR : Estados::ESPERA_IGUAL;
-            }
-            else
-            {
-                error = comandos[posicion] + " The operation is incomplete.\nLine: "
-                    + std::to_string(linea) + ", position: " + std::to_string(posiciones[posicion]) + ".\n";
-                estado = Estados::ERROR;
-                break;
-            }
-
             size_t pos = pos_segura(comandos[posicion], posicion);
             tipo_destino = simbolos.BuscarTipo(comandos[posicion]);
             id_destino = pos;
             break;
         }
+        case Estados::OPERACION:id_destino;
+            estado = Estados::ESPERA_FIN_COMANDO;
 
+            if (tipo_destino == Tipos::BOOL)
+            {
+                OperacionBooleana(posicion, id_destino, tipo_destino);
+                break;
+            }
+            Operacion(posicion, id_destino, tipo_destino);
+            break;
+        case Estados::ESPERA_FIN_COMANDO:
+            if (tokens[posicion] != Tokens::FIN_COMANDO)
+            {
+                error = "';' expected, not '" + comandos[posicion] + "'.\nLine: "
+                    + std::to_string(linea) + ", position: "
+                    + std::to_string(posiciones[posicion]) + ".\n";
+                estado = Estados::ERROR;
+            }
+            break;
+        case Estados::ERROR:
+            throw std::runtime_error(error.c_str());
+            break;
+        }
+    }
+}
+
+void Analizador_Tokens_Compilacion::OperacionBooleana(size_t& posicion_actual, size_t id, Tipos tipo)
+{
+    enum class Estados
+    {
+        ESPERA_IGUAL,
+        ESPERA_EXPRESION,
+        ESPERA_FIN_COMANDO,
+        ERROR
+    };
+
+    Estados     estado = Estados::ESPERA_IGUAL;
+    Tipos       tipo_destino = tipo;
+    size_t      id_destino = id;
+
+    std::vector<InstruccionTAC> instrucciones_condicionales;
+    std::vector<InstruccionDL>  variables_liberar;
+
+    for (size_t posicion = posicion_actual; posicion < tokens.size(); posicion++)
+    {
+        switch (estado)
+        {
+        case Estados::ESPERA_IGUAL:
+            if (tokens[posicion] != Tokens::IGUAL)
+            {
+                error = "'=' expected, not " + comandos[posicion] + ".\nLine: "
+                    + std::to_string(linea) + ", position: "
+                    + std::to_string(posiciones[posicion]) + ".\n";
+                estado = Estados::ERROR;
+                break;
+            }
+            estado = Estados::ESPERA_EXPRESION;
+            break;
+
+        case Estados::ESPERA_EXPRESION:
+
+            if (posicion + 1 >= tokens.size())
+            {
+                error = comandos[posicion] + " Incomplete expression.\n"
+                    + "Linea: " + std::to_string(linea) 
+                    + ", position: " + std::to_string(posiciones[posicion]) + ".\n";
+                estado = Estados::ERROR;
+            }
+
+            if (tokens[posicion] == Tokens::NULO && tokens[posicion + 1] != Tokens::FIN_COMANDO)
+            {
+                error = "';' expected, not" + comandos[posicion + 1] +".\n"
+                    + "Linea: " + std::to_string(linea)
+                    + ", position: " + std::to_string(posiciones[posicion + 1]) + ".\n";
+                estado = Estados::ERROR;
+            }
+
+            if (tokens[posicion] == Tokens::NULO)
+            {
+                instrucciones_condicionales.push_back({.op = OpCode::OR, 
+                    .destino = id_destino,
+                    .operando1 = BIT_NULL,
+                    .operando2 = 0});
+                estado = Estados::ESPERA_FIN_COMANDO;
+                break;
+            }
+
+            // Delegamos el análisis de la expresión al método Shunting Yard
+            instrucciones_condicionales = SYOperacionBooleano(posicion, &variables_liberar);
+
+            // Al salir de SYOperacionBooleano, 'posicion' queda en el token ANTERIOR al limitador.
+            // Con el posicion++ del ciclo for, el siguiente token evaluado será el FIN_COMANDO.
+            estado = Estados::ESPERA_FIN_COMANDO;
+            break;
+
+        case Estados::ESPERA_FIN_COMANDO:
+            if (tokens[posicion] != Tokens::FIN_COMANDO)
+            {
+                error = "';' expected, not '" + comandos[posicion] + "'.\nLine: "
+                    + std::to_string(linea) + ", position: "
+                    + std::to_string(posiciones[posicion]) + ".\n";
+                estado = Estados::ERROR;
+            }
+            posicion_actual = tokens.size() - 2;
+            break;
+
+        case Estados::ERROR:
+            throw std::runtime_error(error.c_str());
+        }
+    }
+
+    // ═════════════════════════════════════════════════════════════════════════
+    // EMISIÓN DE BYTECODE
+    // ═════════════════════════════════════════════════════════════════════════
+
+    if (instrucciones_condicionales.empty() || id_destino == SIZE_MAX)
+        return;
+
+    if (instrucciones_condicionales.size() == 1 && instrucciones_condicionales[0].operando1 == BIT_NULL)
+    {
+        // Emitir OpCode::FREE y marcar es_nulo = true en TablaSimbolos
+        lifetime_guard(codificar_variable(static_cast<uint64_t>(id_destino)));
+        return;
+    }
+
+    // Codificamos el ID de la variable de destino final
+    const uint64_t cod_destino = codificar_variable(static_cast<uint64_t>(id_destino));
+
+    for (size_t i = 0; i < instrucciones_condicionales.size(); i++)
+    {
+        auto& inst = instrucciones_condicionales[i];
+
+        // Reasignamos la última instrucción generada hacia nuestra variable final
+        if (i + 1 == instrucciones_condicionales.size())
+        {
+            inst.destino = cod_destino;
+        }
+
+        emit_u8(inst.op);            // OpCode (MAYOR, MENOR, AND, OR, ADD, etc.)
+        emit_u64(inst.destino);      // Destino (codificado)
+        emit_u64(inst.operando1);    // Operando 1
+        emit_u64(inst.operando2);    // Operando 2
+    }
+
+    // Limpieza dinámica en RAM: emitir OpCode::FREE para variables locales
+    for (const auto& var : variables_liberar)
+    {
+        emit_u8(OpCode::FREE);
+        emit_u64(static_cast<uint64_t>(var.destino_liberar));
+    }
+
+    // Limpiamos los registros de la tabla temporal del analizador
+    simbolos.LimpiarLocales();
+}
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// Operacion
+// ═══════════════════════════════════════════════════════════════════════════════
+
+void Analizador_Tokens_Compilacion::Operacion(size_t& posicion_actual, size_t id, Tipos tipo)
+{
+    // ── Estados de la máquina de estados intacta ──────────────────────────────
+    enum class Estados {
+        ESPERA_IGUAL,
+        ESPERA_NUMERO, ESPERA_OPERADOR, ESPERA_PARENTESIS_DERECHO, ESPERA_PARENTESIS_IZQUIERDO,
+        ESPERA_FIN_COMANDO, ERROR
+    };
+
+    Estados     estado = tokens[posicion_actual] == Tokens::IGUAL ? Estados::ESPERA_IGUAL : Estados::ESPERA_OPERADOR;
+    Tipos       tipo_destino = tipo;
+    size_t      id_destino = id;
+    uint8_t     parentesis_de_lado_izquierdo{ 0 };
+
+    // ── Estructuras para Shunting Yard ────────────────────────────────────────
+    struct ElementoExpr {
+        enum class Tipo { OPERANDO, OPERADOR, PARENTESIS_IZQ, PARENTESIS_DER } tipo;
+        uint64_t valor_codificado{ 0 };
+        char op{ 0 };
+    };
+
+    std::vector<ElementoExpr> expresion_infix;
+    bool inicio_con_operador{ tokens[posicion_actual] == Tokens::OPERADOR };
+
+    // ── Helper local: codifica un operando numérico ──────────────────────────
+    auto codificar_numero = [&](const std::string& lexema) -> uint64_t
+        {
+            const bool es_decimal = (lexema.find('.') != std::string::npos);
+
+            if (es_decimal)
+            {
+                size_t idx = obtener_o_agregar_constante(lexema);
+                return codificar_constante(static_cast<uint64_t>(idx));
+            }
+
+            try
+            {
+                uint64_t val = static_cast<uint64_t>(std::stoll(lexema));
+                if (val < (1ULL << 62))
+                    return codificar_inline_int(val);
+                size_t idx = obtener_o_agregar_constante(lexema);
+                return codificar_constante(static_cast<uint64_t>(idx));
+            }
+            catch (...)
+            {
+                size_t idx = obtener_o_agregar_constante(lexema);
+                return codificar_constante(static_cast<uint64_t>(idx));
+            }
+        };
+
+    // ── Recorrido FSM (Mantenida exactamente igual) ──────────────────────────
+    for (size_t posicion = posicion_actual; posicion < tokens.size(); posicion++)
+    {
+        switch (estado)
+        {
         case Estados::ESPERA_IGUAL:
             inicio_con_operador = false;
             if (tokens[posicion] != Tokens::IGUAL)
@@ -1676,6 +1823,7 @@ void Analizador_Tokens_Compilacion::Operacion()
             {
                 uint64_t valor = BIT_NULL;
                 expresion_infix.push_back({ ElementoExpr::Tipo::OPERANDO, valor, 0 });
+                estado = Estados::ESPERA_FIN_COMANDO;
             }
             else if (tokens[posicion] == Tokens::NUMERO)
             {
@@ -1800,13 +1948,7 @@ void Analizador_Tokens_Compilacion::Operacion()
         }
 
         case Estados::ESPERA_FIN_COMANDO:
-            if (tokens[posicion] != Tokens::FIN_COMANDO)
-            {
-                error = "';' expected, not '" + comandos[posicion] + "'.\nLine: "
-                    + std::to_string(linea) + ", position: "
-                    + std::to_string(posiciones[posicion]) + ".\n";
-                estado = Estados::ERROR;
-            }
+            posicion_actual = tokens.size() - 2;
             break;
 
         case Estados::ERROR:
@@ -2102,9 +2244,9 @@ void Analizador_Tokens_Compilacion::Inicio_analizacion(std::map<std::string, Inf
     case Tokens::CONSTANTE:
     case Tokens::ENTERO:
     case Tokens::DECIMAL:
-    case Tokens::DINAMICO:                             Entero_Decimal_Dinamico(); break;
-    case Tokens::BOOL:                                 Booleano(); break;
-    case Tokens::OPERACION:                            Operacion();              break;
+    case Tokens::DINAMICO:                             Entero_Decimal_Dinamico();break;
+    case Tokens::BOOL:                                 Booleano();               break;
+    case Tokens::OPERACION:                            DefinirTipoOperacion();   break;
     default:
 		archivo_a_compilar.close();
         error = comandos[0] + " It is not a keyword.\nLine: "

@@ -26,8 +26,9 @@ private:
     void Entero_Decimal_Dinamico();
     void Booleano();
     std::vector<InstruccionTAC> SYOperacionBooleano(size_t& posicion, std::vector<InstruccionDL>* variables_locales_liberar);
-    void OperacionBooleana();
-    void Operacion();
+    void DefinirTipoOperacion();
+    void OperacionBooleana(size_t& posicion_actual, size_t id, Tipos tipo);
+    void Operacion(size_t& posicion_actual, size_t id, Tipos tipo);
 
 	void lifetime_guard(uint64_t id_variable);
 

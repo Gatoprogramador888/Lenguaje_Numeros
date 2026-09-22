@@ -39,7 +39,8 @@ size_t TablaSimbolos::Registrar(const std::string& nombre, Tipos type, bool es_c
     tabla[nombre] = Contenido{
     .id = id,
     .type = type,
-    .es_constante = es_constante
+    .es_constante = es_constante,
+    .es_nulo = false
     };
     return id;
 }
@@ -75,8 +76,15 @@ void TablaSimbolos::EliminarDeTabla(size_t id_variable)
 {
     //Buscar el objeto por si id
     auto it = std::find_if(tabla.begin(), tabla.end(), [id_variable](const auto& pair) {
-        return pair.second.id == id_variable;
+        return pair.second.id == id_variable && !pair.second.es_nulo;
         });
+
+    if (it == tabla.end())
+    {
+        it = std::find_if(tabla_local.begin(), tabla_local.end(), [id_variable](const auto& pair) {
+            return pair.second.id == id_variable;
+            });
+    }
 
     it->second.es_nulo = true;
 }

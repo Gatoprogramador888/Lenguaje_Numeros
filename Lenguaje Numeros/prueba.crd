@@ -58,15 +58,20 @@ print : $ "Contador tras += 10: {contador}";
 bool: verdadero = true;
 print : $ "verdadero? {verdadero}";
 
-#bool: falso = not true;
-bool: falso = !true;
-print : $ "verdadero? {falso}";
+operation: verdadero = not true;
+print : $ "verdadero? {verdadero}";
+
+operation: verdadero = true;
+print : $ "Regresando valor de verdadero a {verdadero}";
+
+#operation: verdadero = null;#Error
+#print : $ "Liberando verdadero";
 
 bool: contador_es_mayor_a_10 = contador > 10;
 print : $ "contador mayor a 10? {contador_es_mayor_a_10}";
 
-#operation: contador_es_mayor_a_10 = contador < 10;
-#print : $ "contador menor a 10? {contador_es_mayor_a_10}";
+operation: contador_es_mayor_a_10 = contador < 10;
+print : $ "contador menor a 10? {contador_es_mayor_a_10}";
 
 bool: dentro_limite_contador = contador < 50 and contador > 10;
 print : $ "contador dentro del limite? {dentro_limite_contador}";
@@ -79,8 +84,9 @@ print : $ "Resultado de expresion combinada: {resultado}";
 
 bool: iguales = verdadero == contador_es_mayor_a_10;
 print : $ "Verdadero y contador mayor a 10 iguales?: {iguales}";
-#operation: iguales = verdadero != contador_es_mayor_a_10;
-#print : $ "Verdadero y contador mayor a 10 no iguales?: {iguales}";
+
+operation: iguales = verdadero != contador_es_mayor_a_10;
+print : $ "Verdadero y contador mayor a 10 no iguales?: {iguales}";
 
 # 4. Entrada de datos por teclado (input)
 print : $ "Ingrese un nuevo valor para la variable 'limite':";

@@ -21,7 +21,7 @@ Comandos_App::Comandos_App(int argc, char** argv)
     //   argv[3] = archivo 2   (solo para compilar / compilar_I)
 
     //compile.Set_Compilar("prueba.crd", "a.crb");
-	//inter.Set_Interpretar("a.crb");
+	inter.Set_Interpretar("a.crb");
     return;
 
     if (argc < 2)
